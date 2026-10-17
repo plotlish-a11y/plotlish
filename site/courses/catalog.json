@@ -1,0 +1,21 @@
+{
+  "schema_version": "ers-catalog-v1",
+  "lessons": [
+    {
+      "lesson_id": "everyone-has-a-mission-01",
+      "book_id": "everyone-has-a-mission",
+      "series_id": "english-through-stories",
+      "chapter": "01",
+      "episode_number": 1,
+      "title": "Everyone Has a Mission",
+      "subtitle": "重生后，我看见了反派的系统",
+      "level": "B1",
+      "level_note": "难度参考：B1；尚未经过 CEFR 标准化验证",
+      "series": "English Through Stories",
+      "synopsis": "一杯咖啡、一套任务系统，和一次意外的反击。",
+      "genre": "SYSTEM THRILLER",
+      "sentences_count": 63,
+      "url": "courses/everyone-has-a-mission-01/01.json"
+    }
+  ]
+}

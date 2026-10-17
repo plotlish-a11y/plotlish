@@ -1,0 +1,35 @@
+name: Deploy to Cloudflare Pages
+
+# push main → 自动上线。也可在 Actions 页面手动触发。
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# 同一分支上一次只跑一个 deploy
+concurrency:
+  group: pages-deploy-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: 14 项 Node 单元测试
+        run: node --test tests/test_data.mjs tests/test_publisher.mjs tests/test_separation.mjs
+
+      - name: 静态网站完整性检查（catalog + 所有课程 JSON）
+        run: node tools/check-site.mjs
+
+      - name: 部署到 Cloudflare Pages
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: npx wrangler pages deploy site --project-name=plotlish

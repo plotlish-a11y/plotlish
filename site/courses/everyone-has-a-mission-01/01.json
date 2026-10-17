@@ -1,0 +1,583 @@
+{
+  "schema_version": "ers-public-v1",
+  "lesson_id": "everyone-has-a-mission-01",
+  "revision": "965f7fd",
+  "series_id": "english-through-stories",
+  "book_id": "everyone-has-a-mission",
+  "series": "English Through Stories",
+  "title": "Everyone Has a Mission",
+  "subtitle": "重生后，我看见了反派的系统",
+  "chapter": "01",
+  "episode_number": 1,
+  "level": "B1",
+  "level_note": "难度参考：B1；尚未经过 CEFR 标准化验证",
+  "synopsis": "一杯咖啡、一套任务系统，和一次意外的反击。",
+  "genre": "SYSTEM THRILLER",
+  "sentences": [
+    {
+      "sentence_id": "001-2d184162",
+      "paragraph": 0,
+      "english": "The last thing Nora remembered was the taste of bitter coffee.",
+      "chinese": "诺拉最后记得的，是那杯苦咖啡的味道。"
+    },
+    {
+      "sentence_id": "002-247c8f66",
+      "paragraph": 0,
+      "english": "Then there was darkness.",
+      "chinese": "接着便是一片黑暗。"
+    },
+    {
+      "sentence_id": "003-83b2e4f7",
+      "paragraph": 0,
+      "english": "Now she was sitting in the same café, on the same rainy Monday, with Maya smiling across the table.",
+      "chinese": "现在她又坐在同一家咖啡馆里，同一个下雨的星期一，玛雅正坐在对面朝她微笑。"
+    },
+    {
+      "sentence_id": "004-5b942ee",
+      "paragraph": 1,
+      "english": "\"Drink it before it gets cold,\" Maya said.",
+      "chinese": "“趁热喝吧。”玛雅说。"
+    },
+    {
+      "sentence_id": "005-eb96ca78",
+      "paragraph": 1,
+      "english": "Nora stared at the cup.",
+      "chinese": "诺拉盯着杯子。"
+    },
+    {
+      "sentence_id": "006-86724b2c",
+      "paragraph": 1,
+      "english": "In her first life, she had drunk it, collapsed on the train, and never woken up.",
+      "chinese": "上一世，她喝下咖啡，在火车上倒下，再也没醒来。"
+    },
+    {
+      "sentence_id": "007-a6791e2",
+      "paragraph": 2,
+      "english": "A transparent blue box appeared above Maya's head.",
+      "chinese": "玛雅头顶突然出现一个半透明的蓝色框。"
+    },
+    {
+      "sentence_id": "008-894d57ec",
+      "paragraph": 2,
+      "english": "[MISSION 014: Make Nora finish the coffee.]",
+      "chinese": "【任务014：让诺拉喝完咖啡。】"
+    },
+    {
+      "sentence_id": "009-d19460e4",
+      "paragraph": 2,
+      "english": "[REWARD: 500 POINTS.]",
+      "chinese": "【奖励：500积分。】"
+    },
+    {
+      "sentence_id": "010-42fc84ce",
+      "paragraph": 2,
+      "english": "Nora blinked.",
+      "chinese": "诺拉眨了眨眼。"
+    },
+    {
+      "sentence_id": "011-139b1ba8",
+      "paragraph": 2,
+      "english": "The words remained.",
+      "chinese": "那些字还在那里。"
+    },
+    {
+      "sentence_id": "012-2641992d",
+      "paragraph": 3,
+      "english": "She could see the system.",
+      "chinese": "她竟然能看见系统。"
+    },
+    {
+      "sentence_id": "013-4b1e816c",
+      "paragraph": 3,
+      "english": "But why was the task about her?",
+      "chinese": "但为什么任务目标是她自己？"
+    },
+    {
+      "sentence_id": "014-3f42d0f5",
+      "paragraph": 4,
+      "english": "Maya pushed the cup closer.",
+      "chinese": "玛雅把杯子往前推了推。"
+    },
+    {
+      "sentence_id": "015-4adcb229",
+      "paragraph": 4,
+      "english": "\"You look pale.",
+      "chinese": "“你脸色好白。"
+    },
+    {
+      "sentence_id": "016-154869b7",
+      "paragraph": 4,
+      "english": "Are you okay?\"",
+      "chinese": "你还好吗？”"
+    },
+    {
+      "sentence_id": "017-51ecc6bf",
+      "paragraph": 4,
+      "english": "\"Perfect,\" Nora said.",
+      "chinese": "“好得很。”诺拉说。"
+    },
+    {
+      "sentence_id": "018-623672aa",
+      "paragraph": 4,
+      "english": "\"You first.\"",
+      "chinese": "“你先喝。”"
+    },
+    {
+      "sentence_id": "019-2d6fa9af",
+      "paragraph": 5,
+      "english": "Maya's smile twitched.",
+      "chinese": "玛雅的笑容僵了一下。"
+    },
+    {
+      "sentence_id": "020-80727816",
+      "paragraph": 5,
+      "english": "\"What?\"",
+      "chinese": "“什么？”"
+    },
+    {
+      "sentence_id": "021-ab0b5ac5",
+      "paragraph": 5,
+      "english": "\"Take a sip.",
+      "chinese": "“喝一口。"
+    },
+    {
+      "sentence_id": "022-7480d7e2",
+      "paragraph": 5,
+      "english": "I want to know if it's too sweet.\"",
+      "chinese": "我想知道它是不是太甜。”"
+    },
+    {
+      "sentence_id": "023-34de8c84",
+      "paragraph": 5,
+      "english": "\"I already had mine.\"",
+      "chinese": "“我已经喝过我的那杯了。”"
+    },
+    {
+      "sentence_id": "024-bf91f265",
+      "paragraph": 5,
+      "english": "\"Then you won't mind another one.\"",
+      "chinese": "“那再喝一口也没关系吧。”"
+    },
+    {
+      "sentence_id": "025-58795185",
+      "paragraph": 6,
+      "english": "For a second, Maya looked toward the door.",
+      "chinese": "玛雅朝门口瞥了一眼。"
+    },
+    {
+      "sentence_id": "026-e4334929",
+      "paragraph": 6,
+      "english": "A man near the window raised his phone.",
+      "chinese": "窗边一个男人举起了手机。"
+    },
+    {
+      "sentence_id": "027-6eeb1b46",
+      "paragraph": 6,
+      "english": "Another blue box appeared above his head.",
+      "chinese": "另一块蓝色任务框出现在他头顶。"
+    },
+    {
+      "sentence_id": "028-506a1c3b",
+      "paragraph": 6,
+      "english": "[MISSION 015: Record Nora drinking the coffee.]",
+      "chinese": "【任务015：拍下诺拉喝咖啡的视频。】"
+    },
+    {
+      "sentence_id": "029-5730bf0f",
+      "paragraph": 6,
+      "english": "[REWARD: 200 POINTS.]",
+      "chinese": "【奖励：200积分。】"
+    },
+    {
+      "sentence_id": "030-cc897c67",
+      "paragraph": 7,
+      "english": "Nora's hands went cold.",
+      "chinese": "诺拉只觉得手脚发凉。"
+    },
+    {
+      "sentence_id": "031-da411403",
+      "paragraph": 7,
+      "english": "They were working together.",
+      "chinese": "他们是一伙的。"
+    },
+    {
+      "sentence_id": "032-d4fdc8d1",
+      "paragraph": 7,
+      "english": "At least, they thought they were.",
+      "chinese": "至少，他们自己这么以为。"
+    },
+    {
+      "sentence_id": "033-17cac754",
+      "paragraph": 8,
+      "english": "Nora raised her cup.",
+      "chinese": "诺拉举起杯子。"
+    },
+    {
+      "sentence_id": "034-16307890",
+      "paragraph": 8,
+      "english": "Maya relaxed.",
+      "chinese": "玛雅松了口气。"
+    },
+    {
+      "sentence_id": "035-3cfa13d6",
+      "paragraph": 8,
+      "english": "The man angled his camera toward her.",
+      "chinese": "那个男人把摄像头对准她。"
+    },
+    {
+      "sentence_id": "036-2cd5dc00",
+      "paragraph": 8,
+      "english": "Nora tilted the cup, then poured the coffee into the plant beside her.",
+      "chinese": "诺拉倾斜杯子，把咖啡倒进旁边的盆栽。"
+    },
+    {
+      "sentence_id": "037-2e8a805f",
+      "paragraph": 8,
+      "english": "\"Oops,\" she said.",
+      "chinese": "“哎呀。”她说。"
+    },
+    {
+      "sentence_id": "038-1b0477b7",
+      "paragraph": 9,
+      "english": "Both boxes flashed red.",
+      "chinese": "两个任务框同时闪起红光。"
+    },
+    {
+      "sentence_id": "039-585bcd08",
+      "paragraph": 9,
+      "english": "[MISSION FAILED.]",
+      "chinese": "【任务失败。】"
+    },
+    {
+      "sentence_id": "040-2f966b9f",
+      "paragraph": 9,
+      "english": "[COMPENSATION RULE ACTIVATED: TARGET RESISTED AN UNDISCLOSED TASK.]",
+      "chinese": "【补偿规则已触发：目标人物抵抗了未公开的任务。】"
+    },
+    {
+      "sentence_id": "041-e762b3a5",
+      "paragraph": 9,
+      "english": "[500 POINTS TRANSFERRED TO TARGET.]",
+      "chinese": "【500积分已转给目标人物。】"
+    },
+    {
+      "sentence_id": "042-f68a8682",
+      "paragraph": 9,
+      "english": "[200 POINTS TRANSFERRED TO TARGET.]",
+      "chinese": "【200积分已转给目标人物。】"
+    },
+    {
+      "sentence_id": "043-8f89474",
+      "paragraph": 10,
+      "english": "A third box opened in front of Nora.",
+      "chinese": "第三个任务框出现在诺拉面前。"
+    },
+    {
+      "sentence_id": "044-ccad18ad",
+      "paragraph": 10,
+      "english": "[BALANCE: 700 POINTS.]",
+      "chinese": "【余额：700积分。】"
+    },
+    {
+      "sentence_id": "045-1d3d62cc",
+      "paragraph": 10,
+      "english": "[WELCOME TO THE STORE.]",
+      "chinese": "【欢迎进入商店。】"
+    },
+    {
+      "sentence_id": "046-cefb59e6",
+      "paragraph": 11,
+      "english": "Nora nearly laughed.",
+      "chinese": "诺拉差点笑出声。"
+    },
+    {
+      "sentence_id": "047-1d9e2a1e",
+      "paragraph": 11,
+      "english": "She had never been a player.",
+      "chinese": "她从来就不是玩家。"
+    },
+    {
+      "sentence_id": "048-f1a040e2",
+      "paragraph": 11,
+      "english": "She was the target.",
+      "chinese": "她是任务目标。"
+    },
+    {
+      "sentence_id": "049-1b03d86f",
+      "paragraph": 11,
+      "english": "And apparently the system paid targets who refused to cooperate.",
+      "chinese": "而现在看来，目标人物拒绝配合，系统反而会付给她积分。"
+    },
+    {
+      "sentence_id": "050-4eb30f5e",
+      "paragraph": 12,
+      "english": "Maya grabbed her wrist.",
+      "chinese": "玛雅一把抓住她的手腕。"
+    },
+    {
+      "sentence_id": "051-cd65f9ef",
+      "paragraph": 12,
+      "english": "\"What did you do?\"",
+      "chinese": "“你干了什么？”"
+    },
+    {
+      "sentence_id": "052-453b0019",
+      "paragraph": 12,
+      "english": "Nora pulled her hand away.",
+      "chinese": "诺拉甩开她的手。"
+    },
+    {
+      "sentence_id": "053-90c2ba1b",
+      "paragraph": 12,
+      "english": "\"Nothing,\" she said.",
+      "chinese": "“什么也没干。”她说。"
+    },
+    {
+      "sentence_id": "054-59ba8035",
+      "paragraph": 12,
+      "english": "\"You should check your account.\"",
+      "chinese": "“你最好查查自己的账户。”"
+    },
+    {
+      "sentence_id": "055-acd0eea3",
+      "paragraph": 13,
+      "english": "Maya's face drained of color.",
+      "chinese": "玛雅的脸一下子没了血色。"
+    },
+    {
+      "sentence_id": "056-1d0dc865",
+      "paragraph": 13,
+      "english": "Behind her, the man's phone buzzed.",
+      "chinese": "她身后那个男人的手机响了。"
+    },
+    {
+      "sentence_id": "057-e4aac6c0",
+      "paragraph": 13,
+      "english": "Nora saw a new message rise above his head.",
+      "chinese": "诺拉看见他的头顶又浮现出一条消息。"
+    },
+    {
+      "sentence_id": "058-7a92fed7",
+      "paragraph": 13,
+      "english": "[URGENT MISSION: ELIMINATE THE TARGET BEFORE MIDNIGHT.]",
+      "chinese": "【紧急任务：午夜前清除目标人物。】"
+    },
+    {
+      "sentence_id": "059-df53b04c",
+      "paragraph": 13,
+      "english": "[REWARD: 50,000 POINTS.]",
+      "chinese": "【奖励：50000积分。】"
+    },
+    {
+      "sentence_id": "060-e46e2881",
+      "paragraph": 14,
+      "english": "Nora stopped smiling.",
+      "chinese": "诺拉笑不出来了。"
+    },
+    {
+      "sentence_id": "061-3c998231",
+      "paragraph": 15,
+      "english": "Then another message appeared, this time only in front of her.",
+      "chinese": "然后另一条消息出现了，这次只有她能看到。"
+    },
+    {
+      "sentence_id": "062-a2f2907c",
+      "paragraph": 15,
+      "english": "[SECRET MISSION UNLOCKED.]",
+      "chinese": "【秘密任务已解锁。】"
+    },
+    {
+      "sentence_id": "063-4a4c378c",
+      "paragraph": 15,
+      "english": "[MAKE THE HUNTER ASK FOR MERCY.]",
+      "chinese": "【让猎人亲口求饶。】"
+    }
+  ],
+  "annotations": [
+    {
+      "annotation_id": "n01",
+      "sentence_id": "001-2d184162",
+      "phrase": "taste of bitter coffee",
+      "kind": "phrase",
+      "meaning": "苦咖啡的味道",
+      "explain": "taste of + 食物/饮料，描写回忆中的味觉。",
+      "example": "I still remember the taste of that tea."
+    },
+    {
+      "annotation_id": "n02",
+      "sentence_id": "006-86724b2c",
+      "phrase": "In her first life",
+      "kind": "phrase",
+      "meaning": "在她的上一世",
+      "explain": "重生小说中用来对比两个不同的人生阶段。",
+      "example": "In her first life, she never met him."
+    },
+    {
+      "annotation_id": "n03",
+      "sentence_id": "007-a6791e2",
+      "phrase": "transparent",
+      "kind": "word",
+      "meaning": "透明的",
+      "explain": "A transparent screen = 透明的屏幕。",
+      "example": "The glass is almost transparent."
+    },
+    {
+      "annotation_id": "n04",
+      "sentence_id": "006-86724b2c",
+      "phrase": "collapsed",
+      "kind": "word",
+      "meaning": "倒下；昏倒",
+      "explain": "collapse 常描述突然失去支撑或倒下。",
+      "example": "He collapsed on the floor."
+    },
+    {
+      "annotation_id": "n05",
+      "sentence_id": "021-ab0b5ac5",
+      "phrase": "Take a sip",
+      "kind": "phrase",
+      "meaning": "喝一小口",
+      "explain": "take a sip of coffee = 喝一小口咖啡。",
+      "example": "She took a sip of water."
+    },
+    {
+      "annotation_id": "n06",
+      "sentence_id": "025-58795185",
+      "phrase": "looked toward the door",
+      "kind": "phrase",
+      "meaning": "朝门口望去",
+      "explain": "look toward 表示看向某个方向。",
+      "example": "She looked toward the window."
+    },
+    {
+      "annotation_id": "n07",
+      "sentence_id": "035-3cfa13d6",
+      "phrase": "angled his camera toward her",
+      "kind": "phrase",
+      "meaning": "把摄像头转向她",
+      "explain": "angle 可作动词，表示调整方向或角度。",
+      "example": "He angled the mirror toward the light."
+    },
+    {
+      "annotation_id": "n08",
+      "sentence_id": "036-2cd5dc00",
+      "phrase": "poured the coffee",
+      "kind": "phrase",
+      "meaning": "把咖啡倒了出去",
+      "explain": "pour 强调液体连续流出。",
+      "example": "She poured the milk into a glass."
+    },
+    {
+      "annotation_id": "n09",
+      "sentence_id": "040-2f966b9f",
+      "phrase": "COMPENSATION",
+      "kind": "word",
+      "meaning": "补偿；赔偿",
+      "explain": "在系统提示中指因规则触发而获得的补偿。",
+      "example": "She asked for compensation."
+    },
+    {
+      "annotation_id": "n10",
+      "sentence_id": "048-f1a040e2",
+      "phrase": "target",
+      "kind": "word",
+      "meaning": "目标；被针对的人",
+      "explain": "系统把 Nora 当作任务目标，不是执行者。",
+      "example": "She was the target of the plan."
+    },
+    {
+      "annotation_id": "n11",
+      "sentence_id": "049-1b03d86f",
+      "phrase": "apparently",
+      "kind": "word",
+      "meaning": "看来；显然",
+      "explain": "表示根据目前获得的信息作出推断。",
+      "example": "Apparently, the meeting was canceled."
+    },
+    {
+      "annotation_id": "n12",
+      "sentence_id": "055-acd0eea3",
+      "phrase": "drained of color",
+      "kind": "phrase",
+      "meaning": "脸色惨白；失去血色",
+      "explain": "形容惊吓或紧张时面色突然变化。",
+      "example": "His face drained of color."
+    },
+    {
+      "annotation_id": "n13",
+      "sentence_id": "058-7a92fed7",
+      "phrase": "ELIMINATE",
+      "kind": "word",
+      "meaning": "清除；消灭",
+      "explain": "系统任务中具有威胁意味。",
+      "example": "The company tried to eliminate waste."
+    },
+    {
+      "annotation_id": "n14",
+      "sentence_id": "058-7a92fed7",
+      "phrase": "BEFORE MIDNIGHT",
+      "kind": "phrase",
+      "meaning": "午夜之前",
+      "explain": "before 加时间，表示截止时间之前。",
+      "example": "Be home before midnight."
+    },
+    {
+      "annotation_id": "n15",
+      "sentence_id": "063-4a4c378c",
+      "phrase": "ASK FOR MERCY",
+      "kind": "phrase",
+      "meaning": "求饶",
+      "explain": "表示请求对方停止惩罚或伤害。",
+      "example": "He begged for mercy."
+    }
+  ],
+  "cards": [
+    {
+      "w": "in her first life",
+      "zh": "在她的上一世",
+      "quote": "In her first life, she had drunk it, collapsed on the train, and never woken up.",
+      "ex": "In my first life, I trusted everyone.",
+      "tip": "用于重生题材；英语中 first life 比 previous lifetime 更直观。"
+    },
+    {
+      "w": "take a sip",
+      "zh": "喝一小口",
+      "quote": "Take a sip.",
+      "ex": "Take a sip and tell me what you think.",
+      "tip": "sip 指一小口；take a sip of coffee/tea 都很常见。"
+    },
+    {
+      "w": "went cold",
+      "zh": "突然感到冰凉／害怕",
+      "quote": "Nora's hands went cold.",
+      "ex": "My blood went cold when I read the note.",
+      "tip": "go + 形容词表示状态变化，这里表现人物惊恐。"
+    },
+    {
+      "w": "apparently",
+      "zh": "看来；显然（根据所见推断）",
+      "quote": "And apparently the system paid targets who refused to cooperate.",
+      "ex": "Apparently, nobody told her the truth.",
+      "tip": "根据现有证据判断，不代表百分之百确定。"
+    },
+    {
+      "w": "ask for mercy",
+      "zh": "求饶",
+      "quote": "[MAKE THE HUNTER ASK FOR MERCY.]",
+      "ex": "He asked for mercy, but she walked away.",
+      "tip": "ask for mercy 常见于戏剧性情节，语气强烈。"
+    }
+  ],
+  "grammar": {
+    "label": "PAST PERFECT",
+    "term": "had drunk it",
+    "meaning": "过去完成时：表示更早发生的经历",
+    "quote": "In her first life, she had drunk it, collapsed on the train, and never woken up.",
+    "explain": "叙述主角重生后的现在场景时使用一般过去时；回顾更早的上一世遭遇时，可用 had + 过去分词。",
+    "example": "She had already seen the message before he arrived."
+  },
+  "practice": {
+    "question": "How did Nora turn the system against Maya?",
+    "help": "Retell the coffee scene in 60 seconds. Explain the loophole in your own words."
+  },
+  "audio": null
+}
