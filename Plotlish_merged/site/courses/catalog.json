@@ -1,0 +1,69 @@
+{
+  "schema_version": "ers-catalog-v1",
+  "lessons": [
+    {
+      "lesson_id": "everyone-has-a-mission-01",
+      "book_id": "everyone-has-a-mission",
+      "series_id": "english-through-stories",
+      "chapter": "01",
+      "episode_number": 1,
+      "title": "Everyone Has a Mission",
+      "subtitle": "重生后，我看见了反派的系统",
+      "level": "B1",
+      "level_note": "难度参考：B1；尚未经过 CEFR 标准化验证",
+      "series": "English Through Stories",
+      "synopsis": "一杯咖啡、一套任务系统，和一次意外的反击。",
+      "genre": "SYSTEM THRILLER",
+      "sentences_count": 63,
+      "url": "courses/everyone-has-a-mission-01/01.json"
+    },
+    {
+      "lesson_id": "last-platform-01",
+      "book_id": "the-last-platform",
+      "series_id": "plotlish-originals",
+      "chapter": "01",
+      "episode_number": 1,
+      "title": "The Last Platform",
+      "subtitle": "一条没有署名的短信",
+      "level": "A2",
+      "level_note": "难度参考：A2；尚未经过 CEFR 标准化验证",
+      "series": "Plotlish Originals",
+      "synopsis": "A quiet train station, a mysterious message, and a choice that may change Lena’s life.",
+      "genre": "MYSTERY",
+      "sentences_count": 25,
+      "url": "courses/last-platform-01/01.json"
+    },
+    {
+      "lesson_id": "last-platform-02",
+      "book_id": "the-last-platform",
+      "series_id": "plotlish-originals",
+      "chapter": "02",
+      "episode_number": 2,
+      "title": "The Last Platform",
+      "subtitle": "蓝色雨伞",
+      "level": "A2",
+      "level_note": "难度参考：A2；尚未经过 CEFR 标准化验证",
+      "series": "Plotlish Originals",
+      "synopsis": "A quiet train station, a mysterious message, and a choice that may change Lena’s life.",
+      "genre": "MYSTERY",
+      "sentences_count": 24,
+      "url": "courses/last-platform-02/02.json"
+    },
+    {
+      "lesson_id": "last-platform-03",
+      "book_id": "the-last-platform",
+      "series_id": "plotlish-originals",
+      "chapter": "03",
+      "episode_number": 3,
+      "title": "The Last Platform",
+      "subtitle": "二十七号储物柜",
+      "level": "A2",
+      "level_note": "难度参考：A2；尚未经过 CEFR 标准化验证",
+      "series": "Plotlish Originals",
+      "synopsis": "A quiet train station, a mysterious message, and a choice that may change Lena’s life.",
+      "genre": "MYSTERY",
+      "sentences_count": 24,
+      "url": "courses/last-platform-03/03.json"
+    }
+  ]
+}

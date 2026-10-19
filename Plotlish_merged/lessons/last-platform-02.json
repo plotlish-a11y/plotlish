@@ -1,0 +1,210 @@
+{
+  "format": "english-reader-lesson-v2",
+  "lesson_id": "last-platform-02",
+  "article": "At eight o five, Lena was standing near the entrance to Platform Four. The rain had grown heavier, and cold air moved through the open doors. Her train was now fifteen minutes late. A station worker asked the waiting passengers to stay behind the yellow line. Lena held the photograph beside her phone and checked the time again.\n\nA boy in a green jacket was sitting alone at the far end of the platform. There was a blue umbrella on the empty seat beside him. Lena stopped walking. The umbrella looked exactly like the one in the photograph. She approached the boy and asked if the umbrella belonged to him. He shook his head and pointed to a small paper tag tied to its handle.\n\nThe tag said, For the person who found the photograph. A key was taped to the underside of the handle. Lena removed it carefully and saw the number twenty seven on its metal surface. The boy said that a woman had left the umbrella only a few minutes earlier. She had told him that someone would come to collect it. Lena asked which way the woman had gone, but he had not noticed.\n\nThe station clock struck eight fifteen. At that moment, the loudspeaker announced a platform change. Passengers hurried toward Platform Two, pulling bags behind them. Lena stayed where she was and turned the key over in her hand. On the other side was a tiny symbol shaped like a bridge. She remembered seeing the same symbol above the old lockers near the station exit. For the first time that evening, the messages began to make sense.",
+  "lesson": {
+    "lesson_id": "last-platform-02",
+    "book_id": "last-platform",
+    "book_title": "The Last Platform",
+    "title": "The Last Platform",
+    "chapter_title": "The Blue Umbrella",
+    "chapter": "02",
+    "subtitle": "蓝色雨伞",
+    "series": "Plotlish Originals",
+    "level": "A2",
+    "genre": "MYSTERY",
+    "synopsis": "A quiet train station, a mysterious message, and a choice that may change Lena’s life.",
+    "sentence_translations": [
+      "八点零五分，莉娜站在四号站台的入口附近。",
+      "雨下得更大了，冷空气从敞开的门间穿过。",
+      "她的列车现在晚点了十五分钟。",
+      "一名车站工作人员提醒候车乘客站在黄线后面。",
+      "莉娜把照片拿在手机旁边，又确认了一次时间。",
+      "一个穿绿色夹克的男孩独自坐在站台远端。",
+      "他旁边的空座位上放着一把蓝色雨伞。",
+      "莉娜停下了脚步。",
+      "那把伞看起来和照片中的一模一样。",
+      "她走近男孩，问那把伞是不是他的。",
+      "他摇摇头，指了指绑在伞柄上的一张小纸牌。",
+      "纸牌上写着：留给找到照片的人。",
+      "一把钥匙被胶带粘在伞柄底部。",
+      "莉娜小心地取下钥匙，看到金属表面刻着数字二十七。",
+      "男孩说，一名女子就在几分钟前留下了这把伞。",
+      "那名女子告诉他，会有人来取走这把伞。",
+      "莉娜问那名女子往哪个方向走了，但男孩没有注意到。",
+      "车站时钟敲响了八点十五分。",
+      "就在这时，广播通知列车更换站台。",
+      "乘客们拖着行李匆匆赶往二号站台。",
+      "莉娜留在原地，把钥匙拿在手里翻看。",
+      "另一面刻着一个形似桥梁的小标志。",
+      "她想起车站出口附近的旧储物柜上方也有同样的标志。",
+      "那天晚上，莉娜第一次觉得这些短信似乎开始说得通了。"
+    ],
+    "translation_source_hash": "b8a22185",
+    "grammar": {
+      "label": "间接引语与时间关系",
+      "term": "past perfect in reported speech",
+      "meaning": "过去完成时说明某动作发生在另一个过去时间之前。",
+      "quote": "She had told him that someone would come to collect it.",
+      "explain": "had told 表明“告诉”发生在男孩描述这件事之前；would come 是过去视角下的将来。",
+      "example": "He said that the train had already left."
+    },
+    "cards": [
+      {
+        "w": "belonged to",
+        "zh": "属于",
+        "quote": "She approached the boy and asked if the umbrella belonged to him.",
+        "ex": "Does this jacket belong to you?",
+        "tip": "belong to 后接所属对象，不用于进行时。"
+      },
+      {
+        "w": "exactly like",
+        "zh": "和……完全一样",
+        "quote": "The umbrella looked exactly like the one in the photograph.",
+        "ex": "The new café looks exactly like the old one.",
+        "tip": "exactly 强调相似程度。"
+      },
+      {
+        "w": "a few minutes earlier",
+        "zh": "几分钟前",
+        "quote": "The boy said that a woman had left the umbrella only a few minutes earlier.",
+        "ex": "We had spoken a few minutes earlier.",
+        "tip": "过去叙事中 earlier 表示相对于过去某个时点更早。"
+      },
+      {
+        "w": "make sense",
+        "zh": "说得通；有道理",
+        "quote": "For the first time that evening, the messages began to make sense.",
+        "ex": "Your explanation finally makes sense.",
+        "tip": "make sense 常用于理解解释、事情或情节。"
+      }
+    ],
+    "question": "What clues did Lena discover on Platform Four?",
+    "questionHelp": "blue umbrella / paper tag / key / bridge symbol"
+  },
+  "sentence_ids": [
+    "001-7ca20c84",
+    "002-b1fd1fcd",
+    "003-cb4ef22d",
+    "004-7a6cb478",
+    "005-468707ce",
+    "006-a73a9f78",
+    "007-7d4bfb75",
+    "008-eda00bb1",
+    "009-643a9228",
+    "010-1ed98b03",
+    "011-abf6578e",
+    "012-b6653e31",
+    "013-5861380d",
+    "014-b250d944",
+    "015-6ef24326",
+    "016-bf4d1297",
+    "017-19424750",
+    "018-f69bbbce",
+    "019-b4fcc686",
+    "020-a930ceb1",
+    "021-450f4bfd",
+    "022-61fab164",
+    "023-1f36e954",
+    "024-499d5086"
+  ],
+  "annotations": [
+    {
+      "id": "lp-02-01",
+      "sentenceIndex": 9,
+      "phrase": "belonged to",
+      "kind": "phrase",
+      "meaning": "属于",
+      "explain": "belong to 后接所属对象，不用于进行时。",
+      "example": "Does this jacket belong to you?"
+    },
+    {
+      "id": "lp-02-02",
+      "sentenceIndex": 8,
+      "phrase": "exactly like",
+      "kind": "phrase",
+      "meaning": "和……完全一样",
+      "explain": "exactly 强调相似程度。",
+      "example": "The new café looks exactly like the old one."
+    },
+    {
+      "id": "lp-02-03",
+      "sentenceIndex": 14,
+      "phrase": "a few minutes earlier",
+      "kind": "phrase",
+      "meaning": "几分钟前",
+      "explain": "过去叙事中 earlier 表示相对于过去某个时点更早。",
+      "example": "We had spoken a few minutes earlier."
+    },
+    {
+      "id": "lp-02-04",
+      "sentenceIndex": 23,
+      "phrase": "make sense",
+      "kind": "phrase",
+      "meaning": "说得通；有道理",
+      "explain": "make sense 常用于理解解释、事情或情节。",
+      "example": "Your explanation finally makes sense."
+    }
+  ],
+  "start_seconds": [
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null
+  ],
+  "review_ids": [],
+  "scenes": [
+    {
+      "scene_id": "last-platform-02-scene-01",
+      "start_sentence_id": "001-7ca20c84",
+      "end_sentence_id": "008-eda00bb1",
+      "start_index": 0,
+      "end_index": 7,
+      "image_path": "images/ch02_scene01.webp",
+      "title": "蓝伞线索",
+      "alt": "蓝伞线索，小说场景示意插图"
+    },
+    {
+      "scene_id": "last-platform-02-scene-02",
+      "start_sentence_id": "009-643a9228",
+      "end_sentence_id": "017-19424750",
+      "start_index": 8,
+      "end_index": 16,
+      "image_path": "images/ch02_scene02.webp",
+      "title": "夜晚的车站",
+      "alt": "夜晚的车站，小说场景示意插图"
+    },
+    {
+      "scene_id": "last-platform-02-scene-03",
+      "start_sentence_id": "018-f69bbbce",
+      "end_sentence_id": "024-499d5086",
+      "start_index": 17,
+      "end_index": 23,
+      "image_path": "images/ch02_scene03.webp",
+      "title": "新的消息",
+      "alt": "新的消息，小说场景示意插图"
+    }
+  ],
+  "asset_version": "3.3-test",
+  "scene_assets": {}
+}
