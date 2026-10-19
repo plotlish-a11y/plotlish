@@ -1,6 +1,11 @@
 # 本地生成目录（不入库，保护创作隐私）
 private_publish_history/
 
+# 本地对比用的副本目录（不入库）
+Plotlish_Yang/
+Plotlish_V3.5_miao/
+Plotlish_github/
+
 # Node（wrangler CLI 会自己装，不需要 lockfile 也不需要本地 module
 # 但 tools/ 里没 package.json，所以不用忽略 node_modules；如果以后加了就取消注释）
 # node_modules/
