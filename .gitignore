@@ -26,3 +26,4 @@ Thumbs.db
 # 本地下载的 Node（如果直接二进制放在项目里）
 node/
 *.tar.gz
+Plotlish_merged/
