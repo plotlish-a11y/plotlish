@@ -1,7 +1,0 @@
-# Cloudflare Pages 配置
-# 首次部署：在 Cloudflare Dashboard 创建 Direct Upload 类型项目后，把下面的
-# project_name 换成你的真实项目名（全小写 + 短横线，如 plotlish-studio）。
-# 之后 wrangler CLI 会自动读取这个文件，不用每次 --project-name。
-
-name = "plotlish"
-pages_build_output_dir = "./site"

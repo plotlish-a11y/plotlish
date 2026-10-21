@@ -1,66 +1,46 @@
-# Plotlish Studio · 第三阶段：课程与工具分离
+# Plotlish Beta · 共用 GitHub 仓库正式接入说明
 
-**本版本重点是前端和课程数据架构，不涉及云端部署。**
+现有仓库：`https://github.com/plotlish-a11y/plotlish`。
 
-## 已经完成什么
+目标：只在 `beta` 分支维护 R2.3.1 新版课程网站，让上传章节 ZIP 后自动更新已经存在且大陆可访问的 `https://plotlish-test.pages.dev/`。
 
-- 创作者工作台的程序不再内置《Everyone Has a Mission》或其他小说正文、翻译、默认知识点；首次启动显示中性空白草稿。
-- 一份 `lessons/<lesson_id>.json` 是某个章节可编辑的课程源文件。课程内容（英文、翻译、词汇、语法、章节、难度、简介等）不写进 HTML。
-- 工作台通过「导入课程 JSON」读取内容；学生站点从 `site/courses/catalog.json` 与单章 JSON 自动加载。
-- 本地发布器把单章源文件转换为公开用 JSON，维护多章节目录、更新前备份，并阻止错误覆盖。
-- 公开学生界面不会包含创作工作台、音频录制与视频工具；学生故事封面、作品名、分类、难度等来自课程数据。
-- V2 格式强制核对正文指纹及句子 ID；旧 V1 仍可人工确认后导入，不能直接默认为翻译正确。
+**不能把这个总 ZIP 直接上传 GitHub 后期待自动安装；请先解压。**
 
-## 在 Windows 上体验
+## 一次性接入（按顺序）
 
-1. 解压全部文件到普通文件夹（不要在压缩包窗口内直接运行）。
-2. 双击 `author/启动_英语工作台.bat` 打开创作者工作台。Windows 10/11、PowerShell 5.1；系统录音辅助程序需要实机运行才能验收。
-3. 在「课程与章节管理」点击「导入课程 JSON」，选择 `lessons/everyone-has-a-mission-01.json`，即可加载演示章节（63句/15知识点）。
-4. 编辑正文、译文、卡片及章节设置。**新增章节要更换唯一 ID**，可用按钮「根据标题和章号生成」。编辑完成后点击「导出课程 JSON」；音频与制作状态使用项目 ZIP 另行备份。
-5. 双击根目录 `启动_课程发布器.bat`，选择刚导出的 JSON，校验并发布到本地 `site/`。首次使用课程发布器需要安装 Node.js 18+；建议使用受支持的 LTS。
-6. 打开发布器里的「预览学生网站」，或运行 `启动_学生网站预览.bat`，验证故事书架和阅读页面。
+1. **确认 GitHub 分支是 beta**：打开 `https://github.com/plotlish-a11y/plotlish/tree/beta`。
+2. 在仓库根目录选择 **Add file → Upload files**。将解压出来的 **整个 `beta-app` 文件夹**拖入网页（GitHub 官方支持拖入文件夹），确保提交后路径是 `beta-app/core/index.html`、`beta-app/packages/last-platform-01.zip` 等，而不是根目录多套了一个大文件夹。将变更 **直接提交到 beta**。
+3. 到仓库 **Settings → Secrets and variables → Actions → New repository secret** 配置：
+   - `CLOUDFLARE_API_TOKEN_BETA`：拥有 Pages 编辑权限的 Cloudflare API Token。
+   - `CLOUDFLARE_ACCOUNT_ID_BETA`：拥有当前 `plotlish-test` Pages 项目的账户 ID。
+   - 不发送 Token 给聊天、不要把密钥写到仓库源码里。如果你没有仓库 Settings 权限，让管理员配置。
+4. 在**beta 分支**选择 **Add file → Create new file**，路径输入 `.github/workflows/plotlish-beta.yml`，文件内容复制本包中的 `工作流_复制用_plotlish-beta.yml`，提交到 **beta**。如你熟悉上传文件夹，也可以直接把解压包中的 `.github/workflows/plotlish-beta.yml` 按路径上传，但要注意不要覆盖旧的 `deploy.yml`。
+5. 打开 GitHub **Actions**，等待 `Plotlish Beta - 自动部署到测试站` 全部通过，再在浏览器验证 `https://plotlish-test.pages.dev/`。自动构建 + Cloudflare 校验 + Wrangler 部署都成功才算完成。
 
-**无需安装数据库，无需注册服务器账号。** 此阶段所有发布操作都只作用于本机文件。
+GitHub 新工作流只监听 **beta** 分支，部署参数固定 `plotlish-test`，生产分支从 Cloudflare 项目 API 获取，不会把 GitHub 的 beta 错当成 Pages 的生产分支。旧 `main`、其 `deploy.yml`、旧站 `plotlish.pages.dev` 都不变。
 
-## 文件结构与职责
+注意：原来的旧 `deploy.yml` 在 beta 上复制自 main，虽然 push 只监听 main，但它含手动触发选项；不要在 Beta 上手动运行旧 `Deploy to Cloudflare Pages` 工作流，避免误更新旧站。我们新建的专用工作流没有手动触发按钮。
 
-```text
-Plotlish_Studio_Phase3/
-  author/                 仅供作者使用：HTML 工作台、Windows 内录辅助程序
-  lessons/                课程源文件（每个章节一个独立 JSON）
-  tools/                  本地发布器、课程校验和格式转换
-  site/                   学生端前端页面 + 自动生成的公开课程数据
-    assets/               通用学生阅读 UI（不含故事文本）
-    courses/catalog.json  书架目录
-    courses/<id>/..json   派生的学生版课程内容
-  tests/                  自动化测试源码
-  preview/                三张界面截图，仅用于预览
-  private_publish_history/ 课程被更新/下架后自动创建，保存私有旧版
-```
+## 之后添加课程（每次只有一个 GitHub 上传操作）
 
-`lessons/` 是编辑来源；`site/courses/` 是**派生的阅读端版本**，不要直接手改后者。发布器自动保存的旧版属于备份，不是另一套必须分别编辑的课程。
+1. 做好单章 ZIP，例如 `course-evil-supporting-role-ch02.zip`。
+2. 打开 `https://github.com/plotlish-a11y/plotlish/tree/beta/beta-app/packages`，确认分支仍为 **beta**。
+3. **Add file → Upload files**，拖入 ZIP，**Commit changes** 到 beta。
+4. GitHub 自动测试、生成网站并发布到同一个 `plotlish-test.pages.dev`；旧小说和旧站不受影响。请在 Actions 看到成功后才认为发布完成。
 
-## 制作新故事/章节时必须注意
+## 更新、回滚与安全
 
-- 每个章节的 `lesson_id` 要唯一且稳定；修改旧章时保留 ID，新增一章必须用新 ID。
-- 正文变动后，需要重新确认对应逐句翻译与知识点。仅仅句数相同不意味着翻译能继续复用。
-- 工作台导出的 V2 JSON 包含 `translation_source_hash` 和 `sentence_ids`。发布器将据此校验原文与译文的结构绑定。
-- `level` 是阅读难度参考，不能当作 CEFR 能力证书。
-- 练习题目前为开放式提示，不具备自动评分系统。
-- 当前朗读主要依赖浏览器/系统语音；高质量可商用音轨和 Windows 真实内录尚未验收。
+- 更新已有章节：尽量保持 ZIP **文件名和 chapter_id 都不变**，直接替换 `beta-app/packages/` 中对应文件；CI 校验冲突和原有章节保留。
+- 错误部署：通过 GitHub beta 分支历史回退此前成功提交，再由新 commit 触发部署；也可以在 Cloudflare Pages 部署记录中恢复此前正常的部署（按控制台实际可用操作）。
+- 仓库是 **公开仓库**。已上传的文件即使删除也可能保留在提交历史中；不要上传未公开的原创小说草稿。测试站 Pages 也不带访问密码。
+- 自动发布意味着新的提交通过结构检测就会更新测试站，不含人工审批。翻译语义、版权、小说内容准确性需在提交前人工审核。
+- 第一次线上执行、Cloudflare 授权与实际更新还**未验收**。目前仅对源码做了本地构建和测试。
+- 这不是网站内的管理后台，而是 GitHub 网页操作的课程上传。Beta 接通后，再决定是否需要可视化网页后台。
 
-## 现阶段尚未实现或验收
+## 你遇到错误时
 
-- 未开发完整 A1–C2 课程、账号、云同步、付费、在线编辑后台。
-- Windows WASAPI 数字内录和完整视频导出代码来自 V2.6 Alpha，**本阶段没有在你的 Windows 电脑上实机验证**。
-- 线上 Cloudflare 上传仍然是独立操作，本阶段**没有部署/修改公网网站**。
-
-## 测试
-
-- `node --test tests/test_data.mjs tests/test_publisher.mjs tests/test_separation.mjs`：14项通过。
-- `node tools/check-site.mjs`：学生网站静态数据通过（1部故事、1章）。
-- `python tests/test_browser.py`：Chromium 桌面/手机阅读和作者端导入、切换及拒绝错误数据通过；模拟浏览器测试。
-- `python tests/test_publisher_browser.py`：课程发布器桌面和手机页面测试通过。
-- 以上不等于 Windows 录音功能、完整视频导出或云端发布的真实验收。
-
-深入了解数据结构，见 `课程数据与模块边界.md`。
+- `缺少 ..._BETA`：检查 Secrets 拼写和操作权限。
+- `Cloudflare 正式分支缺失`：可能直接上传项目的 API 字段特殊，发我无密钥的 Actions 错误截图，不要自行更改目标域名。
+- `重复章节 ID`：同一章上传了两个 ZIP 或改章时忘记替换旧文件。
+- `不安全的 ZIP 路径`：压缩包层级错误或包含不允许的文件。
+- GitHub 主页仍显示旧版：请确认访问的是 beta 目标 `https://plotlish-test.pages.dev/` 而不是旧站 `plotlish.pages.dev`，并检查 Actions 及 Cloudflare 部署记录。
