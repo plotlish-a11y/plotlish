@@ -1,0 +1,14 @@
+{
+  "schema_version": "plotlish-characters-v1",
+  "characters": [
+    {
+      "id": "main-character",
+      "name": "Main Character",
+      "name_zh": "主角",
+      "role": "Protagonist",
+      "bio": "Write a spoiler-safe introduction.",
+      "intro_chapter": 1,
+      "portrait": ""
+    }
+  ]
+}

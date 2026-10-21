@@ -1,24 +1,43 @@
 #!/usr/bin/env python3
-"""Build output safeguards for Plotlish Beta, independent of the old main site."""
+"""Check generated beta site; an empty, not-yet-published course shelf is valid."""
 import json
 from pathlib import Path
-R=Path(__file__).resolve().parents[1]
-D=R/'dist'
-cat=json.loads((D/'courses/catalog.json').read_text(encoding='utf8'))
-assert cat.get('schema_version')=='plotlish-r231-web-v2','意外的课程数据格式'
-chapters=cat.get('chapters')
-assert isinstance(chapters,list) and chapters, '生成的书架为空'
-ids={c['chapter_id'] for c in chapters}
-required={'last-platform-01', 'evil-supporting-role-ch01'}
-assert required.issubset(ids),f'基础两章丢失：{sorted(required-ids)}'
-assert len(ids)==len(chapters),'存在重复章节 ID'
-for c in chapters:
-    assert c.get('sentences_count',0)>0, f"空章节：{c['chapter_id']}"
-    assert (D/c['path']).is_file(), f"缺少章节：{c['chapter_id']}"
-    if c.get('cover'):assert (D/c['cover']).is_file(), f"缺少封面：{c['chapter_id']}"
-    for p in c.get('scene_images',{}).values():
-        assert (D/p).is_file(), f"缺少插图：{c['chapter_id']}"
-for bad in ['author','private_publish_history','packages','tools','.github']:
-    assert not (D/bad).exists(),f'私有或开发文件被放入公开站点：{bad}'
-assert (D/'index.html').is_file(), '未生成 index.html'
-print(f'BETA SITE CHECK OK: {len(chapters)} chapters, target is plotlish-test only')
+
+ROOT = Path(__file__).resolve().parents[1]
+DIST = ROOT / 'dist'
+
+
+def verify_site(dist=DIST):
+    dist = Path(dist)
+    catalog_path = dist / 'courses' / 'catalog.json'
+    assert catalog_path.is_file(), '缺少 courses/catalog.json'
+    cat = json.loads(catalog_path.read_text(encoding='utf8'))
+    assert cat.get('schema_version') == 'plotlish-r231-web-v2', '意外的课程数据格式'
+    chapters = cat.get('chapters')
+    assert isinstance(chapters, list), 'chapters 必须是数组（允许为空）'
+    ids = [c['chapter_id'] for c in chapters]
+    assert len(set(ids)) == len(chapters), '存在重复章节 ID'
+    books = cat.get('books', {})
+    assert isinstance(books, dict), 'books 必须是对象'
+    for bid, meta in books.items():
+        assert any(c.get('book_id') == bid for c in chapters), f'无公开章节却发布了资料：{bid}'
+        for path in meta.get('portrait_paths', {}).values():
+            assert (dist / path).is_file(), f'人物图片缺失：{path}'
+    for c in chapters:
+        if c.get('units'):
+            assert c['units'][0]['start_id'] == c['ids'][0], f'首单元未指向第一句：{c["chapter_id"]}'
+        assert c.get('sentences_count', 0) > 0, f"空章节：{c['chapter_id']}"
+        assert (dist / c['path']).is_file(), f"缺少章节：{c['chapter_id']}"
+        if c.get('cover'):
+            assert (dist / c['cover']).is_file(), f"缺少封面：{c['chapter_id']}"
+        for p in c.get('scene_images', {}).values():
+            assert (dist / p).is_file(), f"缺少插图：{c['chapter_id']}"
+    for bad in ['author', 'private_publish_history', 'packages', 'tools', '.github']:
+        assert not (dist / bad).exists(), f'私有或开发文件被放入公开站点：{bad}'
+    for required in ['index.html', 'src/boot.js', 'src/reader.js', 'src/styles.css']:
+        assert (dist / required).is_file(), f'网站基础文件缺失：{required}'
+    print(f'BETA SITE CHECK OK: {len(chapters)} chapters; empty shelf is allowed')
+
+
+if __name__ == '__main__':
+    verify_site()

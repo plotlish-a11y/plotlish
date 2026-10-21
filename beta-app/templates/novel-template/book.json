@@ -1,0 +1,10 @@
+{
+  "schema_version": "plotlish-book-v1",
+  "book_id": "sample-story",
+  "title": "Sample Story",
+  "title_zh": "示例小说（请替换）",
+  "genre": "Fantasy",
+  "level": "B1",
+  "synopsis": "Replace this with a description of your story.",
+  "status": "draft"
+}

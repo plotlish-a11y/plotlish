@@ -26,13 +26,13 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Validate course ZIPs and building logic
+      - name: Validate R2.5 course profiles, chapters and ZIP import
         working-directory: beta-app
         run: python -m unittest discover -s tests -p test_build.py -v
-      - name: Build pure reader plus every uploaded chapter ZIP
+      - name: Build R2.5 student site from published book/chapter folders
         working-directory: beta-app
         run: python tools/build.py
-      - name: Confirm old lessons retained and generated assets complete
+      - name: Verify generated student site (empty shelf allowed)
         working-directory: beta-app
         run: python tools/verify_beta_site.py
       - name: Verify Cloudflare account and actual production branch

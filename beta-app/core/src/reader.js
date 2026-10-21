@@ -5,6 +5,7 @@ const INIT=window.__PLOTLISH_INIT__;
 if(!INIT)throw new Error('课程目录未初始化');
 const BOOK_DATA=Object.fromEntries(INIT.courses.map(c=>[c.chapter_id,c]));
 const CATALOG=INIT.catalog;
+const BOOK_PROFILES=INIT.bookProfiles||{};
 const allCovers=INIT.covers;
 const ALL_COURSES=BOOK_DATA;
 const chaptersFor=bookId=>INIT.courses.filter(c=>c.book_id===bookId).sort((a,b)=>(a.chapter_number||0)-(b.chapter_number||0));
@@ -21,8 +22,8 @@ const course=BOOK_DATA[BOOK_SWITCH];
 if(!course)throw Error('课程文件不完整');
 const chapterNum=c=>String(c.chapter_number||1).padStart(2,'0');
 const numberOfBooks=new Set(INIT.courses.map(c=>c.book_id)).size;
-function bookLink(code,view='book'){const u=new URL(location.href);u.searchParams.set('chapter',code);u.searchParams.delete('book');u.hash='#'+(view==='reader'?'reader':'book');return u.href}
-function openBookByCode(code,view='book'){if(code===BOOK_SWITCH){if(view==='reader')goReader();else route('book');return;}stopAudio();location.assign(bookLink(code,view));}
+function bookLink(code,view='book',sentenceId=null){const u=new URL(location.href);u.searchParams.set('chapter',code);u.searchParams.delete('book');u.hash='#'+(view==='reader'?(sentenceId?'reader/'+encodeURIComponent(sentenceId):'reader'):'book');return u.href}
+function openBookByCode(code,view='book',sentenceId=null){if(code===BOOK_SWITCH){if(view==='reader')goReader(sentenceId?course.ids.indexOf(sentenceId):null);else route('book');return;}stopAudio();location.assign(bookLink(code,view,sentenceId));}
 function hasStartedChapter(c){try{return JSON.parse(localStorage.getItem('plotlish.student.r21.chapter.'+c.chapter_id+'.started'))===true}catch(e){return false}}
 function applyCard(card,c,scope,selected){
  const cover=card.querySelector('.tinyCover');if(cover){cover.textContent='';cover.style.backgroundImage='url("'+coverFor(c)+'")';cover.style.backgroundSize='cover';cover.style.backgroundPosition='center';cover.setAttribute('role','img');cover.setAttribute('aria-label',c.book+' 小说封面')}
@@ -44,6 +45,49 @@ function applyCard(card,c,scope,selected){
   if(buttons[1])buttons[1].onclick=()=>openBookByCode(c.chapter_id,'reader');
  }
 }
+// Optional book guide/characters; missing R2.4 metadata leaves the page intact.
+function safeText(parent,tag,value,cls=''){const el=document.createElement(tag);if(cls)el.className=cls;el.textContent=value;parent.append(el);return el}
+function renderCourseProfile(){
+ const profile=BOOK_PROFILES[course.book_id];const wrapper=$('courseOverview');
+ if(!profile||(!Object.keys(profile.guide||{}).length&&!(profile.characters||[]).length)){wrapper.hidden=true;return}
+ wrapper.hidden=false;
+ const guide=profile.guide||{}, cast=profile.characters||[], openChapters=chaptersFor(course.book_id);
+ const intro=$('courseIntroPanel'), people=$('courseCharactersPanel'), learning=$('courseLearningPanel');
+ intro.replaceChildren();people.replaceChildren();learning.replaceChildren();
+ safeText(intro,'h3',guide.tagline||'认识这部作品');
+ if(guide.intro)safeText(intro,'p',guide.intro);
+ if(guide.intro_zh)safeText(intro,'p',guide.intro_zh,'muted');
+ if(!guide.intro&&!guide.intro_zh)safeText(intro,'p',course.synopsis);
+ safeText(people,'h3','出场人物');
+ const roster=cast.filter(c=>c.intro_chapter===1||openChapters.some(ch=>
+  ch.chapter_number>=c.intro_chapter && (hasStartedChapter(ch)||completedChapter(ch))));
+ if(!roster.length)safeText(people,'p','开始阅读后，这里会逐步出现已经登场的人物。');
+ const cards=safeText(people,'div','','castGrid');
+ for(const c of roster){const card=safeText(cards,'article','','castCard');const src=profile.portrait_paths?.[c.id];
+  if(src){const img=document.createElement('img');img.src='./'+src;img.loading='lazy';img.alt=c.name_zh||c.name;card.append(img)}
+  else safeText(card,'div','暂无立绘','castPlaceholder');
+  const detail=safeText(card,'div','');safeText(detail,'h3',c.name);if(c.name_zh)safeText(detail,'div',c.name_zh,'muted');
+  if(c.role)safeText(detail,'div',c.role,'muted');if(c.bio)safeText(detail,'p',c.bio);
+ }
+ safeText(learning,'h3','学习说明');
+ const lists=safeText(learning,'div','','courseGuideLists');
+ for(const [heading,rows] of [['学习目标',guide.learning_goals||[]],['推荐学习方法',guide.study_tips||[]]]){
+   const box=safeText(lists,'section','');safeText(box,'strong',heading);
+   if(rows.length){const ul=safeText(box,'ul','');for(const r of rows)safeText(ul,'li',r)}
+   else safeText(box,'p','暂未设置，直接开始阅读即可。','muted');
+ }
+ const tabs=[...wrapper.querySelectorAll('[data-course-tab]')];const panels={intro,characters:people,learning};
+ for(const t of tabs){t.onclick=()=>{for(const b of tabs){const on=b===t;b.classList.toggle('active',on);b.setAttribute('aria-selected',String(on))}
+  for(const [key,panel] of Object.entries(panels))panel.hidden=key!==t.dataset.courseTab;};
+ }
+}
+function completedChapter(c){try{return JSON.parse(localStorage.getItem('plotlish.student.r21.chapter.'+c.chapter_id+'.completed'))===true}catch(e){return false}}
+function makeUnitLinks(parent,c,cls='courseUnitList'){
+ if(!Array.isArray(c.units)||!c.units.length)return;
+ const wrap=safeText(parent,'div','',cls);wrap.setAttribute('aria-label',c.chapter+' 学习单元');
+ for(const unit of c.units){const btn=safeText(wrap,'button',unit.title);btn.type='button';btn.title=unit.description||'';
+  btn.onclick=()=>openBookByCode(c.chapter_id,'reader',unit.start_id)}
+}
 function setupBookNavigation(){
  const otherBooks=[...new Set(INIT.courses.map(c=>c.book_id))].filter(x=>x!==course.book_id).map(id=>chaptersFor(id)[0]);
  for(const [view,cls,scope] of [['homeView','.bookTile','home'],['storiesView','.discoverCard','stories']]){
@@ -55,6 +99,7 @@ function setupBookNavigation(){
  $('homeView').querySelector('.sectionBar span').textContent=numberOfBooks+' 部作品 · '+CATALOG.length+' 章可读';
  $('storiesView').querySelector('.sectionBar span').textContent=numberOfBooks+' 部作品 · '+CATALOG.length+' 章可读';
  $('storiesView').querySelector('.lead').textContent='选择作品并打开章节。新课程发布后将自动加入这里。';
+ renderCourseProfile();
  const book=$('bookView');book.querySelector('.bookHero .eyebrow').textContent=(course.genre||'MYSTERY').toUpperCase()+' · '+course.level+' · PLOTLISH ORIGINAL';
  book.querySelector('.bookHero h1').textContent=course.book;
  book.querySelector('.bookHero .lead').textContent=course.synopsis;
@@ -65,7 +110,10 @@ function setupBookNavigation(){
  function fillRow(r,c,isCurrent){
   r.querySelector('.chapterNum').textContent=chapterNum(c);
   r.querySelector('strong').textContent=c.chapter;
-  r.querySelector('.muted').textContent=c.subtitle+' · '+c.sentences.length+' 句 · 逐句译文';
+  r.querySelector('.muted').textContent=(c.subtitle||'')+' · '+(c.sentences_count ?? c.sentences.length)+' 句 · 逐句译文';
+  r.querySelectorAll('.courseUnitList,.courseChapterProgress').forEach(el=>el.remove());
+  makeUnitLinks(r.querySelector('.chapterNum').nextElementSibling,c);
+  const progress=safeText(r.querySelector('.chapterNum').nextElementSibling,'div',completedChapter(c)?'✓ 本章已完成':(hasStartedChapter(c)?'已开始学习':'尚未开始'),'courseChapterProgress');
   const btn=r.querySelector('button');btn.textContent=hasStartedChapter(c)?'继续阅读 →':'开始阅读 →';
   if(!isCurrent){btn.removeAttribute('id');btn.onclick=()=>openBookByCode(c.chapter_id,'reader')}
  }
@@ -78,8 +126,10 @@ function setupBookNavigation(){
  const hdr=$('readerView').querySelector('.chapterHeader');hdr.querySelector('strong').textContent=course.chapter;hdr.querySelector('span').textContent=course.book+' · Chapter '+chapterNum(course);
  const meta=$('readerView').querySelector('.paperMeta span');const metaLevel=document.createElement('em');metaLevel.textContent='· '+course.level;meta.replaceChildren(document.createTextNode('CHAPTER '+chapterNum(course)+' '),metaLevel);
  const ch=$('chapterDrawer');ch.querySelector('.eyebrow').textContent=course.book.toUpperCase();ch.querySelector('.chapterDrawerCurrent strong').textContent=course.chapter;ch.querySelector('.chapterDrawerCurrent .chapterDrawerIndex').textContent=chapterNum(course);ch.querySelector('.chapterDrawerCurrent .muted').textContent='当前章节 · '+course.sentences.length+' 句';
+ const oldUnitLinks=ch.querySelector('.drawerUnits');if(oldUnitLinks)oldUnitLinks.remove();
+ const currentUnits=course.units||[];if(currentUnits.length)makeUnitLinks(ch.querySelector('.chapterDrawerCurrent').parentNode,course,'drawerUnits');
  const other=chapters.filter(c=>c.chapter_id!==course.chapter_id);const future=ch.querySelector('.chapterDrawerFuture');future.replaceChildren();
- for(const c of other){const btn=document.createElement('button');btn.type='button';btn.className='chapterNavLink';btn.textContent='第 '+chapterNum(c)+' 章 · '+c.chapter;btn.onclick=()=>openBookByCode(c.chapter_id,'reader');future.append(btn)}
+ for(const c of other){const box=safeText(future,'div','');const btn=safeText(box,'button','第 '+chapterNum(c)+' 章 · '+c.chapter,'chapterNavLink');btn.type='button';btn.onclick=()=>openBookByCode(c.chapter_id,'reader');makeUnitLinks(box,c,'drawerUnits')}
  if(!other.length){const msg=document.createElement('p');msg.textContent='目前本作品只开放这一章。';future.append(msg)}
  $('reviewView').querySelector('h1').textContent='读完 '+course.chapter;
  $('reviewView').querySelector('.eyebrow').textContent='CHAPTER '+chapterNum(course)+' · READING REFLECTION';
@@ -161,6 +211,7 @@ function route(view,{push=true,origin=null}={}){if(view!=='reader')window.__plot
  $('navWords').classList.toggle('active',view==='notebook');
  $('resumeTop').textContent=view==='reader'?'正在阅读':'继续阅读 ↗';
  if(view==='reader'){hide($('readerIntro'),read('guideHidden',false)===true);requestPageReflow();setTimeout(()=>{if(state.view==='reader'){paint();if(prefs.mode==='scroll')scrollToSelected()}},0)}
+ if(view==='book')renderCourseProfile();
  if(view==='notebook')renderNotebook();if(view==='review')renderReview();updateHomePosition();
  const value=view==='reader'?'reader/'+stableID(state.selected):view;
  try{const url='#'+value;if(push&&location.hash!==url)history.pushState({view,idx:state.selected},'',url);else if(!push&&location.hash!==url)history.replaceState({view,idx:state.selected},'',url)}catch(e){}
@@ -303,7 +354,7 @@ function renderNotebook(){
  const familiar=label('button',familiarFor(id)?'✓ 已熟悉':'标记已熟悉','familiarToggle');familiar.setAttribute('aria-pressed',String(familiarFor(id)));familiar.onclick=()=>{setNoteFamiliar(id,!familiarFor(id));renderNotebook()};bar.append(listen,back,familiar);card.append(bar);root.append(card)}
 }
 
-function renderReview(){$('grammarTitle').textContent=course.grammar.term;$('grammarDesc').textContent=course.grammar.explain;$('grammarExample').textContent=course.grammar.example;$('reviewQuestion').textContent=course.question;$('reviewHint').textContent=course.questionHelp;$('reflection').value=read('reflection','');}
+function renderReview(){const grammar=course.grammar||{};$('grammarTitle').textContent=grammar.term||'本章语法讲解';$('grammarDesc').textContent=grammar.explain||'本章暂无专项语法讲解。';$('grammarExample').textContent=grammar.example||'';$('reviewQuestion').textContent=course.question;$('reviewHint').textContent=course.questionHelp;$('reflection').value=read('reflection','');}
 function completeChapter(){if(prefs.mode==='scroll'){const body=$('pageBody');const actuallyAtEnd=body.scrollTop+body.clientHeight>=body.scrollHeight-30;if(!actuallyAtEnd){toast('请先阅读至文章结尾，再标记本章完成。');return}}state.completed=true;persist();route('review');toast('本章已标记为阅读完成')}
 function showModal(id){state.restoreFocus=document.activeElement;const el=$(id);el.hidden=false;state.openModal=id;el.querySelector('button')?.focus()}
 function closeModal(){if(!state.openModal)return;$(state.openModal).hidden=true;state.openModal=null;state.restoreFocus?.focus?.();state.restoreFocus=null}
