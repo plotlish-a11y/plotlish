@@ -87,6 +87,28 @@ class BuildTests(unittest.TestCase):
         with self.assertRaisesRegex(AssertionError, '场景数量不符'):
             verify_site(self.out, require_chapter='alpha-book-ch001', require_scenes=1)
 
+    def test_r28_online_only_dictionary_and_quick_reader_settings(self):
+        reader=(ROOT/'core/src/reader.js').read_text(encoding='utf8')
+        html=(ROOT/'core/index.html').read_text(encoding='utf8')
+        styles=(ROOT/'core/src/styles.css').read_text(encoding='utf8')
+        for marker in ('dictionary.cambridge.org/dictionary/english-chinese-simplified/',
+                       'cn.bing.com/dict/?mkt=zh-CN&setlang=ZH&q=',
+                       "link.target='_blank'", "link.rel='noopener noreferrer'",
+                       "prefs.dictionaryProvider==='bing'?'bing':'cambridge'",
+                       'dictionaryProvider:"cambridge"', "brian/i.test(v.name"):
+            self.assertIn(marker, reader)
+        for marker in ('id="dictionaryProvider"','id="quickVoice"','id="quickVoicePanel"',
+                       'id="quickTranslation"','id="quickTranslationPanel"',
+                       'data-quick-translation="hidden"','data-quick-translation="current"',
+                       'data-quick-translation="bilingual"'):
+            self.assertIn(marker, html)
+        for removed in ('id="hoverWordDetail"','id="quickClick"','id="quickAuto"',
+                        'id="presetButtons"','id="translationMode"'):
+            self.assertNotIn(removed, html)
+        self.assertNotIn('本地暂未收录', reader)
+        self.assertNotIn('HOVER_DICTIONARY', reader)
+        self.assertIn('readerQuickPanel', styles)
+
     def test_reading_only_completion_has_no_exercise_controls(self):
         html=(ROOT/'core/index.html').read_text(encoding='utf8')
         js=(ROOT/'core/src/reader.js').read_text(encoding='utf8')

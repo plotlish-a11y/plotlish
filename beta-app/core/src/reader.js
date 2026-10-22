@@ -244,7 +244,7 @@ function migrateR2(){const marker=PREFIX+'migrated.'+course.chapter_id;if(getRaw
 migrateR2();
 function toast(m){$('toast').textContent=m;$('toast').classList.add('visible');clearTimeout(toast.t);toast.t=setTimeout(()=>$('toast').classList.remove('visible'),3200)}
 
-const defaults={hoverDelay:750,lastImageMode:'compact',clickSpeak:true,nextSpeak:true,pageSpeak:false,mode:'pages',fontSize:19,lineHeight:1.65,voice:'',rate:1,translation:'current',explain:true,scenes:true,imageMode:'compact',readingPreset:'assisted',hoverTranslation:true};
+const defaults={hoverDelay:750,lastImageMode:'compact',clickSpeak:true,nextSpeak:true,pageSpeak:false,mode:'pages',fontSize:19,lineHeight:1.65,voice:'',rate:1,translation:'current',explain:true,scenes:true,imageMode:'compact',readingPreset:'assisted',hoverTranslation:true,dictionaryProvider:"cambridge"};
 const prefs={...defaults,...read('prefs',{})};
 $('hoverTranslation').checked=prefs.hoverTranslation!==false;
 const state={view:'home',lastStory:'home',fromNotebook:'home',selected:Math.max(0,course.ids.indexOf(read('sentenceId',course.ids[0]))),anchorOffset:Math.max(0,read('offset',0)||0),page:0,pages:[],notes:read('notes',[]),familiar:read('familiar',[]),completed:read('completed',false),drawer:false,notebookReturn:null,activeNote:null,settingsTab:'audio',openModal:null,restoreFocus:null,voiceList:[],scrollRestore:0,scrollAtEnd:false};
@@ -275,8 +275,8 @@ function persist(){save('prefs',prefs);save('sentenceId',stableID(state.selected
 function label(tag,text,cls){const el=document.createElement(tag);el.textContent=text||'';if(cls)el.className=cls;return el}
 function hide(el,h){el.hidden=!!h}
 function hasSpeech(){return typeof speechSynthesis!=='undefined'&&typeof SpeechSynthesisUtterance!=='undefined'}
-function scoreVoice(v){const lang=(v.lang||'').toLowerCase();const online=!v.localService||/online|natural|neural/i.test(v.name);const locale=lang==='en-us'?0:lang==='en-gb'?20:lang.startsWith('en-ca')?30:lang.startsWith('en-au')?40:60;return (online?0:100)+locale+(/microsoft/i.test(v.name)?0:5)}
-function voicesChanged(){if(!hasSpeech())return;const voices=speechSynthesis.getVoices().filter(v=>/^en/i.test(v.lang)).sort((a,b)=>scoreVoice(a)-scoreVoice(b));state.voiceList=voices;const sel=$('voice');const old=prefs.voice;sel.replaceChildren();sel.add(new Option('自动选择可用英语语音',''));for(const v of voices){const online=!v.localService||/online|natural|neural/i.test(v.name);sel.add(new Option((online?'在线 · ':'本机 · ')+(v.lang||'English')+' · '+v.name,v.voiceURI));}if(old&&voices.some(v=>v.voiceURI===old))sel.value=old;else sel.value='';}
+function scoreVoice(v){const lang=(v.lang||'').toLowerCase();const online=!v.localService||/online|natural|neural/i.test(v.name);const locale=lang==='en-us'?0:lang==='en-gb'?20:lang.startsWith('en-ca')?30:lang.startsWith('en-au')?40:60;return (/brian/i.test(v.name+' '+v.voiceURI)?-1000:0)+(online?0:100)+locale+(/microsoft/i.test(v.name)?0:5)}
+function voicesChanged(){if(!hasSpeech())return;const voices=speechSynthesis.getVoices().filter(v=>/^en/i.test(v.lang)).sort((a,b)=>scoreVoice(a)-scoreVoice(b));state.voiceList=voices;const sel=$('voice');const old=prefs.voice;sel.replaceChildren();sel.add(new Option('自动 · 优先 Brian（若浏览器支持）',''));for(const v of voices){const online=!v.localService||/online|natural|neural/i.test(v.name);sel.add(new Option((online?'在线 · ':'本机 · ')+(v.lang||'English')+' · '+v.name,v.voiceURI));}if(old&&voices.some(v=>v.voiceURI===old))sel.value=old;else sel.value='';syncQuickReaderControls();}
 function playbackUI(){let isContinuous=speech.kind==='continuous';const b=$('playContinuous');b.textContent=isContinuous?(speech.status==='paused'?'▶ 继续':'Ⅱ 暂停'):'▶ 连续朗读';$('playStatus').textContent=speech.kind==='idle'?'点击句子可试听，↑↓ 切换句子':speech.status==='paused'?'朗读已暂停':isContinuous?'正在连续朗读':'正在朗读当前句';}
 function stopAudio(){++speech.generation;try{if(hasSpeech())speechSynthesis.cancel()}catch(e){}speech.kind='idle';speech.status='idle';speech.index=-1;speech.utterance=null;playbackUI()}
 function startSpeech(index,kind){if(!hasSpeech()){toast('当前浏览器不支持语音合成，请更换浏览器');return}stopAudio();const gen=++speech.generation;const utter=new SpeechSynthesisUtterance(course.sentences[index]);utter.lang='en-US';utter.rate=Number(prefs.rate)||1;let v=state.voiceList.find(v=>v.voiceURI===prefs.voice)||(state.voiceList[0]||null);if(v){utter.voice=v;utter.lang=v.lang||'en-US'}speech.kind=kind;speech.status='playing';speech.index=index;speech.utterance=utter;
@@ -480,7 +480,7 @@ function renderNotebook(){
 
 function renderReview(){ /* Reading-only: completion summary, no questions or writing assignments. */ }
 function completeChapter(){if(prefs.mode==='scroll'){const body=$('pageBody');const actuallyAtEnd=body.scrollTop+body.clientHeight>=body.scrollHeight-30;if(!actuallyAtEnd){toast('请先阅读至文章结尾，再标记本章完成。');return}}state.completed=true;persist();route('review');toast('本章已标记为阅读完成')}
-function showModal(id){state.restoreFocus=document.activeElement;const el=$(id);el.hidden=false;state.openModal=id;el.querySelector('button')?.focus()}
+function showModal(id){if(typeof closeReaderQuickPanels==='function')closeReaderQuickPanels();state.restoreFocus=document.activeElement;const el=$(id);el.hidden=false;state.openModal=id;el.querySelector('button')?.focus()}
 function closeModal(){if(!state.openModal)return;$(state.openModal).hidden=true;state.openModal=null;state.restoreFocus?.focus?.();state.restoreFocus=null}
 function focusSafe(){const el=document.activeElement;return !['INPUT','TEXTAREA','SELECT','BUTTON','A','SUMMARY'].includes(el?.tagName)&&!el?.isContentEditable&&!el?.closest?.('[role=button],[role=dialog],.sceneImageButton')}
 function bindClick(id,fn){$(id).addEventListener('click',fn)}
@@ -498,7 +498,7 @@ function exportPayload(){
 }
 function downloadJSON(){const obj=exportPayload();const blob=new Blob([JSON.stringify(obj,null,2)],{type:'application/json;charset=utf-8'});const u=URL.createObjectURL(blob);const a=document.createElement('a');a.href=u;a.download='Plotlish_learning_backup_'+new Date().toISOString().slice(0,10)+'.json';document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),1000);toast('备份已生成，请确认浏览器下载成功。')}
 function validBackup(b){if(!b||b.format!=='plotlish-student-learning-data'||![2,3,4].includes(b.schema)||!b.data||typeof b.data!=='object')return false;if(!b.data.prefs||!b.data.chapters||typeof b.data.chapters!=='object'||!Array.isArray(b.data.noteIds))return false;if(b.data.noteIds.some(x=>typeof x!=='string'||x.length>180)||b.data.noteIds.length>10000)return false;if(b.data.familiarIds!==undefined&&(!Array.isArray(b.data.familiarIds)||b.data.familiarIds.some(x=>typeof x!=='string'||x.length>180)))return false;if(b.schema>=3&&b.bookId!=='all')return false;if(b.schema===4&&(!Array.isArray(b.data.bookshelf)||b.data.bookshelf.length>1000||b.data.bookshelf.some(id=>!LIBRARY.norm([id]).length)))return false;if(b.schema===4&&b.data.rawRecords!==undefined&&(!b.data.rawRecords||Array.isArray(b.data.rawRecords)||typeof b.data.rawRecords!=='object'||Object.keys(b.data.rawRecords).length>4000||Object.entries(b.data.rawRecords).some(([k,v])=>k.length>240||!(k.startsWith('plotlish.student.r21.')||k.startsWith('plotlish.student.r2.')||k==='plotlish.student.r23.last-book')||typeof v!=='string'||v.length>110000)))return false;return true}
-function normalizePrefs(data){const out={...defaults};for(const k of Object.keys(defaults)){const v=data?.[k];if(v===undefined)continue;if(['clickSpeak','nextSpeak','pageSpeak','explain','scenes','hoverTranslation'].includes(k)&&typeof v==='boolean')out[k]=v;else if((k==='imageMode'||k==='lastImageMode')&&['compact','full','hidden'].includes(v))out[k]=v;else if(k==='hoverDelay'&&[550,750,1000].includes(Number(v)))out[k]=Number(v);else if(k==='readingPreset'&&['immersive','assisted','study','custom'].includes(v))out[k]=v;else if(k==='mode'&&['pages','scroll'].includes(v))out[k]=v;else if(k==='translation'&&['hidden','current','bilingual'].includes(v))out[k]=v;else if(k==='voice'&&typeof v==='string'&&v.length<200)out[k]=v;else if(k==='rate'&&Number(v)>=0.5&&Number(v)<=1.75)out[k]=Number(v);else if(k==='fontSize'&&Number(v)>=14&&Number(v)<=30)out[k]=Number(v);else if(k==='lineHeight'&&Number(v)>=1.4&&Number(v)<=2.2)out[k]=Number(v)}if(data&&!['compact','full','hidden'].includes(data.imageMode))out.imageMode=data.scenes===false?'hidden':'compact';out.scenes=out.imageMode!=='hidden';if(!['full','compact'].includes(out.lastImageMode))out.lastImageMode=out.imageMode==='full'?'full':'compact';return out}
+function normalizePrefs(data){const out={...defaults};for(const k of Object.keys(defaults)){const v=data?.[k];if(v===undefined)continue;if(['clickSpeak','nextSpeak','pageSpeak','explain','scenes','hoverTranslation'].includes(k)&&typeof v==='boolean')out[k]=v;else if((k==='imageMode'||k==='lastImageMode')&&['compact','full','hidden'].includes(v))out[k]=v;else if(k==='hoverDelay'&&[550,750,1000].includes(Number(v)))out[k]=Number(v);else if(k==='readingPreset'&&['immersive','assisted','study','custom'].includes(v))out[k]=v;else if(k==='mode'&&['pages','scroll'].includes(v))out[k]=v;else if(k==='translation'&&['hidden','current','bilingual'].includes(v))out[k]=v;else if(k==='dictionaryProvider'&&['cambridge','bing'].includes(v))out[k]=v;else if(k==='voice'&&typeof v==='string'&&v.length<200)out[k]=v;else if(k==='rate'&&Number(v)>=0.5&&Number(v)<=1.75)out[k]=Number(v);else if(k==='fontSize'&&Number(v)>=14&&Number(v)<=30)out[k]=Number(v);else if(k==='lineHeight'&&Number(v)>=1.4&&Number(v)<=2.2)out[k]=Number(v)}if(data&&!['compact','full','hidden'].includes(data.imageMode))out.imageMode=data.scenes===false?'hidden':'compact';out.scenes=out.imageMode!=='hidden';if(!['full','compact'].includes(out.lastImageMode))out.lastImageMode=out.imageMode==='full'?'full':'compact';return out}
 function applySnapshot(obj,mode="replace"){
  const data=obj.data,c=data.chapters[course.chapter_id]||{},nextPrefs=normalizePrefs(data.prefs);
  const ownIds=new Set(ann.map(n=>n.id));
@@ -596,36 +596,24 @@ const imgNav=document.createElement('button');imgNav.textContent='▧　查看�
 function showCurrentScene(){if(!course.scenes?.length)return;const found=[...course.scenes].reverse().find(sc=>sc.start_index<=state.selected&&sceneData[sc.scene_id])||null;if(found)openSceneModal(found)}
 bindClick('dismissIntro',()=>{save('guideHidden',true);hide($('readerIntro'),true);requestPageReflow()});
 bindClick('finishChapter',completeChapter);bindClick('prevPage',()=>changePage(-1));bindClick('nextPage',()=>changePage(1));bindClick('prevSentence',()=>changeSentence(-1));bindClick('nextSentence',()=>changeSentence(1));bindClick('playContinuous',playContinuous);bindClick('stopSpeech',stopAudio);bindClick('speakSelected',()=>startSpeech(state.selected,'sentence'));bindClick('copySentence',async()=>{try{await navigator.clipboard.writeText(course.sentences[state.selected]);toast('已复制')}catch(e){toast('无法复制')}});
-bindClick('toggleExplain',()=>{prefs.explain=!prefs.explain;persist();syncSettings();paint();requestPageReflow()});bindClick('collapseExplain',()=>{prefs.explain=false;persist();syncSettings();paint();requestPageReflow()});bindClick('openExplainMobile',openDrawer);bindClick('closeDrawer',closeDrawer);bindClick('overlayShade',closeDrawer);bindClick('toggleSettings',()=>showModal('settingsModal'));bindClick('settingsTop',()=>{closeDrawer();showModal('settingsModal')});bindClick('dataTop',()=>{updateDataSummary();showModal('privacyModal')});bindClick('dataFromSettings',()=>{closeModal();updateDataSummary();showModal('privacyModal')});bindClick('toggleHelp',()=>{hide($('readerOptions'),true);showModal('helpModal')});bindClick('quickAuto',()=>{prefs.nextSpeak=!prefs.nextSpeak;syncSettings();persist();toast(prefs.nextSpeak?'切句自动朗读已开启':'切句自动朗读已关闭')});
-bindClick('quickClick',()=>{prefs.clickSpeak=!prefs.clickSpeak;syncSettings();persist();toast(prefs.clickSpeak?'点句自动朗读已开启':'点句自动朗读已关闭')});
-bindClick('quickClickMobile',()=>{prefs.clickSpeak=!prefs.clickSpeak;syncSettings();persist();$('readerQuickNav').hidden=true;$('readerNavToggle').setAttribute('aria-expanded','false');toast(prefs.clickSpeak?'点句自动朗读已开启':'点句自动朗读已关闭')});
-bindClick('exportData',downloadJSON);bindClick('importData',()=>$('importFile').click());$('importFile').addEventListener('change',e=>importBackup(e.target.files?.[0]));bindClick('clearData',clearSelectedData);$('clearScope').addEventListener('change',()=>updateDataSummary());
+bindClick('toggleExplain',()=>{prefs.explain=!prefs.explain;persist();syncSettings();paint();requestPageReflow()});bindClick('collapseExplain',()=>{prefs.explain=false;persist();syncSettings();paint();requestPageReflow()});bindClick('openExplainMobile',openDrawer);bindClick('closeDrawer',closeDrawer);bindClick('overlayShade',closeDrawer);bindClick('toggleSettings',()=>showModal('settingsModal'));bindClick('settingsTop',()=>{closeDrawer();showModal('settingsModal')});bindClick('dataTop',()=>{updateDataSummary();showModal('privacyModal')});bindClick('dataFromSettings',()=>{closeModal();updateDataSummary();showModal('privacyModal')});bindClick('toggleHelp',()=>{hide($('readerOptions'),true);showModal('helpModal')});bindClick('exportData',downloadJSON);bindClick('importData',()=>$('importFile').click());$('importFile').addEventListener('change',e=>importBackup(e.target.files?.[0]));bindClick('clearData',clearSelectedData);$('clearScope').addEventListener('change',()=>updateDataSummary());
 bindClick('reviewReturn',()=>goReader());bindClick('reviewWords',()=>route('notebook'));bindClick('reviewHome',()=>route('shelf'));bindClick('reviewBook',()=>route('book'));
 for(const b of document.querySelectorAll('.closeModal'))b.addEventListener('click',closeModal);for(const id of ['settingsModal','helpModal','privacyModal','sceneModal'])$(id).addEventListener('click',e=>{if(e.target===$(id))closeModal()});
 for(const b of document.querySelectorAll('[data-settings-tab]'))b.addEventListener('click',()=>{for(const x of document.querySelectorAll('[data-settings-tab]'))x.classList.toggle('active',x===b);for(const x of document.querySelectorAll('[data-settings-panel]'))x.classList.toggle('active',x.dataset.settingsPanel===b.dataset.settingsTab)});
 function prefChange(id,key,callback){$(id).addEventListener('change',e=>{prefs[key]=e.target.type==='checkbox'?e.target.checked:e.target.value;if(key==='rate'||key==='fontSize'||key==='lineHeight')prefs[key]=Number(prefs[key]);persist();callback?.()})}
 $('imageMode').addEventListener('change',e=>{prefs.imageMode=e.target.value;if(prefs.imageMode!=='hidden')prefs.lastImageMode=prefs.imageMode;prefs.scenes=prefs.imageMode!=='hidden';setRaw(SCENE_USER_CHOICE,'1');persist();syncSettings();requestPageReflow()});
-for(const button of document.querySelectorAll('[data-preset]'))button.addEventListener('click',()=>{
- const p=button.dataset.preset;prefs.readingPreset=p;
- if(p==='immersive'){prefs.translation='hidden';prefs.explain=false}
- else if(p==='assisted'){prefs.translation='current';prefs.explain=true}
- else if(p==='study'){prefs.translation='bilingual';prefs.explain=true}
- persist();syncSettings();paint();requestPageReflow();
-});
 $('wordSearch').addEventListener('input',renderNotebook);$('wordSort').addEventListener('change',renderNotebook);$('wordOnlyNew').addEventListener('change',renderNotebook);
 function updatePreset(){
- const matched=prefs.translation==='hidden'&&!prefs.explain?'immersive':prefs.translation==='current'&&prefs.explain?'assisted':prefs.translation==='bilingual'&&prefs.explain?'study':'custom';
- prefs.readingPreset=matched;
- for(const b of document.querySelectorAll('[data-preset]')){b.classList.toggle('active',b.dataset.preset===matched);b.setAttribute('aria-pressed',String(b.dataset.preset===matched))}
- const note=$('presetStatus');if(note)note.textContent=matched==='custom'?'当前配置：自定义（由下方详细设置组合而成）':'当前模式：'+({immersive:'沉浸阅读',assisted:'辅助阅读',study:'对照精读'}[matched]);
+ // Legacy preset is derived from actual independent toggles; no competing preset UI.
+ prefs.readingPreset=prefs.translation==='hidden'&&!prefs.explain?'immersive':prefs.translation==='current'&&prefs.explain?'assisted':prefs.translation==='bilingual'&&prefs.explain?'study':'custom';
 }
 function setImageFromBool(on){
  if(!on&&prefs.imageMode!=='hidden')prefs.lastImageMode=prefs.imageMode;
  prefs.imageMode=on?(prefs.lastImageMode==='full'?'full':'compact'):'hidden';
  prefs.scenes=on;setRaw(SCENE_USER_CHOICE,'1');persist();syncSettings();requestPageReflow();
 }
-prefChange('hoverTranslation','hoverTranslation');prefChange('hoverDelay','hoverDelay');prefChange('autoClick','clickSpeak',syncSettings);prefChange('autoNext','nextSpeak',syncSettings);prefChange('autoPage','pageSpeak');prefChange('voice','voice');prefChange('rate','rate');prefChange('fontSize','fontSize',requestPageReflow);prefChange('lineHeight','lineHeight',requestPageReflow);prefChange('showScenes','scenes',()=>{prefs.imageMode=prefs.scenes?(prefs.lastImageMode==='full'?'full':'compact'):'hidden';if(prefs.scenes)prefs.lastImageMode=prefs.imageMode;setRaw(SCENE_USER_CHOICE,'1');syncSettings();requestPageReflow()});prefChange('translationMode','translation',()=>{prefs.readingPreset='custom';syncSettings();requestPageReflow();paintExplanation()});prefChange('showExplain','explain',()=>{prefs.readingPreset='custom';syncSettings();paint();requestPageReflow()});for(const b of document.querySelectorAll('[data-mode]'))b.addEventListener('click',()=>{if(prefs.mode===b.dataset.mode)return;prefs.mode=b.dataset.mode;stopAudio();persist();syncSettings();requestPageReflow()});
-function syncSettings(){$('imageMode').value=prefs.imageMode;$('hoverTranslation').checked=prefs.hoverTranslation!==false;$('hoverDelay').value=prefs.hoverDelay;updatePreset();$('autoClick').checked=prefs.clickSpeak;$('autoNext').checked=prefs.nextSpeak;$('autoPage').checked=prefs.pageSpeak;$('fontSize').value=prefs.fontSize;$('lineHeight').value=prefs.lineHeight;$('showScenes').checked=prefs.scenes;$('showExplain').checked=prefs.explain;$('voice').value=prefs.voice;$('rate').value=prefs.rate;$('translationMode').value=prefs.translation;$('quickClick').textContent='点句朗读 · '+(prefs.clickSpeak?'开':'关');$('quickClick').setAttribute('aria-pressed',String(prefs.clickSpeak));$('quickClickMobile').textContent='▶　点句自动朗读：'+(prefs.clickSpeak?'开':'关');$('quickClickMobile').setAttribute('aria-pressed',String(prefs.clickSpeak));$('quickAuto').textContent='切句朗读 · '+(prefs.nextSpeak?'开':'关');$('quickAuto').setAttribute('aria-pressed',String(prefs.nextSpeak));$('quickScenes').textContent='插图 · '+(prefs.scenes?'开':'关');$('quickScenes').setAttribute('aria-pressed',String(prefs.scenes));$('quickScenesMobile').textContent='▧　插图：'+(prefs.scenes?'开':'关');$('toggleExplain').textContent=prefs.explain?'讲解 ✓':'显示讲解';$('toggleExplain').setAttribute('aria-pressed',String(prefs.explain));for(const b of document.querySelectorAll('[data-mode]'))b.classList.toggle('active',b.dataset.mode===prefs.mode);}
+prefChange('dictionaryProvider','dictionaryProvider',()=>{dismissWordHint();syncQuickReaderControls()});prefChange('hoverTranslation','hoverTranslation');prefChange('hoverDelay','hoverDelay');prefChange('autoClick','clickSpeak',syncSettings);prefChange('autoNext','nextSpeak',syncSettings);prefChange('autoPage','pageSpeak');prefChange('voice','voice',syncQuickReaderControls);prefChange('rate','rate',syncQuickReaderControls);prefChange('fontSize','fontSize',requestPageReflow);prefChange('lineHeight','lineHeight',requestPageReflow);prefChange('showScenes','scenes',()=>{prefs.imageMode=prefs.scenes?(prefs.lastImageMode==='full'?'full':'compact'):'hidden';if(prefs.scenes)prefs.lastImageMode=prefs.imageMode;setRaw(SCENE_USER_CHOICE,'1');syncSettings();requestPageReflow()});prefChange('showExplain','explain',()=>{prefs.readingPreset='custom';syncSettings();paint();requestPageReflow()});for(const b of document.querySelectorAll('[data-mode]'))b.addEventListener('click',()=>{if(prefs.mode===b.dataset.mode)return;prefs.mode=b.dataset.mode;stopAudio();persist();syncSettings();requestPageReflow()});
+function syncSettings(){$('imageMode').value=prefs.imageMode;$('hoverTranslation').checked=prefs.hoverTranslation!==false;$('hoverDelay').value=prefs.hoverDelay;$('dictionaryProvider').value=prefs.dictionaryProvider==='bing'?'bing':'cambridge';updatePreset();$('autoClick').checked=prefs.clickSpeak;$('autoNext').checked=prefs.nextSpeak;$('autoPage').checked=prefs.pageSpeak;$('fontSize').value=prefs.fontSize;$('lineHeight').value=prefs.lineHeight;$('showScenes').checked=prefs.scenes;$('showExplain').checked=prefs.explain;$('voice').value=prefs.voice;$('rate').value=prefs.rate;$('quickScenes').textContent='插图 · '+(prefs.scenes?'开':'关');$('quickScenes').setAttribute('aria-pressed',String(prefs.scenes));$('toggleExplain').textContent=prefs.explain?'讲解 ✓':'显示讲解';$('toggleExplain').setAttribute('aria-pressed',String(prefs.explain));for(const b of document.querySelectorAll('[data-mode]'))b.classList.toggle('active',b.dataset.mode===prefs.mode);syncQuickReaderControls();}
 let mobileLookupMode=false;
 function clickSentenceEvent(e){if(e.detail>1)return;let note=e.target.closest('[data-note-id]');let row=e.target.closest('.readingSentence');if(!row)return;
  if(mobileLookupMode&&matchMedia('(pointer:coarse)').matches&&!note){
@@ -634,12 +622,12 @@ function clickSentenceEvent(e){if(e.detail>1)return;let note=e.target.closest('[
  }
  selectSentence(Number(row.dataset.index),{origin:'click',noteId:note?.dataset.noteId||null,speak:null,pageHint:state.page,offset:Number(row.dataset.start)||0})}
 for(const rootId of ['pageText','scrollText']){$(rootId).addEventListener('click',clickSentenceEvent);$(rootId).addEventListener('keydown',e=>{if(e.key!=='Enter'&&e.key!==' ')return;let note=e.target.closest('[data-note-id]');let row=e.target.closest('.readingSentence');if(!row)return;e.preventDefault();e.stopPropagation();selectSentence(Number(row.dataset.index),{origin:'click',noteId:note?.dataset.noteId||null,speak:null,pageHint:state.page,offset:Number(row.dataset.start)||0})})}
-window.addEventListener('keydown',e=>{if(chapterOpen&&e.key==='Tab'){const fs=[...$('chapterDrawer').querySelectorAll('button:not([disabled])')];if(fs.length){let i=fs.indexOf(document.activeElement);if(e.shiftKey&&i<=0){e.preventDefault();fs[fs.length-1].focus()}else if(!e.shiftKey&&i===fs.length-1){e.preventDefault();fs[0].focus()}}return}if(e.key==='Tab'&&state.openModal){const els=[...$(state.openModal).querySelectorAll('button:not(:disabled),select:not(:disabled),input:not(:disabled),textarea:not(:disabled),[tabindex="0"]')].filter(el=>el.getClientRects().length>0);if(els.length){let first=els[0],last=els[els.length-1];if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus()}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus()}}return}if(e.key==='Escape'){if(!$('readerOptions').hidden){e.preventDefault();hide($('readerOptions'),true);$('readerOptionsToggle').focus()}else if(chapterOpen){e.preventDefault();closeChapterDrawer()}else if(state.openModal){e.preventDefault();closeModal()}else if(state.drawer){e.preventDefault();closeDrawer()}else if(speech.kind!=='idle'){e.preventDefault();stopAudio()}return}if(chapterOpen)return;if(e.ctrlKey||e.metaKey||e.altKey||!focusSafe()||state.openModal||state.drawer||state.view!=='reader')return;const k=e.key.toLowerCase();if(!['arrowleft','arrowright','arrowup','arrowdown',' ','r','t','?'].includes(k)||e.repeat&&['arrowleft','arrowright','arrowup','arrowdown',' ','r'].includes(k))return;e.preventDefault();if(k==='arrowleft')changePage(-1);if(k==='arrowright')changePage(1);if(k==='arrowup')changeSentence(-1);if(k==='arrowdown')changeSentence(1);if(k==='r')startSpeech(state.selected,'sentence');if(k===' ')playContinuous();if(k==='t'){prefs.translation=prefs.translation==='hidden'?'current':'hidden';prefs.readingPreset='custom';persist();syncSettings();paintExplanation();requestPageReflow();toast(prefs.translation==='hidden'?'已隐藏中文翻译':'已显示中文翻译')}if(k==='?')showModal('helpModal')});
+window.addEventListener('keydown',e=>{if(chapterOpen&&e.key==='Tab'){const fs=[...$('chapterDrawer').querySelectorAll('button:not([disabled])')];if(fs.length){let i=fs.indexOf(document.activeElement);if(e.shiftKey&&i<=0){e.preventDefault();fs[fs.length-1].focus()}else if(!e.shiftKey&&i===fs.length-1){e.preventDefault();fs[0].focus()}}return}if(e.key==='Tab'&&state.openModal){const els=[...$(state.openModal).querySelectorAll('button:not(:disabled),select:not(:disabled),input:not(:disabled),textarea:not(:disabled),[tabindex="0"]')].filter(el=>el.getClientRects().length>0);if(els.length){let first=els[0],last=els[els.length-1];if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus()}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus()}}return}if(e.key==='Escape'){if(!$('quickVoicePanel').hidden||!$('quickTranslationPanel').hidden){e.preventDefault();closeReaderQuickPanels();}else if(!$('readerOptions').hidden){e.preventDefault();hide($('readerOptions'),true);$('readerOptionsToggle').focus()}else if(chapterOpen){e.preventDefault();closeChapterDrawer()}else if(state.openModal){e.preventDefault();closeModal()}else if(state.drawer){e.preventDefault();closeDrawer()}else if(speech.kind!=='idle'){e.preventDefault();stopAudio()}return}if(chapterOpen)return;if(e.ctrlKey||e.metaKey||e.altKey||!focusSafe()||state.openModal||state.drawer||state.view!=='reader')return;const k=e.key.toLowerCase();if(!['arrowleft','arrowright','arrowup','arrowdown',' ','r','t','?'].includes(k)||e.repeat&&['arrowleft','arrowright','arrowup','arrowdown',' ','r'].includes(k))return;e.preventDefault();if(k==='arrowleft')changePage(-1);if(k==='arrowright')changePage(1);if(k==='arrowup')changeSentence(-1);if(k==='arrowdown')changeSentence(1);if(k==='r')startSpeech(state.selected,'sentence');if(k===' ')playContinuous();if(k==='t'){prefs.translation=prefs.translation==='hidden'?'current':'hidden';prefs.readingPreset='custom';persist();syncSettings();paintExplanation();requestPageReflow();toast(prefs.translation==='hidden'?'已隐藏中文翻译':'已显示中文翻译')}if(k==='?')showModal('helpModal')});
 window.addEventListener('hashchange',browserNav);window.addEventListener('popstate',browserNav);
 $('pageBody').addEventListener('scroll',()=>{if(prefs.mode==='scroll'){const el=$('pageBody');state.scrollAtEnd=el.scrollTop+el.clientHeight>=el.scrollHeight-28}},{passive:true});
 window.addEventListener('pagehide',()=>{persist();stopAudio()});window.addEventListener('resize',requestPageReflow);
 if('ResizeObserver'in window)new ResizeObserver(requestPageReflow).observe($('pageBody'));
-$('quickScenes').onclick=$('quickScenesMobile').onclick=()=>setImageFromBool(!prefs.scenes);
+$('quickScenes').onclick=()=>setImageFromBool(!prefs.scenes);
 if(hasSpeech()){voicesChanged();speechSynthesis.addEventListener?.('voiceschanged',voicesChanged);setTimeout(voicesChanged,500)}else{$('voice').add(new Option('当前浏览器不支持朗读',''))}
 $('showScenes').disabled=!Object.keys(sceneData).length; if(!Object.keys(sceneData).length){prefs.scenes=false;$('illustrationNotice').textContent='没有可用的场景插图；课程正文仍可完整阅读。'}else{$('illustrationNotice').textContent='电脑端图片位于右侧学习面板；手机连续阅读时随文显示，分页时以独立图片页完整展示。'}
 // Keep the two frequently used sound switches accessible. Low-frequency actions in one menu.
@@ -651,31 +639,51 @@ document.querySelector('.readerHeader').append(optionsPopup);
 function closeReaderOptions(){hide(optionsPopup,true);optionsButton.setAttribute('aria-expanded','false')}
 optionsButton.onclick=()=>{const willOpen=optionsPopup.hidden;hide(optionsPopup,!willOpen);optionsButton.setAttribute('aria-expanded',String(willOpen));};
 document.addEventListener('pointerdown',e=>{if(!optionsPopup.hidden&&!optionsPopup.contains(e.target)&&!optionsButton.contains(e.target))closeReaderOptions()});
+// R2.8: single-source-of-truth for quick controls and settings.
+function syncQuickReaderControls(){
+ const voice=state.voiceList.find(v=>v.voiceURI===prefs.voice)||state.voiceList[0];
+ $('quickVoiceName').textContent=prefs.voice?((voice?.name||'已选声音').replace(/Microsoft | Online \(Natural\)/gi,'').slice(0,19)):(voice?/brian/i.test(voice.name)?'Brian':'自动英语':'自动英语');
+ $('quickTranslationName').textContent=({hidden:'隐藏中文',current:'当前句',bilingual:'英中对照'}[prefs.translation]||'当前句');
+ for(const b of document.querySelectorAll('[data-quick-translation]')){const on=b.dataset.quickTranslation===prefs.translation;b.classList.toggle('active',on);b.setAttribute('aria-pressed',String(on))}
+ $('voiceAvailability').textContent=state.voiceList.some(v=>/brian/i.test(v.name+' '+v.voiceURI))?'已检测到 Brian，可使用自动选择或手动指定。':'当前浏览器未提供 Brian；自动改用可用英语语音。不使用付费 API。';
+}
+function closeReaderQuickPanels(){for(const id of ['quickVoicePanel','quickTranslationPanel'])$(id).hidden=true;for(const id of ['quickVoice','quickTranslation'])$(id).setAttribute('aria-expanded','false')}
+for(const [buttonId,panelId] of [['quickVoice','quickVoicePanel'],['quickTranslation','quickTranslationPanel']]){
+ $(buttonId).addEventListener('click',()=>{const opening=$(panelId).hidden;closeReaderQuickPanels();closeReaderOptions();if(opening){$(panelId).hidden=false;$(buttonId).setAttribute('aria-expanded','true')}})
+}
+for(const b of document.querySelectorAll('[data-quick-translation]'))b.addEventListener('click',()=>{prefs.translation=b.dataset.quickTranslation;persist();syncSettings();paint();requestPageReflow();closeReaderQuickPanels()});
+$('previewVoice').addEventListener('click',()=>startSpeech(state.selected,'sentence'));
+document.addEventListener('pointerdown',e=>{if(!e.target.closest('#quickVoice,#quickTranslation,#quickVoicePanel,#quickTranslationPanel'))closeReaderQuickPanels()});
 setupStoryFilters();configureCovers();let routeHash=location.hash;if(routeHash)browserNav();else route('home',{push:false});syncSettings();renderReview();playbackUI();
 const pendingTarget=(()=>{try{return JSON.parse(getRaw(PREFIX+'pending-note-target'))}catch(e){return null}})();
 if(pendingTarget?.book===course.book_id&&pendingTarget?.chapter===course.chapter_id){delRaw(PREFIX+'pending-note-target');setTimeout(()=>{state.activeNote=pendingTarget.noteId;goReader(Math.min(course.ids.length-1,Math.max(0,pendingTarget.sentenceIndex||0)));state.activeNote=pendingTarget.noteId;paintExplanation();if(innerWidth<=800)openDrawer()},120)}
 
 // Every reader page supports explicit completion, without auto-completing on overflow navigation.
 
-// Offline, non-mutating word hover: locate the real text range under the pointer.
+// Online-only, non-mutating word lookup: locate the text range under the pointer.
 // This does not add spans to the text, so existing pagination and note click targets stay unchanged.
-const HOVER_DICTIONARY={...JSON.parse($('hoverGlossaryData').textContent),...(course.glossary||{})};
 const hint=document.createElement('div');hint.id='hoverWordHint';hint.setAttribute('role','tooltip');hint.hidden=true;document.body.append(hint);
-const detailPanel=label('aside','','');detailPanel.id='hoverWordDetail';detailPanel.hidden=true;detailPanel.setAttribute('role','dialog');detailPanel.setAttribute('aria-label','阅读器内词典详情');$('readerView').append(detailPanel);
-function closeWordDetail(){detailPanel.hidden=true;detailPanel.replaceChildren()}
-window.__plotlishCloseWordDetail=closeWordDetail;
-function openWordDetail(data,meaning){
- dismissWordHint();const head=label('div','','hwd-top');const headTitle=label('span','词典详情 · 阅读器内','hwd-label');
- const close=label('button','关闭 ×','');close.type='button';close.onclick=e=>{e.stopPropagation();closeWordDetail()};head.append(headTitle,close);
- const word=label('h3',data.word,'hwd-word');const value=label('div',meaning||'本地词库暂未收录该词','hwd-meaning');
- const exampleTitle=label('div','所在原句','hwd-caption');const sentence=label('div',data.sentence||'该句暂不可用','hwd-sentence');
- const actions=label('div','','hwd-actions');const listen=label('button','▶ 单词发音','');listen.type='button';listen.onclick=e=>{e.stopPropagation();speakPhrase(data.word)};actions.append(listen);
- const foot=label('div','显示的是本地已有释义和原句，未收录的解释不会凭空生成。','hwd-notice');
- detailPanel.replaceChildren(head,word,value,exampleTitle,sentence,actions,foot);detailPanel.hidden=false;close.focus();
+function closeWordDetail(){/* R2.8 has no site dictionary or local word detail. */}
+// Free external lookups use ordinary browser navigation, never scrape third-party
+// pages, request a paid API, or embed a secret into client-side JavaScript.
+function makeDictionaryLink(provider,word){
+ const query=String(word||'').trim().replaceAll('’',"'");
+ if(!/^[A-Za-z]+(?:['-][A-Za-z]+)*$/.test(query))return null;
+ const definitions={
+  cambridge:{label:'剑桥词典 ↗',base:'https://dictionary.cambridge.org/dictionary/english-chinese-simplified/'},
+  bing:{label:'必应词典 ↗',base:'https://cn.bing.com/dict/?mkt=zh-CN&setlang=ZH&q='}
+ };
+ const item=definitions[provider];if(!item)return null;
+ const link=document.createElement('a');link.className='hoverOnlineLink';
+ link.textContent=item.label;link.href=item.base+encodeURIComponent(query);
+ link.target='_blank';link.rel='noopener noreferrer';
+ link.setAttribute('aria-label','在新标签页使用'+(provider==='cambridge'?'剑桥':'必应')+'词典查询 '+query);
+ return link;
 }
-document.addEventListener('pointerdown',e=>{if(!detailPanel.hidden&&!detailPanel.contains(e.target)&&!hint.contains(e.target))closeWordDetail()},{capture:true});
-document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!detailPanel.hidden){e.preventDefault();e.stopImmediatePropagation();closeWordDetail()}},true);
-
+function appendDictionaryLinks(container,word){
+ const link=makeDictionaryLink(prefs.dictionaryProvider==='bing'?'bing':'cambridge',word);
+ if(link)container.append(link);
+}
 let hoverTimer=null,hoverDismissTimer=null,hoverCandidate='',hoverWord='',hoverBox=null;
 function dismissWordHint(){clearTimeout(hoverTimer);clearTimeout(hoverDismissTimer);hoverCandidate='';hint.hidden=true;hoverWord='';hoverBox=null}
 function delayDismissWordHint(){if(hint.classList.contains('mobileWordHint'))return;clearTimeout(hoverTimer);clearTimeout(hoverDismissTimer);hoverDismissTimer=setTimeout(dismissWordHint,380)}
@@ -697,25 +705,23 @@ function locateWordAt(x,y){
   return {word:m[0],box,noteId:holder.closest('[data-note-id]')?.dataset.noteId||null,sentence:holder.closest('.readingSentence')?.querySelector('.sentenceText')?.textContent?.trim()||''};
  }return null;
 }
-function showWordHint(data,{force=false}={}){if(force){clearTimeout(hoverTimer);clearTimeout(hoverDismissTimer);}if(!data||(!force&&prefs.hoverTranslation===false))return;
- const word=data.word.toLowerCase().replaceAll('’',"'");const curriculumNote=ann.find(n=>n.id===data.noteId);let zh=curriculumNote?(curriculumNote.meaning+(curriculumNote.explain?' · '+curriculumNote.explain:'')):HOVER_DICTIONARY[word];
- const IRREGULAR={was:'be',were:'be',is:'be',are:'be',went:'go',gone:'go',had:'have',has:'have',did:'do',done:'do',came:'come',seen:'see',saw:'see',took:'take',taken:'take',said:'say',knew:'know',known:'know',thought:'think',bought:'buy',brought:'bring',found:'find',left:'leave',felt:'feel',made:'make',wrote:'write',written:'write',ran:'run',sat:'sit'};
-  if(!zh&&IRREGULAR[word])zh=HOVER_DICTIONARY[IRREGULAR[word]];
-  if(!zh&&word.endsWith("'s"))zh=HOVER_DICTIONARY[word.slice(0,-2)];
- if(!zh&&word.endsWith('ies'))zh=HOVER_DICTIONARY[word.slice(0,-3)+'y'];
- if(!zh&&word.endsWith('s'))zh=HOVER_DICTIONARY[word.slice(0,-1)];
- const name=label('div',data.word,'hoverWord');const value=label('div',zh||'本地词库暂未收录该词','hoverMeaning');
- const detail=label('button','查看详情','hoverDetail');detail.type='button';
- detail.setAttribute('aria-label','查看 '+data.word+' 的词典详情');
- detail.onclick=e=>{e.preventDefault();e.stopPropagation();openWordDetail(data,zh)};
- const content=[name,value,detail];if(force){const close=label('button','关闭 ×','hoverClose');close.type='button';close.onclick=e=>{e.preventDefault();e.stopPropagation();dismissWordHint()};content.push(close)}hint.replaceChildren(...content);
- hint.hidden=false;const rect=data.box;const max=Math.max(0,innerWidth-268);hint.style.left=Math.max(8,Math.min(rect.left,max))+'px';
- hint.style.top=Math.max(8,rect.top-76)+'px';
- if(rect.top<78)hint.style.top=Math.min(innerHeight-80,rect.bottom+10)+'px';if(force){hint.classList.add('mobileWordHint');hint.style.left='10px';hint.style.top='auto'}else hint.classList.remove('mobileWordHint');hoverWord=data.word;hoverBox=rect;
+function showWordHint(data,{force=false}={}){
+ if(force){clearTimeout(hoverTimer);clearTimeout(hoverDismissTimer)}
+ if(!data||(!force&&prefs.hoverTranslation===false))return;
+ const name=label('div',data.word,'hoverWord');
+ const value=label('div','在线查询英汉释义','hoverMeaning');
+ const actions=label('div','','hoverActions');appendDictionaryLinks(actions,data.word);
+ const content=[name,value,actions];
+ if(force){const close=label('button','关闭 ×','hoverClose');close.type='button';close.onclick=e=>{e.preventDefault();e.stopPropagation();dismissWordHint()};content.push(close)}
+ hint.replaceChildren(...content);hint.hidden=false;
+ const rect=data.box;
+ if(force){hint.classList.add('mobileWordHint');hint.style.left='10px';hint.style.top='auto'}
+ else {hint.classList.remove('mobileWordHint');const hintWidth=hint.offsetWidth,hintHeight=hint.offsetHeight;hint.style.left=Math.max(8,Math.min(rect.left,innerWidth-hintWidth-8))+'px';const above=rect.top-hintHeight-9,below=rect.bottom+9;hint.style.top=(above>=8?above:(below+hintHeight<=innerHeight-8?below:Math.max(8,Math.min(above,innerHeight-hintHeight-8))))+'px'}
+ hoverWord=data.word;hoverBox=rect;
 }
 function onWordMove(e){
  if(e.pointerType==='touch')return;
- if(!detailPanel.hidden||prefs.hoverTranslation===false||state.openModal||chapterOpen||state.drawer||state.view!=='reader'||e.pointerType==='touch'){dismissWordHint();return}
+ if(prefs.hoverTranslation===false||state.openModal||chapterOpen||state.drawer||state.view!=='reader'||e.pointerType==='touch'){dismissWordHint();return}
  const target=e.target?.closest?.('.sentenceText');if(!target){delayDismissWordHint();return}
  const data=locateWordAt(e.clientX,e.clientY);if(!data){delayDismissWordHint();return}
  const key=data.word+'@'+Math.round(data.box.left)+'@'+Math.round(data.box.top);
@@ -725,12 +731,10 @@ function onWordMove(e){
 for(const id of ['pageText','scrollText']){
  $(id).addEventListener('pointermove',onWordMove,{passive:true});
  $(id).addEventListener('pointerleave',delayDismissWordHint);
- // Detailed word lookup is activated only by the tooltip's explicit button.
- // Double-click is not a separate word-lookup command: it would first trigger
- // ordinary sentence clicks and inadvertently start speech.
+ // Ordinary sentence selection and word lookup remain separate interactions.
 }
-const mobileLookupButton=label('button','查词模式：关');mobileLookupButton.type='button';mobileLookupButton.id='mobileLookupButton';mobileLookupButton.setAttribute('aria-pressed','false');$('readerQuickNav').append(mobileLookupButton);
-mobileLookupButton.onclick=()=>{mobileLookupMode=!mobileLookupMode;mobileLookupButton.setAttribute('aria-pressed',String(mobileLookupMode));mobileLookupButton.textContent='查词模式：'+(mobileLookupMode?'开（点击单词查释义）':'关');dismissWordHint();$('readerQuickNav').hidden=true;$('readerNavToggle').setAttribute('aria-expanded','false');toast(mobileLookupMode?'查词模式已开启：点单词看词义；再次选择可关闭。':'已恢复普通句子点击')};
-window.addEventListener('scroll',()=>{if(!hint.classList.contains('mobileWordHint'))dismissWordHint();if(!detailPanel.hidden)closeWordDetail()},true);
+const mobileLookupButton=label('button','查词');mobileLookupButton.type='button';mobileLookupButton.id='mobileLookupButton';mobileLookupButton.setAttribute('aria-pressed','false');document.querySelector('.readerHeaderTools').insertBefore(mobileLookupButton,$('quickVoice'));
+mobileLookupButton.onclick=()=>{mobileLookupMode=!mobileLookupMode;mobileLookupButton.setAttribute('aria-pressed',String(mobileLookupMode));mobileLookupButton.textContent=mobileLookupMode?'查词 ✓':'查词';dismissWordHint();$('readerQuickNav').hidden=true;$('readerNavToggle').setAttribute('aria-expanded','false');toast(mobileLookupMode?'查词模式已开启：点单词看词义；再次选择可关闭。':'已恢复普通句子点击')};
+window.addEventListener('scroll',()=>{if(!hint.classList.contains('mobileWordHint'))dismissWordHint();},true);
 
 })();

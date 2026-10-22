@@ -703,3 +703,49 @@
     preserving their source ratio; they never become a cropped thumbnail. */
  #readerView .readerLayout.noExplain .sceneFigure{width:min(100%,660px,max(190px,calc((100dvh - 330px)*4 / 3)))}
 }
+
+/* R2.7.1: restored free external dictionary destinations; no API keys required. */
+#hoverWordHint{max-width:min(310px,calc(100vw - 20px))}
+#hoverWordHint .hoverActions{display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin-top:9px}
+#hoverWordHint .hoverActions .hoverDetail{margin-top:0}
+#hoverWordHint .hoverOnlineLink,#hoverWordDetail .hoverOnlineLink{display:inline-flex;align-items:center;justify-content:center;padding:5px 9px;border:1px solid #cedccf;background:#f7f9f5;color:#20533b;border-radius:7px;font:650 12px/1.5 system-ui,sans-serif;text-decoration:none;white-space:nowrap;cursor:pointer}
+#hoverWordHint .hoverOnlineLink:hover,#hoverWordDetail .hoverOnlineLink:hover{background:#dceee0;text-decoration:underline}
+#hoverWordHint .hoverOnlineLink:focus-visible,#hoverWordDetail .hoverOnlineLink:focus-visible{outline:2px solid #2e775a;outline-offset:2px}
+#hoverWordDetail .hoverOnlineLink{padding:8px 12px;font-size:13px}
+
+/* R2.8 – reader quick controls + online-only dictionary */
+#readerView .readerHeader{position:relative}
+#readerView .readerHeaderTools{flex-wrap:nowrap;gap:7px}
+#readerView .readerHeaderTools .r28QuickButton{display:inline-flex;align-items:center;gap:6px;border:1px solid #d4e4d9;background:#f4f8f3;color:#254b39;border-radius:9px;min-height:35px;padding:6px 10px;font-size:12px;font-weight:650;white-space:nowrap;cursor:pointer}
+#readerView .readerHeaderTools .r28QuickButton:hover,#readerView .readerHeaderTools .r28QuickButton[aria-expanded="true"]{background:#e2efe4;border-color:#b6d5c4}
+#readerView .readerHeaderTools .r28QuickButton:focus-visible{outline:2px solid #307a57;outline-offset:2px}
+#readerView .readerQuickPanel{position:absolute;right:clamp(12px,3vw,40px);top:calc(100% - 1px);z-index:150;width:min(308px,calc(100vw - 24px));background:#fffefa;border:1px solid #d8e5da;border-radius:14px;padding:15px;box-shadow:0 18px 42px #14382427;display:grid;gap:11px;color:#234633;font-size:13px}
+#readerView .readerQuickPanel[hidden]{display:none!important}
+#readerView .readerQuickPanel strong{font-size:15px}
+#readerView .readerQuickPanel select{width:100%;max-width:100%;box-sizing:border-box}
+#readerView .readerQuickPanel .quickPreview{width:100%;padding:10px;border-radius:9px;background:#e9f4e9;border:1px solid #c5d9c9;color:#254b39}
+#readerView .quickTranslationModes{display:grid;gap:6px}
+#readerView .quickTranslationModes button{padding:10px;border:1px solid #dbe6da;background:#fffefa;text-align:left;border-radius:8px;color:#294b39}
+#readerView .quickTranslationModes button.active{background:#e7f3e9;border-color:#8ebea0;font-weight:700}
+#readerView #mobileLookupButton{display:none;white-space:nowrap}
+#readerView #hoverWordHint .hoverOnlineLink{font-size:13px;padding:7px 12px}
+#readerView #hoverWordHint .hoverMeaning{color:#607c67}
+@media(max-width:1100px){#readerView .readerHeaderTools #toggleExplain{display:none}}
+@media(max-width:800px){
+ #readerView .readerHeaderTools .r28QuickButton{min-width:35px;padding:5px 8px;font-size:13px;min-height:35px;justify-content:center}
+ #readerView .readerHeaderTools .r28QuickButton .quickText{display:none}
+ #readerView .readerHeaderTools .r28QuickButton .quickChevron{font-size:10px}
+ #readerView #mobileLookupButton{display:inline-flex;align-items:center;padding:6px 8px;min-height:35px;font-size:12px}
+ #readerView .readerQuickPanel{right:8px;top:calc(100% - 1px)}
+}
+@media(max-width:420px){#readerView .readerHeaderTools{gap:3px}#readerView .readerHeaderTools .r28QuickButton{padding:5px 6px}#readerView .readerHeaderTools #toggleSettings{min-width:30px}}
+
+/* R2.8 mobile: keep the title to one line so more space remains for reading. */
+@media(max-width:600px){
+ #readerView .readerHeader{grid-template-columns:auto minmax(50px,1fr) auto;gap:5px;min-height:56px!important;padding:5px 8px!important}
+ #readerView .chapterHeader{min-width:0;overflow:hidden}
+ #readerView .readerHeader .chapterHeader strong{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%;font-size:13px!important;line-height:1.3}
+ #readerView .readerHeader .chapterHeader span{display:none}
+ #readerView .readerHeader .backButton{font-size:0;min-width:36px;padding:7px 5px}
+ #readerView .readerHeader .backButton::first-letter{font-size:15px}
+}
