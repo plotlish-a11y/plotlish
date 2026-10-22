@@ -69,6 +69,36 @@ class BuildTests(unittest.TestCase):
         verify_site(self.out)
         return cat(self.out)
 
+    def test_deployment_guard_rejects_empty_site_but_allows_local_core_build(self):
+        self.assertEqual(self.compile(), [])
+        with self.assertRaisesRegex(AssertionError, '缺少作品'):
+            verify_site(self.out, require_book='the-runaway-bride')
+        with self.assertRaisesRegex(AssertionError, '缺少章节'):
+            verify_site(self.out, require_chapter='the-runaway-bride-ch001')
+
+    def test_deployment_guard_accepts_published_chapter_and_checks_counts(self):
+        make_chapter(make_book(self.packages))
+        self.compile()
+        verify_site(self.out, require_book='alpha-book',
+                    require_chapter='alpha-book-ch001', require_sentences=2,
+                    require_scenes=0)
+        with self.assertRaisesRegex(AssertionError, '句子数不符'):
+            verify_site(self.out, require_chapter='alpha-book-ch001', require_sentences=3)
+        with self.assertRaisesRegex(AssertionError, '场景数量不符'):
+            verify_site(self.out, require_chapter='alpha-book-ch001', require_scenes=1)
+
+    def test_reading_only_completion_has_no_exercise_controls(self):
+        html=(ROOT/'core/index.html').read_text(encoding='utf8')
+        js=(ROOT/'core/src/reader.js').read_text(encoding='utf8')
+        for obsolete in ('id="reflection"', 'id="reviewQuestion"',
+                         'id="showReviewHint"', 'id="grammarTitle"'):
+            self.assertNotIn(obsolete, html)
+        for required in ('id="reviewReturn"','id="reviewWords"',
+                         'id="reviewHome"','id="reviewBook"'):
+            self.assertIn(required,html)
+        self.assertNotIn("$('reflection').addEventListener",js)
+        self.assertIn('FINISHED READING',js)
+
     def test_r27_shelf_uses_compact_horizontal_cards(self):
         css=(ROOT/'core/src/styles.css').read_text(encoding='utf8')
         self.assertIn('#shelfView .shelfBookGrid{display:grid;grid-template-columns:minmax(0,1fr)',css)

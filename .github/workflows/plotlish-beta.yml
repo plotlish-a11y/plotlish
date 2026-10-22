@@ -7,6 +7,7 @@ on:
       - 'beta-app/**'
       - 'course-packages/**'
       - '.github/workflows/plotlish-beta.yml'
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -17,7 +18,7 @@ concurrency:
 
 jobs:
   build-deploy:
-    if: github.event_name == 'push' && github.ref == 'refs/heads/beta'
+    if: github.ref == 'refs/heads/beta'
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -27,15 +28,20 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Validate R2.5 course profiles, chapters and ZIP import
+      - name: Run R2.7 tests
         working-directory: beta-app
         run: python -m unittest discover -s tests -p test_build.py -v
-      - name: Build R2.5 student site from published book/chapter folders
+      - name: Build published books from independent course-packages
         working-directory: beta-app
         run: python tools/build.py --packages-dir ../course-packages
-      - name: Verify generated student site (empty shelf allowed)
+      - name: Require Chapter 01 and all 9 images before deployment
         working-directory: beta-app
-        run: python tools/verify_beta_site.py
+        run: |
+          python tools/verify_beta_site.py \
+            --require-book the-runaway-bride \
+            --require-chapter the-runaway-bride-ch001 \
+            --require-sentences 249 \
+            --require-scenes 9
       - name: Verify Cloudflare account and actual production branch
         working-directory: beta-app
         id: cloudflare
@@ -43,7 +49,7 @@ jobs:
           CLOUDFLARE_API_TOKEN_BETA: ${{ secrets.CLOUDFLARE_API_TOKEN_BETA }}
           CLOUDFLARE_ACCOUNT_ID_BETA: ${{ secrets.CLOUDFLARE_ACCOUNT_ID_BETA }}
         run: python tools/check_beta_cloudflare_target.py
-      - name: Update existing Pages TEST website (not old production)
+      - name: Deploy to existing plotlish-test Pages project
         shell: bash
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN_BETA }}
@@ -55,6 +61,41 @@ jobs:
             --project-name=plotlish-test \
             --branch="$PAGES_PRODUCTION_BRANCH" \
             --commit-hash="$GITHUB_SHA"
-          echo '### ✅ Beta 已实际更新 Pages 测试站' >> "$GITHUB_STEP_SUMMARY"
-          echo 'https://plotlish-test.pages.dev/' >> "$GITHUB_STEP_SUMMARY"
-          echo '旧版 plotlish.pages.dev 没有被此工作流修改。' >> "$GITHUB_STEP_SUMMARY"
+      - name: Verify public catalog contains Chapter 01 after deployment
+        shell: bash
+        run: |
+          python - <<'PYVERIFY'
+          import json, os, time
+          from urllib.request import Request, urlopen
+          url = ('https://plotlish-test.pages.dev/courses/catalog.json?verify='
+                 + os.environ['GITHUB_SHA'])
+          last = 'not checked'
+          for attempt in range(1, 13):
+              try:
+                  request = Request(url, headers={
+                      'Cache-Control': 'no-cache',
+                      'User-Agent': 'Plotlish-Beta-Deploy-Verify/1.0'})
+                  with urlopen(request, timeout=15) as response:
+                      data = json.load(response)
+                  books = data.get('books', {})
+                  chapters = data.get('chapters', [])
+                  exists = any(c.get('chapter_id') == 'the-runaway-bride-ch001'
+                               for c in chapters)
+                  if 'the-runaway-bride' in books and exists:
+                      print('SUCCESS: live catalog has Chapter 01',
+                            len(books), 'books', len(chapters), 'chapters')
+                      break
+                  last = f'live catalog is empty/incomplete: books={len(books)}, chapters={len(chapters)}'
+              except Exception as error:
+                  last = f'{type(error).__name__}: {error}'
+              print(f'Attempt {attempt}: {last}')
+              if attempt < 12:
+                  time.sleep(8)
+          else:
+              raise SystemExit('Deployment unverified: '+last)
+          PYVERIFY
+      - name: Deployment summary
+        run: |
+          echo '### Plotlish Chapter 01 deployed and verified' >> "$GITHUB_STEP_SUMMARY"
+          echo 'https://plotlish-test.pages.dev/#stories' >> "$GITHUB_STEP_SUMMARY"
+          echo 'https://plotlish-test.pages.dev/courses/catalog.json' >> "$GITHUB_STEP_SUMMARY"
