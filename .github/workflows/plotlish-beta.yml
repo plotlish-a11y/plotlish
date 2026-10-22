@@ -5,6 +5,7 @@ on:
     branches: [beta]
     paths:
       - 'beta-app/**'
+      - 'course-packages/**'
       - '.github/workflows/plotlish-beta.yml'
 
 permissions:
@@ -31,7 +32,7 @@ jobs:
         run: python -m unittest discover -s tests -p test_build.py -v
       - name: Build R2.5 student site from published book/chapter folders
         working-directory: beta-app
-        run: python tools/build.py
+        run: python tools/build.py --packages-dir ../course-packages
       - name: Verify generated student site (empty shelf allowed)
         working-directory: beta-app
         run: python tools/verify_beta_site.py
