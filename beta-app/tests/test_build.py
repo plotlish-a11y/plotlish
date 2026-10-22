@@ -69,6 +69,258 @@ class BuildTests(unittest.TestCase):
         verify_site(self.out)
         return cat(self.out)
 
+    def test_r27_shelf_uses_compact_horizontal_cards(self):
+        css=(ROOT/'core/src/styles.css').read_text(encoding='utf8')
+        self.assertIn('#shelfView .shelfBookGrid{display:grid;grid-template-columns:minmax(0,1fr)',css)
+        self.assertIn('#shelfView .shelfBookCard{display:flex;flex-direction:row',css)
+        self.assertIn('#shelfView .shelfBookCover{flex:none;width:112px;height:168px',css)
+        self.assertIn('#shelfView .shelfBookCover img{width:100%;height:100%;object-fit:contain}',css)
+        self.assertIn('#shelfView .shelfChip{display:inline-flex;',css)
+        self.assertIn('#shelfView .shelfBookCover{width:92px;height:138px',css)
+        self.assertNotIn('#shelfView .shelfBookCover{width:100%;height:230px',css)
+
+    def test_r27_shelf_progress_not_guessed(self):
+        js=(ROOT/'core/src/reader.js').read_text(encoding='utf8')
+        self.assertIn("if(status!=='want'&&pct!==null)",js)
+        self.assertIn("track.setAttribute('aria-valuenow',String(pct))",js)
+        self.assertIn("fill.style.width=pct+'%'",js)
+        self.assertNotIn('pct??8',js)
+
+    def test_r27_c_reader_companion_is_generic(self):
+        html=(ROOT/'core/index.html').read_text(encoding='utf8')
+        js=(ROOT/'core/src/reader.js').read_text(encoding='utf8')
+        for marker in ('id="sceneCompanion"','id="companionImageButton"',
+                       'id="companionHideScene"','id="companionImage"'):
+            self.assertIn(marker,html)
+        self.assertIn('function paintSceneCompanion()',js)
+        self.assertIn('companionSceneAt(state.selected)',js)
+        self.assertIn('function openSceneModal(scene)',js)
+        self.assertNotIn('the-runaway-bride',html)
+
+    def test_r27_c_only_reached_scene_is_displayed(self):
+        js=(ROOT/'core/src/reader.js').read_text(encoding='utf8')
+        self.assertIn('s.start_index<=index&&sceneData[s.scene_id]',js)
+        self.assertNotIn('||course.scenes[0];if(found)openSceneModal(found)',js)
+
+    def test_r27_c_mobile_images_not_clipped(self):
+        css=(ROOT/'core/src/styles.css').read_text(encoding='utf8')
+        js=(ROOT/'core/src/reader.js').read_text(encoding='utf8')
+        self.assertIn('aspect-ratio:4/3;object-fit:contain',css)
+        self.assertIn('height:auto!important',css)
+        self.assertIn("current.push({type:'scene',sceneIndex:i})",js)
+        self.assertIn('if(tryHeight([...current,lead])>maxH)flush()',js)
+        self.assertNotIn('compactHeight:32',js)
+
+    def test_r27_c_illustrations_follow_reader_mode(self):
+        js=(ROOT/'core/src/reader.js').read_text(encoding='utf8')
+        self.assertIn('window.innerWidth<=800||!prefs.explain',js)
+        self.assertIn('paintSceneCompanion();paintExplanation()',js)
+        self.assertIn('if(inlineScenes()&&prefs.scenes&&scene',js)
+
+    def test_r27_c_pagination_reflow_reveals_page_before_measure(self):
+        js=(ROOT/'core/src/reader.js').read_text(encoding='utf8')
+        self.assertIn("$('pageText').hidden=prefs.mode==='scroll';$('scrollText').hidden=prefs.mode!=='scroll';if(prefs.mode==='pages')paginate()",js)
+        self.assertIn("const inlineScenes=()=>window.innerWidth<=800||!prefs.explain",js)
+
+    def test_r27_c_core_has_no_course_assets(self):
+        # A published build with zero packages remains empty; test pictures are external.
+        self.assertEqual(self.compile(),[])
+        self.assertFalse((self.out/'assets').exists())
+        self.assertFalse((ROOT/'packages'/'the-runaway-bride').exists())
+
+    def test_r26_stage2_cinematic_home_reuses_imported_hero(self):
+        src=(ROOT/'core/src/reader.js').read_text(encoding='utf8')
+        css=(ROOT/'core/src/styles.css').read_text(encoding='utf8')
+        self.assertIn("feature.classList.toggle('hasStoryHero',!!hero)",src)
+        self.assertIn('feature.style.backgroundImage=hero?',src)
+        self.assertIn('#homeView .shelfFeature.hasStoryHero',css)
+        self.assertNotIn('the-runaway-bride',src)
+
+    def test_r26_stage2_full_cover_and_one_book_layout(self):
+        css=(ROOT/'core/src/styles.css').read_text(encoding='utf8')
+        js=(ROOT/'core/src/reader.js').read_text(encoding='utf8')
+        self.assertIn('#storiesView .discoverBookGrid.singleBook',css)
+        self.assertIn('#storiesView .discoverNovelCover img{height:100%;width:100%;object-fit:contain',css)
+        self.assertIn("root.classList.toggle('singleBook',selected.length===1)",js)
+
+    def test_r26_stage2_pure_empty_has_no_fake_artwork(self):
+        boot=(ROOT/'core/src/boot.js').read_text(encoding='utf8')
+        css=(ROOT/'core/src/styles.css').read_text(encoding='utf8')
+        shell=(ROOT/'core/src/shell.js').read_text(encoding='utf8')
+        self.assertIn("classList.add('noPublishedCourses')",shell)
+        self.assertIn("await install('./src/shell.js')",boot)
+        self.assertIn('#homeView.noPublishedCourses .shelfFeature',css)
+        for token in ('the-runaway-bride','/assets/heroes/','/assets/covers/'):
+            self.assertNotIn(token,boot)
+
+    def test_r26_stage2_shelf_discovery_structure(self):
+        html=(ROOT / 'core/index.html').read_text(encoding='utf8')
+        for required in ('id="homeBookGrid"', 'id="storyBookGrid"', 'id="storySearch"',
+                         'id="storyGenre"', 'id="storyLevel"', 'id="homeResumePanel"',
+                         'id="homeExplore"', 'id="shelfStatCompleted"'):
+            self.assertIn(required, html)
+        self.assertNotIn('id="homeDiscover"', html)
+        self.assertNotIn('id="discoverBook"', html)
+
+    def test_r26_stage2_dynamic_cards_and_route_handlers(self):
+        script=(ROOT / 'core/src/reader.js').read_text(encoding='utf8')
+        self.assertIn('function uniqueBooks()', script)
+        self.assertIn('function refreshShelfAndEditorial()', script)
+        self.assertIn('function setupStoryFilters()', script)
+        self.assertIn("bindClick('homeExplore',()=>route('stories'))", script)
+        self.assertIn("if(view==='stories')refreshStoryResults()", script)
+        self.assertIn("const PREFIX='plotlish.student.r21.'", script)
+        self.assertNotIn('applyCard(card,course,scope,true)', script)
+
+    def test_r26_stage2_draft_site_keeps_empty_library_shell(self):
+        make_book(self.packages,status='draft')
+        self.compile()
+        html=(self.out/'index.html').read_text(encoding='utf8')
+        boot=(self.out/'src/boot.js').read_text(encoding='utf8')
+        self.assertIn('id="shelfEmpty"', html)
+        self.assertIn("$('shelfEmpty').hidden=false", (self.out/'src/shell.js').read_text(encoding='utf8'))
+        self.assertIn("$('storyEmpty').hidden=false", (self.out/'src/shell.js').read_text(encoding='utf8'))
+        self.assertIn('id="resetStoryFilters"', html)
+
+    def test_r26_stage2_no_changes_to_chapter_contract(self):
+        script=(ROOT / 'core/src/reader.js').read_text(encoding='utf8')
+        for token in ('function renderCourseProfile()', 'function makeUnitLinks(',
+                      'function goReader(', 'function persist()', 'function migrateR2()'):
+            self.assertIn(token,script)
+
+    def test_r26_hero_asset_is_published_in_profile_and_output(self):
+        book = make_book(self.packages)
+        (book / 'hero.webp').write_bytes(WEBP_WHITE)
+        make_chapter(book)
+        built = self.compile()
+        self.assertEqual(len(built), 1)
+        profile = json.loads((self.out / 'courses/catalog.json').read_text())['books']['alpha-book']
+        self.assertEqual(profile['hero'], 'assets/heroes/alpha-book.webp')
+        self.assertTrue((self.out / profile['hero']).is_file())
+        self.assertEqual((self.out / profile['hero']).read_bytes(), WEBP_WHITE)
+
+    def test_r26_missing_hero_falls_back_without_broken_reference(self):
+        book = make_book(self.packages)
+        make_chapter(book)
+        self.compile()
+        profile = json.loads((self.out / 'courses/catalog.json').read_text())['books']['alpha-book']
+        self.assertIsNone(profile['hero'])
+        self.assertFalse((self.out / 'assets/heroes/alpha-book.webp').exists())
+
+    def test_r26_draft_hero_never_leaks_into_public_build(self):
+        book = make_book(self.packages, status='draft')
+        (book / 'hero.webp').write_bytes(WEBP_WHITE)
+        make_chapter(book)
+        self.compile()
+        catalog = json.loads((self.out / 'courses/catalog.json').read_text())
+        self.assertEqual(catalog['books'], {})
+        self.assertFalse((self.out / 'assets/heroes/alpha-book.webp').exists())
+
+    def test_r26_draft_chapter_never_leaks_hero_when_book_is_published(self):
+        book = make_book(self.packages)
+        (book / 'hero.webp').write_bytes(WEBP_WHITE)
+        make_chapter(book, status='draft')
+        self.compile()
+        catalog = json.loads((self.out / 'courses/catalog.json').read_text())
+        self.assertEqual(catalog['books'], {})
+        self.assertFalse((self.out / 'assets/heroes/alpha-book.webp').exists())
+
+    def test_r26_hero_rejects_invalid_image_and_unknown_root_files(self):
+        book = make_book(self.packages)
+        make_chapter(book)
+        (book / 'hero.webp').write_bytes(b'FAKE IMAGE')
+        with self.assertRaises(ValueError):
+            build(self.packages, self.out)
+        (book / 'hero.webp').unlink()
+        (book / 'random-cover.webp').write_bytes(WEBP_WHITE)
+        with self.assertRaises(ValueError):
+            build(self.packages, self.out)
+
+    def test_r26_book_html_hooks_and_a11y_tabs_present(self):
+        site = ROOT / 'core' / 'index.html'
+        markup = site.read_text(encoding='utf8')
+        for key in ['bookHeroArtwork','bookHeroTitleZh','bookHeroStart','bookHeroChapters',
+                    'courseIntroPanel','courseLearningPanel','bookRead','bookChapterSection']:
+            self.assertIn(f'id="{key}"', markup)
+        self.assertIn('aria-controls="courseIntroPanel"', markup)
+        self.assertIn('aria-selected="false" tabindex="-1"', markup)
+        self.assertNotIn('id="bookTabCharacters"', markup)
+        self.assertNotIn('id="courseCharactersPanel"', markup)
+
+    def test_r26_single_character_gallery_shares_single_roster(self):
+        script=(ROOT/'core/src/reader.js').read_text(encoding='utf8')
+        self.assertIn("if(roster.length)makeCast(highlights,roster);",script)
+        self.assertNotIn("roster.slice(0,4)",script)
+        self.assertNotIn("$('courseCharactersPanel')",script)
+        self.assertEqual(script.count('makeCast(highlights,roster)'),1)
+
+    def test_r26_hero_tags_not_repeated_in_eyebrow(self):
+        script=(ROOT/'core/src/reader.js').read_text(encoding='utf8')
+        self.assertIn("textContent='PLOTLISH ORIGINAL · ENGLISH FICTION'",script)
+        self.assertNotIn("toUpperCase()+' · '+course.level+' · PLOTLISH ORIGINAL'",script)
+
+    def test_r26_zero_catalog_hides_irrelevant_filters(self):
+        script=(ROOT/'core/src/boot.js').read_text(encoding='utf8')
+        style=(ROOT/'core/src/styles.css').read_text(encoding='utf8')
+        self.assertIn("querySelector('.discoverToolbar').hidden=true",(ROOT/'core/src/shell.js').read_text(encoding='utf8'))
+        self.assertIn('discoverToolbar[hidden]{display:none!important}',style)
+
+    def test_r26_header_detail_navigation_label_is_truthful(self):
+        html=(ROOT/'core/index.html').read_text(encoding='utf8')
+        self.assertIn('id="homeBookDetail" type="button">查看作品详情</button>',html)
+        self.assertNotIn('data-course-tab="characters"',html)
+
+    def test_r27_empty_homepage_config_is_emitted(self):
+        self.compile()
+        cfg=json.loads((self.out/'homepage.json').read_text())
+        self.assertEqual(cfg,{'schema_version':1,'featured_book_id':None,'sections':[]})
+        self.assertTrue((self.out/'src/library.js').exists())
+        self.assertTrue((self.out/'src/shell.js').exists())
+
+    def test_r27_editorial_selects_only_public_books(self):
+        book=make_book(self.packages)
+        make_chapter(book)
+        config=self.tmp/'homepage.json'
+        data={'schema_version':1,'featured_book_id':'alpha-book','sections':[{'id':'editors','title':'编辑精选','book_ids':['alpha-book']}]}
+        config.write_text(json.dumps(data),encoding='utf8')
+        build(self.packages,self.out,config)
+        verify_site(self.out)
+        self.assertEqual(json.loads((self.out/'homepage.json').read_text()),data)
+
+    def test_r27_draft_recommended_book_is_rejected(self):
+        book=make_book(self.packages,status='draft')
+        make_chapter(book)
+        config=self.tmp/'homepage.json'
+        config.write_text(json.dumps({'schema_version':1,'featured_book_id':'alpha-book','sections':[]}),encoding='utf8')
+        with self.assertRaises(ValueError):build(self.packages,self.out,config)
+        self.assertFalse(self.out.exists())
+
+    def test_r27_unknown_recommendation_is_rejected(self):
+        config=self.tmp/'homepage.json'
+        config.write_text(json.dumps({'schema_version':1,'featured_book_id':None,'sections':[{'id':'staff','title':'精选','book_ids':['missing-book']}]}),encoding='utf8')
+        with self.assertRaises(ValueError):build(self.packages,self.out,config)
+
+    def test_r27_personal_library_is_separate_from_legacy_records(self):
+        js=(ROOT/'core/src/library.js').read_text()
+        html=(ROOT/'core/index.html').read_text()
+        reader=(ROOT/'core/src/reader.js').read_text()
+        self.assertIn('plotlish.reader.library.v1',js)
+        self.assertIn('id="shelfView"',html)
+        self.assertIn('id="navHome"',html)
+        self.assertIn('id="navLibrary"',html)
+        self.assertIn("const PREFIX='plotlish.student.r21.'",reader)
+        self.assertIn('LIBRARY.add(course.book_id)',reader)
+        self.assertIn('LIBRARY.get()',reader)
+        self.assertIn('editorialSectionTitle',reader)
+        self.assertIn('schema:4,bookId:',reader)
+
+    def test_r27_no_novel_assets_in_core(self):
+        files=[p for p in (ROOT/'core').rglob('*') if p.is_file()]
+        self.assertFalse(any(p.suffix.lower() in ('.webp','.png','.jpg','.jpeg') for p in files))
+        for p in files:
+            if p.suffix in ('.js','.html','.json'):
+                self.assertNotIn('the-runaway-bride',p.read_text(encoding='utf8'))
+
     def test_r25_course_profile_and_units_are_published(self):
         book = make_book(self.packages)
         (book / 'course-guide.json').write_text(json.dumps({
@@ -376,8 +628,8 @@ class BuildTests(unittest.TestCase):
     def test_empty_shelf_has_ui_shell(self):
         self.compile()
         boot = (self.out / 'src/boot.js').read_text()
-        self.assertIn('showEmptyLibrary', boot)
-        self.assertIn('暂无课程', boot)
+        self.assertIn("await install('./src/shell.js')", boot)
+        self.assertIn('暂无已发布课程', (self.out / 'src/shell.js').read_text())
 
 
 if __name__ == '__main__':

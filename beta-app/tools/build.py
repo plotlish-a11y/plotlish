@@ -73,6 +73,7 @@ def load_book(book_dir):
     status(book, book_dir / 'book.json')
     for field in ('title', 'level', 'genre'):
         check(isinstance(book.get(field), str) and book[field].strip(), f'{book_dir}: {field} 必须是非空字符串')
+    check(book.get('publication_state','ongoing') in ('ongoing','completed'), f'{book_dir}: publication_state 必须是 ongoing 或 completed')
     for field in ('title_zh', 'synopsis'):
         check(isinstance(book.get(field, ''), str), f'{book_dir}: {field} 必须是字符串')
     return book
@@ -285,15 +286,19 @@ def collect(packages_dir):
         guide, cast, portraits = optional_book_content(child)
         for book_file in child.iterdir():
             check(not book_file.is_symlink(), f'不允许符号链接: {book_file}')
-            check(book_file.name in ('book.json', 'cover.webp', 'chapters', 'course-guide.json', 'characters.json', 'characters'), f'作品目录不支持此文件: {book_file}')
+            check(book_file.name in ('book.json', 'cover.webp', 'hero.webp', 'chapters', 'course-guide.json', 'characters.json', 'characters'), f'作品目录不支持此文件: {book_file}')
         if (child / 'cover.webp').exists():
             assert_webp(child / 'cover.webp')
+        if (child / 'hero.webp').exists():
+            assert_webp(child / 'hero.webp')
         # Profiles are emitted only when both the book and at least one chapter
         # are published. Never package drafts or unused cast portraits.
         if book['status'] == 'published':
             book_profiles[book['book_id']] = {
                 'book_id': book['book_id'], 'title': book['title'],
-                'title_zh': book.get('title_zh', ''), 'guide': guide, 'characters': cast,
+                'title_zh': book.get('title_zh', ''), 'publication_state': book.get('publication_state','ongoing'), 'guide': guide, 'characters': cast,
+                'hero': f'assets/heroes/{book["book_id"]}.webp' if (child / 'hero.webp').is_file() else None,
+                '_hero_source': child / 'hero.webp' if (child / 'hero.webp').is_file() else None,
                 'portrait_paths': {c['id']: f'assets/characters/{book["book_id"]}/{c["id"]}.webp'
                                    for c in cast if c.get('portrait')},
                 '_portrait_sources': portraits,
@@ -339,7 +344,39 @@ def collect(packages_dir):
     return chapters, assets, books, book_profiles
 
 
-def build(packages_dir, output):
+def validate_homepage(homepage_config, chapters):
+    """Validate editorial selections against the published chapter list only."""
+    data = {'schema_version': 1, 'featured_book_id': None, 'sections': []}
+    if homepage_config is None:
+        return data
+    source = Path(homepage_config)
+    data = read_json(source)
+    check(data.get('schema_version') == 1, '首页配置 schema_version 必须为 1')
+    check(set(data) <= {'schema_version','featured_book_id','sections'}, '首页配置含有不支持的字段')
+    allowed = {c['book_id'] for c in chapters}
+    featured = data.get('featured_book_id')
+    if featured is not None:
+        valid_id(featured, '主推作品 ID')
+        check(featured in allowed, f'主推作品尚未发布或不存在：{featured}')
+    sections = data.get('sections', [])
+    check(isinstance(sections, list) and len(sections)<=6, '首页精选栏目最多6个')
+    used=set()
+    for section in sections:
+        check(isinstance(section,dict) and set(section)=={'id','title','book_ids'}, '首页栏目必须有 id/title/book_ids')
+        valid_id(section['id'], '首页栏目 ID')
+        check(section['id'] not in used, '重复首页栏目 ID')
+        used.add(section['id'])
+        check(isinstance(section['title'],str) and 0<len(section['title'].strip())<=60, '栏目标题无效')
+        ids=section['book_ids']
+        check(isinstance(ids,list) and len(ids)<=18, '每个栏目最多18部作品')
+        check(len(ids)==len(set(ids)), f'首页栏目存在重复作品: {section["id"]}')
+        for book_id in ids:
+            valid_id(book_id,'精选作品 ID')
+            check(book_id in allowed, f'精选作品尚未发布或不存在：{book_id}')
+    return {'schema_version':1,'featured_book_id':featured,'sections':sections}
+
+
+def build(packages_dir, output, homepage_config=None):
     packages_dir, output = Path(packages_dir).resolve(), Path(output).resolve()
     check(output not in (ROOT, CORE, packages_dir) and CORE not in output.parents and packages_dir not in output.parents,
           '输出目录不能覆盖源码或嵌套在课程和 core 下')
@@ -348,6 +385,7 @@ def build(packages_dir, output):
         check(output.is_dir() and not output.is_symlink() and (output / '.plotlish-generated').is_file(),
               '输出目录已存在且非工具生成，禁止删除')
     chapters, assets, books, profiles = collect(packages_dir)  # Validate before touching dist.
+    homepage = validate_homepage(homepage_config, chapters)
     published_books = {c['book_id'] for c in chapters}
     # Drop books that do not yet have a published chapter. This also removes
     # book-level assets for drafts and future chapters from the public output.
@@ -359,6 +397,9 @@ def build(packages_dir, output):
                                      if any(c['id'] == k for c in profile['characters'])}
         for key, rel in profile['portrait_paths'].items():
             assets[rel] = profile['_portrait_sources'][f'characters/{key}.webp']
+        if profile['_hero_source'] is not None:
+            assets[profile['hero']] = profile['_hero_source']
+        del profile['_hero_source']
         del profile['_portrait_sources']
     output.parent.mkdir(parents=True, exist_ok=True)
     with tempfile.TemporaryDirectory(prefix='.plotlish-stage-', dir=output.parent) as temp:
@@ -366,6 +407,7 @@ def build(packages_dir, output):
         stage = temp / 'site'
         shutil.copytree(CORE, stage, symlinks=False)
         (stage / '.plotlish-generated').write_text('Automatically generated by Plotlish R2.5; do not edit.\n', encoding='utf8')
+        (stage / 'homepage.json').write_text(json.dumps(homepage, ensure_ascii=False, indent=2) + '\n', encoding='utf8')
         destination = stage / 'courses'
         destination.mkdir(exist_ok=True)
         for c in chapters:
@@ -392,9 +434,10 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--packages-dir', type=Path, default=ROOT / 'packages')
     parser.add_argument('--output', type=Path, default=ROOT / 'dist')
+    parser.add_argument('--homepage-config', type=Path, default=None, help='站长首页推荐配置（课程内容层），纯净核心只包含空模板')
     args = parser.parse_args()
     try:
-        build(args.packages_dir, args.output)
+        build(args.packages_dir, args.output, args.homepage_config)
     except (ValueError, OSError) as e:
         print('BUILD FAILED:', e, file=sys.stderr)
         sys.exit(1)

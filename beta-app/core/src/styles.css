@@ -193,3 +193,513 @@
 .drawerUnits{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0 15px}
 .courseChapterProgress{font-size:12px;color:#6c675d;margin-top:6px}
 @media(max-width:660px){.courseInfoPanel{padding:16px}.courseGuideLists{grid-template-columns:1fr}.castGrid{grid-template-columns:1fr}.courseTabs{padding:10px}.courseTabs button{flex:1;font-size:12px}}
+
+
+/* Plotlish R2.6 Stage A: book detail only; all rules scoped to #bookView. */
+#bookView{background:#f6f6f1;scroll-behavior:smooth}
+#bookView .bookPage{width:100%;margin:0 auto;padding-bottom:70px}
+#bookView .bookHero{display:block;position:relative;width:100%;min-height:540px;margin:0;padding:0;border:0;border-radius:0;overflow:hidden;background:#15221f;isolation:isolate}
+#bookView .bookHeroArtwork{position:absolute;inset:0;background-size:cover;background-position:right center;background-repeat:no-repeat;z-index:-1}
+#bookView .bookHeroArtwork:not(.hasHero){background-size:auto 100%;background-position:right center}
+#bookView .bookHeroInner{max-width:1536px;margin:0 auto;padding:25px clamp(24px,4vw,64px) 65px;min-height:540px;display:flex;flex-direction:column;align-items:start}
+#bookView .bookHeroBack{background:rgba(21,37,32,.55);border:1px solid rgba(255,255,255,.35);border-radius:30px;color:#f7f7ef;padding:7px 14px;font-size:12px;backdrop-filter:blur(8px)}
+#bookView .bookHeroBack:hover{background:rgba(22,55,44,.85);color:#fff}
+#bookView .bookHeroCopy{margin:auto 0;max-width:min(660px,56vw);padding:24px 0 4px;color:#fff}
+#bookView .bookHeroCopy .eyebrow{font-size:12px;color:#bad0c1;letter-spacing:.18em;margin-bottom:14px}
+#bookView .bookHero h1{font-family:Georgia,'Times New Roman',serif;font-size:clamp(46px,4.8vw,76px);font-weight:700;line-height:1.06;letter-spacing:-.04em;color:#fff;text-wrap:balance;margin:0}
+#bookView .bookHeroTitleZh{font-size:clamp(20px,2.2vw,29px);font-weight:600;line-height:1.5;margin:14px 0 13px;color:#fff}
+#bookView .bookHeroCopy .lead{font-size:clamp(13px,1.3vw,18px);line-height:1.66;color:#f3f3ef;margin:0 0 17px;max-width:620px;text-shadow:0 2px 14px rgba(0,0,0,.25)}
+#bookView .bookHeroTags{display:flex!important;flex-wrap:wrap;gap:8px;margin:0 0 22px}
+#bookView .bookHeroTags span{background:rgba(236,247,237,.16);border:1px solid rgba(255,255,255,.07);color:#fff;font-size:13px;line-height:1.4;padding:6px 13px;backdrop-filter:blur(8px)}
+#bookView .bookHeroActions{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+#bookView .bookHeroActions button{font-size:16px;min-height:50px;padding:11px 23px;border-radius:12px}
+#bookView .bookHeroCTA{background:#20644f;border-color:#20644f;color:#fff;box-shadow:0 10px 22px rgba(5,29,21,.12)}
+#bookView .bookHeroCTA:hover{background:#28765c}
+#bookView .bookHeroSecondary{background:rgba(9,18,16,.22);color:#fff;border:1px solid rgba(255,255,255,.72)}
+#bookView .bookHeroSecondary:hover{background:rgba(255,255,255,.18);color:#fff}
+#bookView .bookPageBody{position:relative;max-width:1550px;margin:-28px auto 0;padding:0 clamp(18px,2.4vw,38px);z-index:2}
+#bookView .courseOverview{margin:0;background:#fdfcf8;border:1px solid #ebe8e1;border-radius:22px;box-shadow:0 28px 60px rgba(40,50,39,.10);overflow:hidden}
+#bookView .courseTabs{display:flex;gap:9px;padding:17px 20px;border-bottom:1px solid #efede5;flex-wrap:wrap}
+#bookView .courseTabs button{flex:0 1 auto;font-size:15px;padding:11px 20px;color:#213b33;border:1px solid #e8e8e1;background:#fffdfa;border-radius:12px}
+#bookView .courseTabs button.active{background:#725047;color:#fff;border-color:#725047}
+#bookView .courseInfoPanel{padding:22px clamp(20px,2.4vw,35px) 28px}
+#bookView .courseInfoPanel h3{font-size:clamp(21px,1.7vw,28px);color:#253e37;margin:0 0 14px;line-height:1.3}
+#bookView .courseIntroLayout{display:grid;grid-template-columns:minmax(0, .95fr) minmax(0,1.3fr);gap:clamp(20px,3vw,55px);align-items:start}
+#bookView .courseIntroSummary{min-width:0;padding:0 2px}
+#bookView .courseIntroSummary .courseSynopsisZh{font-size:16px;line-height:1.95;color:#4c5c53;max-width:none;white-space:pre-line;margin:0 0 12px}
+#bookView .courseIntroSummary .courseSynopsisEn{font-size:13px;line-height:1.68;color:#607167;max-width:none}
+#bookView .courseIntroCast{min-width:0}
+#bookView .castGrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+#bookView .castCard{display:block;min-width:0;padding:0 0 12px;border:1px solid #e9e6de;background:#fffdfa;overflow:hidden;border-radius:13px}
+#bookView .castCard img,#bookView .castPlaceholder{display:block;width:100%;height:auto;aspect-ratio:4/3;object-fit:cover;object-position:center 24%;border-radius:0;background:#e7e9e0}
+#bookView .castPlaceholder{display:flex;align-items:center;justify-content:center;color:#667268;font-size:12px;padding:12px}
+#bookView .castCardCopy{padding:10px 10px 0;min-width:0}
+#bookView .castCard h4{font-size:17px;line-height:1.3;color:#263831;margin:0 0 3px;font-weight:750}
+#bookView .castEnglishName{font-size:11px;line-height:1.4;color:#63766b;margin-bottom:6px}
+#bookView .castRole{font-size:12px;line-height:1.55;color:#59695f}
+#bookView .castCard p{font-size:12px;line-height:1.6;color:#647268;margin:7px 0 0}
+#bookView .courseGuideLists section{background:#fafaf6;border-color:#e5e6df}
+#bookView .bookChapterSection{padding:24px 2px 20px}
+#bookView .bookChapterSection .sectionBar{margin:10px 0 22px}
+#bookView .bookChapterSection .sectionBar h2{font-size:29px;color:#293f38}
+#bookView .chapterRow{box-shadow:0 4px 16px rgba(35,58,46,.025);margin:11px 0;scroll-margin-top:25px}
+#bookView .chapterNum{color:#42735e}
+#bookView .bookChapterSection .small{margin:20px 0;color:#68746b}
+#bookView button:focus-visible{outline:3px solid #9fcab7;outline-offset:3px}
+@media(max-width:1050px){
+ #bookView .bookHero{min-height:500px}#bookView .bookHeroInner{min-height:500px}
+ #bookView .bookHeroCopy{max-width:min(640px,65vw)}
+ #bookView .courseIntroLayout{grid-template-columns:1fr}
+ #bookView .courseIntroCast .castGrid{grid-template-columns:repeat(4,minmax(0,1fr))}
+}
+@media(max-width:700px){
+ #bookView .bookHero{min-height:660px}
+ #bookView .bookHeroInner{min-height:660px;padding:14px 20px 65px;justify-content:flex-end}
+ #bookView .bookHeroArtwork{background-size:auto 55%;background-position:right top;background-color:#13241f}
+ #bookView .bookHeroArtwork.hasHero{background-size:auto 65%;background-position:right top}
+ #bookView .bookHeroArtwork::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 8%,rgba(17,32,28,.32) 31%,#13241f 61%,#13241f)}
+ #bookView .bookHeroBack{position:absolute;top:14px;left:20px;z-index:1}
+ #bookView .bookHeroCopy{max-width:none;width:100%;margin:auto 0 0;padding:8px 0 0}
+ #bookView .bookHeroCopy .eyebrow{font-size:10px;margin-bottom:9px}
+ #bookView .bookHero h1{font-size:clamp(36px,8.5vw,52px)}
+ #bookView .bookHeroTitleZh{font-size:19px;line-height:1.45;margin:11px 0}
+ #bookView .bookHeroCopy .lead{font-size:13px;line-height:1.55;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
+ #bookView .bookHeroTags{gap:5px;margin-bottom:15px}
+ #bookView .bookHeroTags span{font-size:11px;padding:4px 8px}
+ #bookView .bookHeroActions{gap:8px}
+ #bookView .bookHeroActions button{min-height:43px;font-size:13px;padding:8px 11px}
+ #bookView .bookPageBody{padding:0 12px;margin-top:-19px}
+ #bookView .courseOverview{border-radius:18px}
+ #bookView .courseTabs{padding:12px;gap:6px}
+ #bookView .courseTabs button{flex:1;font-size:12px;padding:10px 4px}
+ #bookView .courseInfoPanel{padding:18px 16px 22px}
+ #bookView .courseIntroLayout{grid-template-columns:1fr;gap:15px}
+ #bookView .courseIntroSummary .courseSynopsisZh{font-size:14px;line-height:1.8}
+ #bookView .courseIntroCast .castGrid{display:flex;overflow-x:auto;gap:10px;padding:2px 2px 12px;scroll-snap-type:x mandatory}
+ #bookView .courseIntroCast .castCard{flex:0 0 43%;scroll-snap-align:start}
+ #bookView .castCard h4{font-size:15px}
+ #bookView .castCard p{font-size:11px}
+ #bookView .bookChapterSection{padding:19px 3px}
+ #bookView .bookChapterSection .sectionBar h2{font-size:24px}
+ #bookView .bookChapterSection .sectionBar span{font-size:12px}
+}
+@media(max-width:365px){
+ #bookView .bookHero{min-height:695px}#bookView .bookHeroInner{min-height:695px;padding-inline:14px}
+ #bookView .bookHeroBack{left:14px}#bookView .bookHeroActions{flex-direction:column;align-items:stretch}#bookView .bookHeroActions button{width:100%}
+ #bookView .courseIntroCast .castCard{flex-basis:67%}
+}
+
+/* Plotlish R2.6 Stage B — bookshelf and story discovery; isolated from reading UI. */
+#homeView,#storiesView{background:#f8f8f3}
+#homeView .shelfShell,#storiesView .discoverShell{max-width:1380px;margin:0 auto;padding:clamp(24px,3.7vw,58px) clamp(18px,3.8vw,55px) 88px}
+#homeView .shelfHeading{display:flex;align-items:end;justify-content:space-between;gap:20px;margin-bottom:28px}
+#homeView .shelfHeading h1,#storiesView .discoverHeading h1{font-family:Georgia,'Times New Roman',serif;font-weight:700;letter-spacing:-.04em;color:#1e3f32;font-size:clamp(35px,4vw,58px)}
+#homeView .shelfHeading p,#storiesView .discoverHeading p{margin:11px 0 0;color:#667a6e;font-size:15px;line-height:1.8}
+#homeView .shelfExplore{border-color:#cbdacf;background:#fffdfa;padding:13px 19px;color:#21543f}
+#homeView .shelfFeature{position:relative;display:grid;grid-template-columns:minmax(0,1fr) minmax(215px,32%);gap:clamp(18px,4vw,60px);align-items:center;overflow:hidden;border:1px solid #dbe7da;border-radius:23px;background:radial-gradient(circle at 72% -25%,rgba(218,231,210,.95),transparent 52%),linear-gradient(115deg,#e8f1e6,#f6f7f0 65%,#eeeee5);padding:clamp(24px,3vw,42px);min-height:340px}
+#homeView .shelfFeature:before{content:"";position:absolute;inset:auto -65px -130px auto;width:450px;height:320px;border:1px solid rgba(69,104,80,.09);border-radius:50%;pointer-events:none}
+#homeView .shelfFeatureCopy{position:relative;z-index:1;min-width:0}
+#homeView .shelfFeatureCopy h2{font-family:Georgia,'Times New Roman',serif;color:#204936;font-size:clamp(28px,3.2vw,46px);line-height:1.19;letter-spacing:-.035em;margin:8px 0 15px}
+#homeView .shelfFeatureCopy p{font-size:15px;line-height:1.75;color:#617367;margin:0 0 22px;max-width:550px}
+#homeView .shelfFeatureCopy .homeResumeChapter{font-size:16px;color:#365d49;margin:0 0 20px}
+#homeView .shelfFeature .eyebrow{color:#5f9076}
+#homeView .shelfFeatureActions{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+#homeView .shelfFeatureActions button{min-height:44px}
+#homeView .shelfFeatureActions .primary{background:#20634e;border-color:#20634e}
+#homeView .shelfFeatureImage{justify-self:center;width:min(100%,225px);aspect-ratio:2/3;max-height:330px;background-color:#215145;background-size:cover;background-position:center;border-radius:13px;box-shadow:0 20px 36px rgba(17,53,35,.21);overflow:hidden;transform:rotate(2deg);display:flex;align-items:center;justify-content:center}
+#homeView .coverFallback{font:700 26px Georgia,serif;color:#dbe7dd}
+#homeView .shelfProgressMeta{display:flex;align-items:center;justify-content:space-between;gap:15px;margin:0 0 8px;font-size:13px;color:#587362;max-width:475px}
+#homeView .homeProgressBar{max-width:475px;height:9px;margin:0 0 24px;background:#d0dfd1}
+#homeView .homeProgressBar span{background:#286e54}
+#homeView .shelfStats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin:21px 0 0}
+#homeView .shelfStats>div{background:#fffefa;border:1px solid #e5e9e1;border-radius:15px;padding:20px 23px;display:flex;flex-direction:column;gap:5px;color:#708278;font-size:13px}
+#homeView .shelfStatNumber{font:700 clamp(24px,2.35vw,34px) Georgia,serif;color:#215b46;font-variant-numeric:tabular-nums}
+#homeView .shelfCollection{margin-top:40px}
+#homeView .shelfCollection .sectionBar,#storiesView .discoverResultsHead{margin:0 0 17px;align-items:center}
+#homeView .shelfCollection .eyebrow{margin-bottom:7px}
+#homeView .shelfCollection h2,#storiesView .discoverResultsHead h2{font-size:28px;color:#264a3a;font-family:Georgia,'Times New Roman',serif}
+#homeView .shelfBookGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:17px}
+#homeView .shelfBookCard{display:flex;gap:19px;min-width:0;border:1px solid #e1e8df;background:#fffefa;border-radius:18px;padding:18px;box-shadow:0 8px 28px rgba(42,65,45,.035);align-items:stretch}
+#homeView .shelfBookCover{width:clamp(112px,12vw,155px);flex:none;align-self:stretch;min-height:200px;background:#265c49;border-radius:10px;overflow:hidden}
+#homeView .shelfBookCover img{display:block;width:100%;height:100%;object-fit:cover}
+#homeView .shelfBookInfo{min-width:0;display:flex;flex-direction:column;flex:1}
+#homeView .shelfBookMeta,#storiesView .discoverNovelChips{display:flex;gap:5px;flex-wrap:wrap;margin:0 0 9px}
+#homeView .shelfChip,#storiesView .shelfChip{font-size:11px;color:#4c7560;background:#ecf3eb;border-radius:7px;padding:4px 7px;line-height:1.25}
+#homeView .shelfBookInfo h3,#storiesView .discoverNovelInfo h3{font:700 24px/1.2 Georgia,'Times New Roman',serif;letter-spacing:-.015em;color:#20392d;margin:1px 0 5px}
+#homeView .shelfBookZh,#storiesView .discoverNovelZh{font-size:13px;color:#466b58;margin:0 0 10px;line-height:1.5}
+#homeView .shelfBookDesc,#storiesView .discoverNovelSynopsis{font-size:12px;line-height:1.65;color:#6a796d;margin:0 0 12px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+#homeView .shelfBookStatus{display:flex;justify-content:space-between;gap:12px;margin:auto 0 7px;font-size:12px;color:#537460}
+#homeView .shelfBookTrack{height:6px;min-height:6px;width:100%;border-radius:15px;background:#e6ece5;margin:0 0 15px;overflow:hidden}
+#homeView .shelfBookTrack span{display:block;height:100%;background:#277458;border-radius:15px}
+#homeView .shelfBookActions,#storiesView .discoverNovelActions{display:flex;flex-wrap:wrap;gap:8px}
+#homeView .shelfBookActions button,#storiesView .discoverNovelActions button{font-size:12px;padding:10px 11px;border-radius:9px;min-height:40px}
+#homeView .shelfEmpty{background:#fffefa;border:1px dashed #ceded1;border-radius:18px;text-align:center;padding:36px;color:#678373;line-height:1.8}
+#storiesView .discoverHeading{margin:0 0 27px}
+#storiesView .discoverToolbar{display:grid;grid-template-columns:minmax(0,1.8fr) minmax(125px,.75fr) minmax(125px,.75fr);gap:13px;background:#fffdfa;border:1px solid #e5e9e1;padding:17px;border-radius:16px;margin:0 0 35px}
+#storiesView .discoverToolbar label{display:flex;flex-direction:column;gap:7px;min-width:0;color:#42624f;font-weight:700;font-size:12px}
+#storiesView .discoverToolbar input,#storiesView .discoverToolbar select{width:100%;min-width:0;padding:12px 12px;border-radius:9px;border:1px solid #d7e3d7;background:#fff;color:#234433;font:inherit;font-size:14px;min-height:46px}
+#storiesView .discoverToolbar input:focus-visible,#storiesView .discoverToolbar select:focus-visible{outline:3px solid #82b49d;outline-offset:1px}
+#storiesView .discoverBookGrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:19px}
+#storiesView .discoverNovelCard{border:1px solid #e2e8df;background:#fffefa;border-radius:18px;overflow:hidden;display:flex;flex-direction:column;min-width:0;box-shadow:0 11px 31px rgba(42,65,45,.045)}
+#storiesView .discoverNovelCover{display:flex;align-items:center;justify-content:center;background:#224f42;height:240px;overflow:hidden;color:#dceadd;font:700 25px Georgia,serif}
+#storiesView .discoverNovelCover img{width:100%;height:100%;object-fit:cover;object-position:center 28%;display:block}
+#storiesView .discoverNovelInfo{display:flex;flex-direction:column;flex:1;min-width:0;padding:19px}
+#storiesView .discoverNovelInfo h3{font-size:25px}
+#storiesView .discoverNovelSynopsis{font-size:13px;-webkit-line-clamp:3}
+#storiesView .discoverNovelAvailable{font-size:12px;color:#507661;margin:auto 0 13px;border-top:1px solid #edf0ea;padding-top:15px}
+#storiesView .discoverNovelActions .primary{background:#20634e;border-color:#20634e}
+#storiesView .discoverEmpty{border:1px dashed #cbdbce;border-radius:16px;background:#fffdfa;padding:38px 22px;text-align:center;color:#3f674f}
+#storiesView .discoverEmpty p{font-size:13px;color:#718577;line-height:1.7}
+#homeView [hidden],#storiesView [hidden]{display:none!important}
+@media(max-width:1080px){
+ #homeView .shelfBookGrid{grid-template-columns:1fr}
+ #homeView .shelfBookCover{width:140px}
+ #storiesView .discoverBookGrid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:680px){
+ #homeView .shelfHeading{align-items:start;flex-direction:column;gap:14px}
+ #homeView .shelfHeading p,#storiesView .discoverHeading p{font-size:13px}
+ #homeView .shelfFeature{grid-template-columns:minmax(0,1fr) minmax(112px,32%);gap:11px;padding:19px;min-height:245px}
+ #homeView .shelfFeatureCopy h2{font-size:clamp(24px,5vw,32px)}
+ #homeView .shelfFeatureCopy p{font-size:12px;line-height:1.6;margin-bottom:13px}
+ #homeView .shelfFeatureImage{transform:rotate(2deg);max-height:226px}
+ #homeView .shelfFeatureActions{gap:7px}
+ #homeView .shelfFeatureActions button{padding:9px 11px;font-size:12px;min-height:40px}
+ #homeView .shelfStats{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+ #homeView .shelfStats>div{padding:14px 16px}
+ #homeView .shelfBookCard{gap:12px;padding:13px}
+ #homeView .shelfBookCover{width:109px;min-height:178px}
+ #homeView .shelfBookInfo h3{font-size:21px}
+ #homeView .shelfBookDesc{-webkit-line-clamp:2}
+ #storiesView .discoverToolbar{grid-template-columns:repeat(2,minmax(0,1fr));gap:11px;padding:12px}
+ #storiesView .discoverSearchLabel{grid-column:1/-1}
+ #storiesView .discoverBookGrid{grid-template-columns:1fr}
+ #storiesView .discoverNovelCard{flex-direction:row}
+ #storiesView .discoverNovelCover{width:32%;height:auto;min-height:235px;flex:none}
+ #storiesView .discoverNovelInfo{padding:14px}
+ #storiesView .discoverNovelInfo h3{font-size:21px}
+ #storiesView .discoverNovelActions button{font-size:11px;padding:9px}
+}
+@media(max-width:390px){
+ #homeView .shelfShell,#storiesView .discoverShell{padding-left:13px;padding-right:13px}
+ #homeView .shelfFeature{grid-template-columns:1fr;gap:12px}
+ #homeView .shelfFeatureImage{display:none}
+ #homeView .shelfBookCard{flex-direction:column}
+ #homeView .shelfBookCover{width:100%;min-height:0;height:190px}
+ #homeView .shelfBookCover img{object-position:center 29%}
+ #storiesView .discoverNovelCard{flex-direction:column}
+ #storiesView .discoverNovelCover{width:100%;height:190px;min-height:190px}
+}
+@media(prefers-reduced-motion:reduce){#homeView button,#storiesView button{transition:none}}
+
+/* Empty published catalogue: do not show search filters with no searchable works. */
+#storiesView .discoverToolbar[hidden]{display:none!important}
+
+/* R2.6 Stage B visual revision · 2026-10-22.
+   Core-only presentation; ALL illustration URLs must come from imported book packages.
+   Scoping prevents changes to the established reader and novel detail views. */
+#homeView,#storiesView{background:#f7f6f1;color:#263d33}
+#homeView .shelfShell,#storiesView .discoverShell{max-width:1570px;padding:0 0 90px;margin:0 auto}
+#homeView .shelfHeading{position:relative;margin:0;padding:35px clamp(22px,4vw,62px) 30px;align-items:center;gap:22px}
+#homeView .shelfHeading .eyebrow{color:#7d9687}
+#homeView .shelfHeading h1,#storiesView .discoverHeading h1{font-family:Georgia,'Times New Roman',serif;letter-spacing:-.037em;font-size:clamp(40px,4.1vw,63px);line-height:1.08}
+#homeView .shelfHeading p{font-size:15px;line-height:1.8;margin:10px 0 0}
+#homeView .shelfExplore{border:1px solid #d4dfd4;background:#fffdfa;color:#275542;padding:12px 18px;border-radius:12px;white-space:nowrap}
+#homeView .shelfExplore:hover{background:#eaf1e9}
+
+/* Editorial image hero: the same deep-green storytelling language as the book detail page. */
+#homeView .shelfFeature{position:relative;isolation:isolate;min-height:435px;display:flex;align-items:center;justify-content:space-between;margin:0 0 0;padding:50px clamp(28px,5vw,82px);overflow:hidden;border:0;border-radius:0;background:#132922;color:#fff;gap:48px;background-size:cover;background-position:center right;background-repeat:no-repeat}
+#homeView .shelfFeature:before{position:absolute;content:"";inset:0;z-index:-1;background:radial-gradient(circle at 84% 46%,rgba(160,106,73,.18),transparent 40%),repeating-linear-gradient(120deg,transparent 0 49px,rgba(255,255,255,.018) 50px 51px);width:auto;height:auto;border:0;border-radius:0;pointer-events:none}
+#homeView .shelfFeature.hasStoryHero:before{background:linear-gradient(0deg,rgba(9,21,18,.28),transparent 50%)}
+#homeView .shelfFeatureCopy{max-width:min(670px,58vw);position:relative;z-index:2;flex:1}
+#homeView .shelfFeature .eyebrow{font-size:12px;letter-spacing:.2em;color:#bdc9bb}
+#homeView .shelfFeatureCopy h2{font:700 clamp(41px,4.15vw,64px)/1.12 Georgia,'Times New Roman',serif;letter-spacing:-.04em;color:#fff;margin:15px 0 22px;text-wrap:balance}
+#homeView .shelfFeatureCopy p{font-size:clamp(14px,1.15vw,17px);line-height:1.8;color:#e4eae2;max-width:575px;margin:0 0 24px;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:4;overflow:hidden}
+#homeView .shelfFeatureCopy .homeResumeChapter{font-size:16px;color:#dce8df}
+#homeView .shelfFeature .shelfFeatureActions{gap:11px}
+#homeView .shelfFeatureActions button{min-height:49px;padding:11px 21px;border-radius:11px;font-size:14px}
+#homeView .shelfFeatureActions .primary{background:#216850;border-color:#216850;box-shadow:0 9px 25px rgba(0,0,0,.15);color:#fff}
+#homeView .shelfFeatureActions button:not(.primary){background:rgba(16,29,26,.22);color:#fff;border:1px solid rgba(255,255,255,.55);backdrop-filter:blur(6px)}
+#homeView .shelfFeatureActions button:not(.primary):hover{background:rgba(255,255,255,.17)}
+#homeView .shelfFeatureImage{width:clamp(195px,19vw,265px);max-height:none;aspect-ratio:2/3;transform:rotate(3deg);border:7px solid rgba(247,243,226,.78);border-radius:13px;box-shadow:0 27px 58px rgba(0,0,0,.38);flex:none;margin-right:clamp(0px,3.5vw,60px)}
+#homeView .shelfFeatureImage[hidden],#homeView .shelfFeature.hasStoryHero .shelfFeatureImage{display:none!important}
+#homeView .shelfFeature:not(.hasStoryCover):not(.hasStoryHero) .shelfFeatureImage{display:none}
+#homeView .shelfProgressMeta{color:#dce7dd;max-width:560px;font-size:13px}
+#homeView .homeProgressBar{max-width:560px;background:rgba(255,255,255,.25);height:7px;border-radius:9px}
+#homeView .homeProgressBar span{background:#7cccab}
+
+/* One floating study summary instead of a second dashboard-like wall of boxes. */
+#homeView .shelfStats{position:relative;z-index:3;margin:-28px clamp(18px,3vw,48px) 0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0;border:1px solid #e7e6dc;border-radius:18px;box-shadow:0 16px 35px rgba(21,44,31,.08);overflow:hidden;background:#fffdfa}
+#homeView .shelfStats>div{border:0;border-radius:0;padding:22px 28px;background:transparent;position:relative;min-width:0;gap:3px;color:#78877b;font-size:13px}
+#homeView .shelfStats>div+div{border-left:1px solid #efeee8}
+#homeView .shelfStatNumber{color:#255e48;font:700 clamp(27px,2.3vw,37px)/1.18 Georgia,serif}
+
+#homeView .shelfCollection{margin:48px clamp(18px,3vw,48px) 0}
+#homeView .shelfCollection .sectionBar{margin-bottom:19px}
+#homeView .shelfCollection h2,#storiesView .discoverResultsHead h2{font-family:Georgia,'Times New Roman',serif;font-size:clamp(23px,2.35vw,32px);color:#283f35;letter-spacing:-.02em}
+#homeView .shelfBookGrid{grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}
+#homeView .shelfBookGrid.singleBook{grid-template-columns:minmax(0,900px)}
+#homeView .shelfBookCard{border-radius:19px;background:#fffdfa;border:1px solid #e9e6df;gap:22px;padding:19px;box-shadow:0 8px 23px rgba(20,44,29,.045);align-items:center}
+#homeView .shelfBookCover{flex:none;width:clamp(125px,12vw,172px);height:clamp(190px,17.5vw,246px);min-height:0;align-self:center;border-radius:10px;background:#20392f;box-shadow:0 12px 20px rgba(18,35,25,.10);display:flex;align-items:center;justify-content:center;overflow:hidden}
+#homeView .shelfBookCover img{width:100%;height:100%;object-fit:contain}
+#homeView .shelfBookCover.noCover,#storiesView .discoverNovelCover.noCover{background:linear-gradient(160deg,#1a3d31,#385846);color:#fff9e9;font-size:20px;letter-spacing:.12em}
+#homeView .shelfBookInfo h3{font-size:clamp(23px,2vw,30px)}
+#homeView .shelfBookZh{font-size:14px;margin-bottom:9px}
+#homeView .shelfBookDesc{font-size:13px;line-height:1.75;color:#617368;-webkit-line-clamp:3}
+#homeView .shelfBookActions button,#storiesView .discoverNovelActions button{font-size:13px;min-height:42px;padding:10px 16px}
+#homeView .shelfBookStatus{color:#516e5a}
+#homeView .shelfEmpty{border:1px dashed #cfddd0;background:#fffdfa;border-radius:18px;padding:36px 20px;color:#64816f}
+
+/* Discovery has its own masthead, not an empty white catalogue heading. */
+#storiesView .discoverHeading{position:relative;isolation:isolate;overflow:hidden;min-height:272px;margin:0;background:linear-gradient(112deg,#142720 5%,#1c3930 59%,#405c46 100%);padding:57px clamp(22px,5vw,80px) 78px}
+#storiesView .discoverHeading:after{content:"P";pointer-events:none;position:absolute;right:6%;top:-110px;font:700 450px/.95 Georgia,serif;color:rgba(239,226,193,.07);transform:rotate(-11deg);z-index:-1}
+#storiesView .discoverHeading .eyebrow{color:#b5cdbf;letter-spacing:.19em;font-size:12px}
+#storiesView .discoverHeading h1{color:#fff;font-size:clamp(44px,4.5vw,66px);margin:14px 0 15px}
+#storiesView .discoverHeading p{font-size:clamp(14px,1.25vw,17px);line-height:1.8;color:#dce5d9;max-width:700px;margin:0}
+#storiesView .discoverToolbar{position:relative;z-index:2;max-width:calc(100% - clamp(36px,7vw,110px));margin:-30px auto 35px;grid-template-columns:minmax(0,1.7fr) minmax(130px,.65fr) minmax(130px,.65fr);gap:13px;border-radius:17px;background:#fffdfa;border:1px solid #e6e3da;box-shadow:0 17px 32px rgba(24,49,35,.08);padding:18px 20px}
+#storiesView .discoverToolbar label{color:#315a46;font-size:12px}
+#storiesView .discoverToolbar input,#storiesView .discoverToolbar select{border-radius:9px;background:#fbfbf7;border-color:#d8e2d8;min-height:45px}
+#storiesView .discoverResults{padding:0 clamp(18px,3.2vw,50px)}
+#storiesView .discoverResultsHead{margin-bottom:20px}
+#storiesView .discoverBookGrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:22px}
+#storiesView .discoverNovelCard{min-width:0;border:1px solid #e5e5db;border-radius:19px;background:#fffdfa;box-shadow:0 9px 22px rgba(21,40,28,.04);overflow:hidden;display:flex;flex-direction:column}
+#storiesView .discoverNovelCover{height:310px;flex:none;background:linear-gradient(160deg,#203d32,#172a23);color:#fff;display:flex;align-items:center;justify-content:center;padding:22px}
+#storiesView .discoverNovelCover img{height:100%;width:100%;object-fit:contain;object-position:center;border-radius:5px;box-shadow:0 13px 28px rgba(5,22,13,.25)}
+#storiesView .discoverNovelInfo{padding:22px 23px 23px}
+#storiesView .discoverNovelInfo h3{font-size:clamp(23px,1.8vw,27px);margin:0 0 7px}
+#storiesView .discoverNovelZh{font-size:14px}
+#storiesView .discoverNovelSynopsis{font-size:13px;line-height:1.75;-webkit-line-clamp:3}
+#storiesView .discoverNovelAvailable{padding-top:15px;margin-top:auto;color:#607d69}
+#storiesView .discoverBookGrid.singleBook{grid-template-columns:minmax(0,1fr)}
+#storiesView .discoverBookGrid.singleBook .discoverNovelCard{display:grid;grid-template-columns:minmax(270px,35%) minmax(0,1fr);align-items:stretch;max-width:1100px;min-height:405px}
+#storiesView .discoverBookGrid.singleBook .discoverNovelCover{height:auto;min-height:405px;padding:33px}
+#storiesView .discoverBookGrid.singleBook .discoverNovelInfo{padding:clamp(24px,4vw,55px);justify-content:center}
+#storiesView .discoverBookGrid.singleBook .discoverNovelInfo h3{font-size:clamp(31px,3.4vw,48px);margin:9px 0 15px;line-height:1.15}
+#storiesView .discoverBookGrid.singleBook .discoverNovelSynopsis{-webkit-line-clamp:5;font-size:15px;max-width:530px;margin-bottom:20px}
+#storiesView .discoverBookGrid.singleBook .discoverNovelAvailable{margin:0 0 19px;max-width:530px}
+#storiesView .discoverBookGrid.singleBook .discoverNovelActions button{min-height:46px;font-size:14px;padding:11px 19px}
+#storiesView .discoverEmpty{max-width:820px;margin:0 auto;background:#fffdfa;border-radius:18px;padding:50px 24px;border:1px dashed #cddfd0}
+#storiesView .discoverEmpty strong{font:700 24px/1.5 Georgia,serif;color:#29473a}
+#storiesView .discoverEmpty p{font-size:14px}
+#storiesView .discoverToolbar[hidden]{display:none!important}
+#storiesView .discoverToolbar[hidden] + .discoverResults{padding-top:42px}
+
+@media(max-width:1080px){
+ #homeView .shelfFeatureCopy{max-width:60%}
+ #homeView .shelfBookGrid{grid-template-columns:1fr}
+ #storiesView .discoverBookGrid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:700px){
+ #homeView .shelfHeading{padding:25px 19px 23px;align-items:flex-start;flex-direction:column;gap:17px}
+ #homeView .shelfHeading h1{font-size:43px}
+ #homeView .shelfHeading p{font-size:13px}
+ #homeView .shelfExplore{padding:10px 15px}
+ #homeView .shelfFeature{min-height:450px;padding:34px 23px;gap:12px;background-position:62% center;align-items:flex-end}
+ #homeView .shelfFeature.hasStoryHero{background-size:auto 100%;background-position:61% center}
+ #homeView .shelfFeature.hasStoryHero:after{content:"";pointer-events:none;position:absolute;inset:0;z-index:-1;background:linear-gradient(0deg,#101f1a 1%,rgba(16,31,26,.96) 32%,rgba(16,31,26,.38) 71%,rgba(16,31,26,.02) 100%)}
+ #homeView .shelfFeatureCopy{max-width:100%}
+ #homeView .shelfFeatureCopy h2{font-size:clamp(34px,9vw,48px);margin:10px 0}
+ #homeView .shelfFeatureCopy p{font-size:13px;-webkit-line-clamp:3;max-width:480px}
+ #homeView .shelfFeature .eyebrow{font-size:10px}
+ #homeView .shelfFeatureImage{width:125px;max-height:195px;align-self:center;margin-right:0}
+ #homeView .shelfFeature.hasStoryCover .shelfFeatureCopy{max-width:64%}
+ #homeView .shelfFeature.hasStoryCover .shelfFeatureCopy h2{font-size:32px}
+ #homeView .shelfStats{margin:-19px 15px 0;grid-template-columns:repeat(2,minmax(0,1fr));border-radius:16px}
+ #homeView .shelfStats>div{padding:15px 19px;font-size:12px}
+ #homeView .shelfStats>div:nth-child(3){border-left:0;border-top:1px solid #efeee8}
+ #homeView .shelfStats>div:nth-child(4){border-top:1px solid #efeee8}
+ #homeView .shelfStatNumber{font-size:29px}
+ #homeView .shelfCollection{margin:37px 15px 0}
+ #homeView .shelfBookCard{padding:14px;gap:13px}
+ #homeView .shelfBookCover{width:114px;height:175px}
+ #homeView .shelfBookInfo h3{font-size:22px}
+ #storiesView .discoverHeading{min-height:230px;padding:41px 22px 69px}
+ #storiesView .discoverHeading h1{font-size:46px}
+ #storiesView .discoverHeading p{font-size:13px}
+ #storiesView .discoverToolbar{max-width:calc(100% - 28px);grid-template-columns:repeat(2,minmax(0,1fr));padding:13px;gap:9px;margin-bottom:28px}
+ #storiesView .discoverSearchLabel{grid-column:1 / -1}
+ #storiesView .discoverResults{padding:0 15px}
+ #storiesView .discoverBookGrid{grid-template-columns:1fr;gap:16px}
+ #storiesView .discoverNovelCover{height:270px}
+ #storiesView .discoverBookGrid.singleBook .discoverNovelCard{grid-template-columns:1fr;min-height:0}
+ #storiesView .discoverBookGrid.singleBook .discoverNovelCover{min-height:0;height:280px;padding:18px}
+ #storiesView .discoverBookGrid.singleBook .discoverNovelInfo{padding:22px}
+ #storiesView .discoverBookGrid.singleBook .discoverNovelInfo h3{font-size:27px;margin:4px 0 9px}
+ #storiesView .discoverBookGrid.singleBook .discoverNovelSynopsis{font-size:13px;-webkit-line-clamp:3}
+ #storiesView .discoverBookGrid.singleBook .discoverNovelAvailable{margin:0 0 13px}
+}
+@media(max-width:390px){
+ #homeView .shelfHeading{padding-left:16px;padding-right:16px}
+ #homeView .shelfFeature{min-height:478px;padding:22px 17px 29px}
+ #homeView .shelfFeature.hasStoryCover{min-height:390px}
+ #homeView .shelfFeature.hasStoryCover .shelfFeatureImage{display:block}
+ #homeView .shelfFeature.hasStoryCover .shelfFeatureCopy{max-width:62%}
+ #homeView .shelfFeature.hasStoryCover .shelfFeatureCopy h2{font-size:27px}
+ #homeView .shelfFeatureCopy h2{font-size:35px}
+ #homeView .shelfFeatureActions{gap:7px}
+ #homeView .shelfFeatureActions button{font-size:12px;padding:10px 12px;min-height:42px}
+ #homeView .shelfBookCard{flex-direction:row}
+ #homeView .shelfBookCover{width:97px;height:153px}
+ #homeView .shelfBookInfo h3{font-size:19px}
+ #homeView .shelfBookDesc{display:none}
+ #homeView .shelfBookActions button{font-size:11px;padding:8px 9px;min-height:35px}
+ #storiesView .discoverHeading{padding:34px 17px 64px}
+ #storiesView .discoverHeading h1{font-size:41px}
+ #storiesView .discoverBookGrid.singleBook .discoverNovelCover{height:244px}
+ #storiesView .discoverBookGrid.singleBook .discoverNovelInfo{padding:18px}
+}
+@media(prefers-reduced-motion:reduce){#homeView *,#storiesView *{scroll-behavior:auto!important;transition:none!important}}
+
+/* Intentional empty state: no placeholder book or cover artwork. */
+#homeView.noPublishedCourses .shelfFeature{min-height:300px;padding-top:42px;padding-bottom:42px}
+#homeView.noPublishedCourses .shelfFeatureCopy{max-width:850px}
+#homeView.noPublishedCourses .shelfFeatureCopy h2{margin:12px 0 15px;font-size:clamp(36px,4vw,58px)}
+#homeView.noPublishedCourses .shelfFeatureCopy p{margin:0;max-width:610px}
+#homeView.noPublishedCourses .shelfEmpty{padding:32px 22px}
+#storiesView.noPublishedCourses .discoverHeading{min-height:235px}
+#storiesView.noPublishedCourses .discoverResults{padding-top:34px}
+@media(max-width:700px){
+ #homeView.noPublishedCourses .shelfFeature{min-height:292px;padding:33px 22px;align-items:center}
+ #homeView.noPublishedCourses .shelfFeatureCopy h2{font-size:38px}
+ #storiesView.noPublishedCourses .discoverHeading{min-height:220px}
+}
+
+/* R2.7 A+B: editorial homepage, personal bookshelf, no novel content in core. */
+#homeView .shelfFeature.noFeatured{min-height:300px;background-image:radial-gradient(circle at 86% 20%,rgba(172,209,176,.16),transparent 39%),linear-gradient(123deg,#11271f,#254a3b);padding:42px clamp(22px,5vw,65px)}
+#homeView .shelfFeature.noFeatured .shelfFeatureCopy{max-width:850px}
+#homeView .shelfFeature.noFeatured #homeWelcome h2{font-size:clamp(31px,3.5vw,49px)}
+#homeView .shelfFeature.noFeatured #homeCoverArt{display:none!important}
+#homeView .shelfFeatureImage[hidden]{display:none!important}
+#homeView .homeResumeSlot{margin:22px clamp(16px,3.1vw,44px) 0}
+#homeView .homeResumeSlot:empty{display:none}
+#homeView .homeResumeSlot .homeResumePanel{padding:24px clamp(20px,3.8vw,46px);background:linear-gradient(105deg,#e9f1e9,#f7f7f0);border:1px solid #d6e4d9;border-radius:17px;color:#254737}
+#homeView .homeResumeSlot .homeResumePanel[hidden]{display:none!important}
+#homeView .homeResumeSlot .homeResumePanel h2{font-size:clamp(27px,3.3vw,39px);margin:7px 0}
+#homeView .shelfBookGrid .discoverNovelCard{min-width:0;background:#fffdfa;border:1px solid #e7e8dc;border-radius:18px;overflow:hidden;display:flex;flex-direction:column}
+#homeView .shelfBookGrid .discoverNovelCover{height:265px;display:flex;align-items:center;justify-content:center;padding:17px;background:#1b3a30;color:white}
+#homeView .shelfBookGrid .discoverNovelCover img{width:100%;height:100%;object-fit:contain}
+#homeView .shelfBookGrid .discoverNovelInfo{padding:17px;display:flex;flex-direction:column;flex:1}
+#homeView .shelfBookGrid .discoverNovelInfo h3{font-size:22px;line-height:1.25}
+#homeView .shelfBookGrid .discoverNovelActions{display:flex;gap:7px;flex-wrap:wrap}
+#homeView .shelfBookGrid .discoverNovelActions button{font-size:12px;white-space:normal}
+#shelfView .personalShelfShell{max-width:1370px;margin:0 auto;padding-bottom:70px}
+#shelfView .personalShelfHeading{padding:clamp(28px,4vw,54px) clamp(20px,5vw,72px) 34px;background:radial-gradient(circle at 92% 8%,rgba(222,235,215,.18),transparent 46%),linear-gradient(125deg,#112b24,#305544);color:#f8f5ea;border-radius:0 0 22px 22px}
+#shelfView .personalShelfHeading h1{color:#f8f5ea;margin:0 0 8px}
+#shelfView .personalShelfHeading p{color:#d5e4d4;max-width:620px;line-height:1.75;margin:0}
+#shelfView .personalShelfTools{display:flex;flex-wrap:wrap;align-items:center;gap:9px;margin:-11px clamp(15px,4vw,65px) 22px;padding:14px;background:#fffdfa;border:1px solid #e6e8df;border-radius:16px;position:relative;z-index:1;box-shadow:0 14px 24px rgba(26,53,39,.07)}
+#shelfView .personalShelfTools button{min-height:39px;padding:9px 14px}
+#shelfView .personalShelfTools button.active{background:#1f604b;color:white;border-color:#1f604b}
+#shelfView .personalShelfTools span{margin-left:auto;font-size:12px}
+#shelfView .shelfBookGrid{display:grid;grid-template-columns:minmax(0,1fr);gap:16px;padding:0 clamp(15px,4vw,65px);max-width:1120px;margin:0 auto}
+#shelfView .shelfBookCard{display:flex;flex-direction:row;align-items:flex-start;min-width:0;gap:18px;padding:18px 20px;border-radius:18px;border:1px solid #e5e9df;background:#fffdfa;box-shadow:0 9px 26px rgba(21,40,28,.04)}
+#shelfView .shelfBookCover{flex:none;width:112px;height:168px;display:flex;align-items:center;justify-content:center;border-radius:11px;background:#203d32;color:white;overflow:hidden;box-shadow:0 10px 18px rgba(19,39,29,.09)}
+#shelfView .shelfBookCover img{width:100%;height:100%;object-fit:contain}
+#shelfView .shelfBookInfo{min-width:0;display:flex;flex-direction:column;flex:1;align-self:stretch}
+#shelfView .shelfChip{display:inline-flex;align-self:flex-start;background:#e9f2e9;color:#326b50;font-size:11px;border-radius:7px;padding:4px 8px;font-weight:600;line-height:1.3}
+#shelfView .shelfBookInfo h3{font-family:Georgia,serif;font-size:clamp(22px,2vw,29px);line-height:1.16;margin:6px 0 4px;color:#21392f}
+#shelfView .shelfBookZh{font-size:14px;color:#456956;margin:0 0 8px;line-height:1.5}
+#shelfView .shelfBookInfo .shelfBookDesc{font-size:13px;color:#63756a;line-height:1.7;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;margin:0 0 10px}
+#shelfView .shelfBookStatus{font-size:13px;color:#4f6b5a;margin:2px 0 8px}
+#shelfView .shelfBookTrack{height:6px;border-radius:999px;background:#e4ebe4;overflow:hidden;max-width:360px;margin:0 0 12px}
+#shelfView .shelfBookTrack span{display:block;height:100%;background:linear-gradient(90deg,#2c7a5c,#72a884);border-radius:999px}
+#shelfView .shelfBookActions{display:flex;flex-wrap:wrap;gap:8px;margin-top:auto;padding-top:8px}
+#shelfView .shelfBookActions button{white-space:normal;font-size:12px;min-height:39px;padding:9px 13px}
+#shelfView .unavailableBookCard{padding:23px;border:1px dashed #a8bdad;border-radius:16px;background:#fffdfa}
+#shelfView .unavailableBookCard p{line-height:1.65;color:#657a6b}
+#shelfView .discoverEmpty{margin:20px auto;padding:40px 28px;background:#fffdfa;text-align:center;border:1px dashed #c8d9c9;border-radius:17px;max-width:1120px}
+#shelfView .discoverEmpty strong{font:700 27px Georgia,serif}
+#shelfView .discoverEmpty p{color:#657a6b}
+#storiesView .discoverNovelActions{display:flex;flex-wrap:wrap;gap:8px}
+#storiesView .discoverNovelActions button{white-space:normal}
+#bookView #bookHeroSave[aria-pressed="true"]{border-color:#b6cbb8;background:#d8ebdb;color:#254a36}
+@media(max-width:700px){
+ .topnav{gap:1px;min-width:0}
+ .topnav button{padding:8px 8px;font-size:12px}
+ #homeView .homeResumeSlot{margin:14px 15px 0}
+ #homeView .homeResumeSlot .homeResumePanel{padding:18px}
+ #homeView .shelfFeature.noFeatured{min-height:260px;padding:28px 19px}
+ #homeView .shelfBookGrid .discoverNovelCover{height:225px}
+ #shelfView .personalShelfHeading{padding:30px 19px 40px}
+ #shelfView .personalShelfHeading h1{font-size:41px}
+ #shelfView .personalShelfTools{margin-left:15px;margin-right:15px;padding:10px;gap:5px}
+ #shelfView .personalShelfTools button{font-size:12px;padding:9px 10px}
+ #shelfView .personalShelfTools span{flex-basis:100%;margin-left:0;padding:4px}
+ #shelfView .shelfBookGrid{grid-template-columns:1fr}
+}
+@media(max-width:400px){.topbar{padding:0 9px;gap:6px}.brand{font-size:17px}.brand span{font-size:8px}.topnav button{font-size:11px;padding:7px 5px}.topactions{gap:3px}.topactions button{font-size:11px}}
+#homeView .shelfBookGrid.editorialGrouped{display:flex;flex-direction:column;gap:34px}
+#homeView .editorialGroup{min-width:0}
+#homeView .editorialSectionTitle{font-family:Georgia,'Microsoft YaHei',serif;font-size:23px;color:#284738;margin:0 0 18px}
+#homeView .editorialCardGrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
+#homeView .editorialCardGrid.singleBook{grid-template-columns:minmax(0,1fr)}
+#homeView .editorialCardGrid.singleBook .discoverNovelCard{max-width:1090px;display:grid;grid-template-columns:minmax(200px,36%) minmax(0,1fr)}
+#homeView .editorialCardGrid.singleBook .discoverNovelCover{height:330px}
+#homeView .editorialCardGrid.singleBook .discoverNovelInfo{justify-content:center;padding:24px}
+@media(max-width:900px){#homeView .editorialCardGrid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:700px){#homeView .editorialCardGrid{grid-template-columns:1fr}
+ #shelfView .shelfBookCard{gap:12px;padding:14px 14px 15px}
+ #shelfView .shelfBookCover{width:92px;height:138px;border-radius:9px}
+ #shelfView .shelfBookInfo h3{font-size:20px;margin-top:2px}
+ #shelfView .shelfBookZh{font-size:13px;margin-bottom:6px}
+ #shelfView .shelfBookInfo .shelfBookDesc{display:none}
+ #shelfView .shelfBookStatus{font-size:12px;margin-bottom:7px}
+ #shelfView .shelfBookTrack{max-width:100%;margin-bottom:10px}
+ #shelfView .shelfBookActions{gap:6px;padding-top:6px}
+ #shelfView .shelfBookActions button{font-size:11px;padding:8px 10px;min-height:35px}
+ #homeView .editorialCardGrid.singleBook .discoverNovelCard{grid-template-columns:1fr}
+ #homeView .editorialCardGrid.singleBook .discoverNovelCover{height:240px}
+ #homeView .editorialCardGrid.singleBook .discoverNovelInfo{padding:18px}}
+
+
+/* R2.7 C · Reading experience. Only generic site components, no course assets. */
+#readerView .readerLayout{max-width:1520px;width:100%;margin:0 auto;grid-template-columns:minmax(0,1fr) minmax(335px,410px);gap:18px;padding:12px clamp(12px,2vw,28px)}
+#readerView .readerPaper{min-width:0;background:#fffefa;border:1px solid #e6ebe3;box-shadow:0 10px 32px rgba(20,43,31,.055)}
+#readerView .readerHeader{background:#fbfaf6;border-bottom:1px solid #e7ebe6;min-height:59px;padding:7px clamp(14px,2.5vw,32px)}
+#readerView .readerHeader .chapterHeader strong{font-size:clamp(17px,1.5vw,21px)}
+#readerView .readerHeaderTools{gap:7px}
+#readerView .explainPanel{min-width:0;border:1px solid #e1e9df;border-radius:17px;background:#fbfcf8;overflow:auto}
+#readerView .explainHead{padding-top:12px}
+#readerView .sceneCompanion[hidden]{display:none!important}
+#readerView .sceneCompanion{margin:12px 13px 0;border-radius:13px;overflow:hidden;background:#f2f4ef;border:1px solid #e4e9df;flex:0 0 auto}
+#readerView .sceneCompanionTop{display:flex;align-items:center;justify-content:space-between;gap:7px;padding:9px 12px 7px}
+#readerView .sceneCompanionTop .asideOverline{margin:0;white-space:nowrap}
+#readerView .sceneCompanionImage{border:0;padding:0;display:block;width:100%;background:#e5eae1;cursor:zoom-in}
+#readerView .sceneCompanionImage img{display:block;width:100%;height:auto;aspect-ratio:4/3;object-fit:contain}
+#readerView .sceneCompanionCaption{padding:9px 12px;color:#5e7766;font-size:12px;line-height:1.4}
+#readerView .sceneCompanion.isLarge{margin:6px 7px 0}
+#readerView .explainContent{padding:13px 17px 24px;overflow-y:auto}
+#readerView .readerFoot{background:#fffefa;border-top:1px solid #edf0e9}
+/* Film stills do not occupy desktop pagination. On mobile, show every original 4:3 image without cropping. */
+#readerView .sceneFigure{margin:10px 0 18px;border-radius:12px;background:#f1f3ed;overflow:hidden}
+#readerView .sceneImageButton img,#readerView .sceneFigure.imageFull .sceneImageButton img{display:block;width:100%;height:auto!important;max-height:none!important;aspect-ratio:4/3;object-fit:contain;background:#f1f3ed}
+#readerView .sceneFigure figcaption{padding:8px 10px;color:#586c60}
+#readerView .sceneMeasure,#readerView .sceneFigure.imageFull .sceneMeasure{display:block;width:100%;height:auto!important;aspect-ratio:4/3;background:#e9ede7}
+#readerView #pageText.sceneOnlyPage{display:flex;flex-direction:column;justify-content:center}
+#readerView #pageText.sceneOnlyPage .sceneFigure{flex:0 0 auto;margin:10px 0}
+@media(max-width:1050px){#readerView .readerLayout{grid-template-columns:minmax(0,1fr) 320px;gap:12px;padding:10px}}
+@media(max-width:800px){
+ #readerView .readerLayout,#readerView .readerLayout.noExplain{grid-template-columns:minmax(0,1fr);padding:0 8px 8px;gap:0}
+ #readerView .explainPanel{display:none!important}
+ #readerView .readerHeader{padding:7px 12px;min-height:58px}
+ #readerView .readerPaper{border-radius:12px}
+ #readerView .sceneFigure{margin:8px 0 18px}
+ #readerView .sceneImageButton img{width:100%;max-height:none!important}
+ #readerView #pageText.sceneOnlyPage{justify-content:center;overflow-y:auto}
+}
+@media(max-width:600px){#readerView .readerHeader .chapterHeader strong{font-size:16px}#readerView .readerHeaderTools #toggleExplain{display:none}}
+@media(max-width:380px){#readerView .readerLayout{padding-inline:5px}#readerView .readerFoot{padding:5px 5px max(5px,env(safe-area-inset-bottom))}}
+
+/* Immersive / hidden-explanation modes still show narrative artwork in the text. */
+#readerView .readerLayout.noExplain .sceneFigure{width:min(100%,660px);margin:14px auto 20px}
+#readerView .readerLayout.noExplain .sceneMeasure{width:100%}
+#readerView .readerLayout.noExplain .sceneImageButton img{width:100%}
+@media(min-width:801px){
+ body:has(#readerView.active) #app{grid-template-rows:52px minmax(0,1fr)}
+ body:has(#readerView.active) .topbar{height:52px;min-height:52px}
+}
+
+@media(min-width:801px){
+ /* Full-width immersive scenes scale down on shorter laptop viewports while
+    preserving their source ratio; they never become a cropped thumbnail. */
+ #readerView .readerLayout.noExplain .sceneFigure{width:min(100%,660px,max(190px,calc((100dvh - 330px)*4 / 3)))}
+}

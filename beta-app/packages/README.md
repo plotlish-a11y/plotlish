@@ -1,9 +1,12 @@
-# 课程仓库（Plotlish R2.4）
+# 空课程目录（正式交付）
 
-当前为空书架，**没有任何预装课程**。
+这里没有预装作品、章节、人物图片或封面。
 
-每本小说建一个文件夹：`packages/<book-id>/book.json`，章节放在 `packages/<book-id>/chapters/ch001/course.json`。
+以后制作好的每部小说课程应独立作为资源包，手动审核后才放入：
 
-从 `../templates/novel-template/` 复制草稿模板。请阅读 `../README_BETA_课程操作.md` 与 `../docs/R2.4_课程存储与发布标准.md`。
+`packages/<book-id>/book.json`
+`packages/<book-id>/chapters/ch001/course.json`
 
-R2.4 不接受 `packages/*.zip`：旧版单章 ZIP 先用 `tools/import_chapter.py` 安全导入。作品和章节状态均为 `published` 才显示在网站。
+可选内容包括 `cover.webp`、`hero.webp`、`course-guide.json`、`characters.json` 及人物/章节插画等。结构和验证规则详见 `../docs/`。
+
+需要公开显示时，必须将作品和对应章节的 `status` 都设为 `published` 并重新运行构建流程。
