@@ -749,3 +749,9 @@
  #readerView .readerHeader .backButton{font-size:0;min-width:36px;padding:7px 5px}
  #readerView .readerHeader .backButton::first-letter{font-size:15px}
 }
+
+/* R2.8.1: actual inline online Chinese gloss; no bundled dictionary */
+#hoverWordHint .hoverMeaning{font-size:15px;font-weight:650;line-height:1.5;color:#18513c;max-width:min(295px,75vw);overflow-wrap:anywhere}
+#hoverWordHint .hoverSource{font-size:10px;color:#758b7d;margin-top:5px}
+#hoverWordHint .hoverActions{margin-top:8px}
+#hoverWordHint .hoverSource a{color:#507766;text-decoration:underline;margin-left:4px}

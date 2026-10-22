@@ -684,8 +684,89 @@ function appendDictionaryLinks(container,word){
  const link=makeDictionaryLink(prefs.dictionaryProvider==='bing'?'bing':'cambridge',word);
  if(link)container.append(link);
 }
-let hoverTimer=null,hoverDismissTimer=null,hoverCandidate='',hoverWord='',hoverBox=null;
-function dismissWordHint(){clearTimeout(hoverTimer);clearTimeout(hoverDismissTimer);hoverCandidate='';hint.hidden=true;hoverWord='';hoverBox=null}
+// Network-first Chinese word glosses. There is no bundled dictionary: only
+// free public translation/dictionary APIs, on-demand requests and a small
+// browser-side cache of successful prior responses.
+const WORD_CACHE_KEY='plotlish.online-gloss.v1';
+const WORD_CACHE_AGE=30*24*60*60*1000;
+const WORD_CACHE_MAX=320;
+const wordResults=new Map(),wordPending=new Map();
+try{
+ const saved=JSON.parse(localStorage.getItem(WORD_CACHE_KEY)||'[]');
+ if(Array.isArray(saved))for(const item of saved){
+  if(Array.isArray(item)&&typeof item[0]==='string'&&typeof item[1]?.meaning==='string'&&Date.now()-item[1].at<WORD_CACHE_AGE)wordResults.set(item[0],item[1]);
+ }
+}catch(e){}
+function storeGloss(key,meaning,source,sourceUrl=""){
+ wordResults.delete(key);wordResults.set(key,{meaning,source,sourceUrl,at:Date.now()});
+ while(wordResults.size>WORD_CACHE_MAX)wordResults.delete(wordResults.keys().next().value);
+ try{localStorage.setItem(WORD_CACHE_KEY,JSON.stringify([...wordResults]));}catch(e){}
+}
+function normalizeGloss(value){
+ const v=String(value||'').replace(/<[^>]+>/g,'').replace(/&(?:amp|quot|apos|lt|gt);/g,c=>({'&amp;':'&','&quot;':'"','&apos;':"'",'&lt;':'<','&gt;':'>'}[c]||c)).replace(/\s+/g,' ').trim();
+ if(!/[\u3400-\u9fff]/.test(v)||v.length>180||/^(?:MYMEMORY WARNING|QUERY LENGTH LIMIT)/i.test(v))return '';
+ return v;
+}
+function fetchWithDeadline(url,ms=6500){
+ const controller=new AbortController();const timer=setTimeout(()=>controller.abort(),ms);
+ return fetch(url,{signal:controller.signal,headers:{Accept:'application/json'}}).then(r=>{if(!r.ok)throw Error('http '+r.status);return r.json()}).finally(()=>clearTimeout(timer));
+}
+function getChineseTranslations(data){
+ const out=[];
+ // Wiktionary-derived FreeDictionaryAPI: translations may be on a sense
+ // or entry, and language may be represented as a code or an object.
+ function visit(value,depth=0){
+  if(!value||depth>4||out.length>=4)return;
+  if(Array.isArray(value)){value.forEach(x=>visit(x,depth+1));return}
+  if(typeof value!=='object')return;
+  for(const [key,item] of Object.entries(value)){
+   if(/^zh(?:[-_]|$)|^chinese$/i.test(key)){
+    if(typeof item==='string'){const t=normalizeGloss(item);if(t)out.push(t)}
+    else visit(item,depth+1);
+   }
+  }
+  const lang=value.language||value.lang||value.code;
+  const langCode=typeof lang==='string'?lang:lang?.code||lang?.name||'';
+  if(/^zh(?:[-_]|$)|^chinese$/i.test(langCode)){
+   for(const candidate of [value.word,value.term,value.text,value.translation,value.value]){
+    const t=normalizeGloss(typeof candidate==='string'?candidate:'');if(t){out.push(t);break}
+   }
+  }
+  for(const [key,item] of Object.entries(value))if(['entries','senses','subsenses','translations','translation','terms'].includes(key))visit(item,depth+1);
+ }
+ visit(data);
+ return [...new Set(out)].slice(0,3).join('；');
+}
+async function requestChineseGloss(word){
+ const key=word.toLowerCase().replaceAll('’',"'");
+ const cached=wordResults.get(key);
+ if(cached&&Date.now()-cached.at<WORD_CACHE_AGE)return cached;
+ if(wordPending.has(key))return wordPending.get(key);
+ const request=(async()=>{
+  // MyMemory has a documented free anonymous allowance. Only the chosen
+  // single word is transmitted; the sentence and reader history stay local.
+  try{
+   const url='https://api.mymemory.translated.net/get?q='+encodeURIComponent(key)+'&langpair=en%7Czh-CN';
+   const data=await fetchWithDeadline(url);
+   if(Number(data.responseStatus||200)<400){
+    const meaning=normalizeGloss(data.responseData?.translatedText);
+    if(meaning){storeGloss(key,meaning,'MyMemory');return wordResults.get(key)}
+   }
+  }catch(e){}
+  try{
+   const url='https://freedictionaryapi.com/api/v1/entries/en/'+encodeURIComponent(key)+'?translations=true';
+   const data=await fetchWithDeadline(url);
+   const meaning=getChineseTranslations(data);
+   const sourceUrl=typeof data.source?.url==='string'&&/^https:\/\//.test(data.source.url)?data.source.url:'';
+   if(meaning){storeGloss(key,meaning,'FreeDictionaryAPI',sourceUrl);return wordResults.get(key)}
+  }catch(e){}
+  return null;
+ })();
+ wordPending.set(key,request);
+ try{return await request}finally{wordPending.delete(key)}
+}
+let hoverTimer=null,hoverDismissTimer=null,hoverCandidate='',hoverWord='',hoverBox=null,hoverRenderToken=0;
+function dismissWordHint(){clearTimeout(hoverTimer);clearTimeout(hoverDismissTimer);hoverCandidate='';hint.hidden=true;hoverWord='';hoverBox=null;hoverRenderToken++}
 function delayDismissWordHint(){if(hint.classList.contains('mobileWordHint'))return;clearTimeout(hoverTimer);clearTimeout(hoverDismissTimer);hoverDismissTimer=setTimeout(dismissWordHint,380)}
 hint.addEventListener('pointerenter',()=>clearTimeout(hoverDismissTimer));
 hint.addEventListener('pointerleave',()=>{if(!hint.classList.contains('mobileWordHint'))dismissWordHint()});
@@ -705,19 +786,47 @@ function locateWordAt(x,y){
   return {word:m[0],box,noteId:holder.closest('[data-note-id]')?.dataset.noteId||null,sentence:holder.closest('.readingSentence')?.querySelector('.sentenceText')?.textContent?.trim()||''};
  }return null;
 }
+function placeWordHint(rect,force){
+ if(force){hint.classList.add('mobileWordHint');hint.style.left='10px';hint.style.top='auto';return}
+ hint.classList.remove('mobileWordHint');
+ const width=hint.offsetWidth,height=hint.offsetHeight;
+ hint.style.left=Math.max(8,Math.min(rect.left,innerWidth-width-8))+'px';
+ const above=rect.top-height-9,below=rect.bottom+9;
+ hint.style.top=(above>=8?above:(below+height<=innerHeight-8?below:Math.max(8,Math.min(above,innerHeight-height-8))))+'px';
+}
 function showWordHint(data,{force=false}={}){
  if(force){clearTimeout(hoverTimer);clearTimeout(hoverDismissTimer)}
  if(!data||(!force&&prefs.hoverTranslation===false))return;
+ const key=data.word.toLowerCase().replaceAll('’',"'");
+ const token=++hoverRenderToken;
  const name=label('div',data.word,'hoverWord');
- const value=label('div','在线查询英汉释义','hoverMeaning');
+ const value=label('div','正在查询中文释义…','hoverMeaning');
+ value.setAttribute('aria-live','polite');
+ const attribution=label('div','','hoverSource');
  const actions=label('div','','hoverActions');appendDictionaryLinks(actions,data.word);
- const content=[name,value,actions];
+ const content=[name,value,attribution,actions];
  if(force){const close=label('button','关闭 ×','hoverClose');close.type='button';close.onclick=e=>{e.preventDefault();e.stopPropagation();dismissWordHint()};content.push(close)}
  hint.replaceChildren(...content);hint.hidden=false;
- const rect=data.box;
- if(force){hint.classList.add('mobileWordHint');hint.style.left='10px';hint.style.top='auto'}
- else {hint.classList.remove('mobileWordHint');const hintWidth=hint.offsetWidth,hintHeight=hint.offsetHeight;hint.style.left=Math.max(8,Math.min(rect.left,innerWidth-hintWidth-8))+'px';const above=rect.top-hintHeight-9,below=rect.bottom+9;hint.style.top=(above>=8?above:(below+hintHeight<=innerHeight-8?below:Math.max(8,Math.min(above,innerHeight-hintHeight-8))))+'px'}
- hoverWord=data.word;hoverBox=rect;
+ hoverWord=data.word;hoverBox=data.box;
+ placeWordHint(data.box,force);
+ // Cached glosses appear synchronously. Uncached terms are looked up online;
+ // stale responses can never overwrite a newer hovered word.
+ const apply=result=>{
+  if(token!==hoverRenderToken||hint.hidden||hoverWord!==data.word)return;
+  value.textContent=result?.meaning||'暂时无法取得中文释义，请使用在线词典查看';
+  attribution.replaceChildren();
+  if(result){
+   attribution.append(document.createTextNode('在线释义 · '+result.source+'（仅供参考）'));
+   if(result.source==='FreeDictionaryAPI'){
+    const credit=document.createElement('a');credit.href='https://freedictionaryapi.com/';credit.target='_blank';credit.rel='noopener noreferrer';credit.textContent=' 数据来源';attribution.append(credit);
+    if(result.sourceUrl){const source=document.createElement('a');source.href=result.sourceUrl;source.target='_blank';source.rel='noopener noreferrer';source.textContent=' · Wiktionary 词条';attribution.append(source)}
+   }
+  }
+  placeWordHint(data.box,force);
+ };
+ const cached=wordResults.get(key);
+ if(cached&&Date.now()-cached.at<WORD_CACHE_AGE){apply(cached);return}
+ requestChineseGloss(data.word).then(apply).catch(()=>apply(null));
 }
 function onWordMove(e){
  if(e.pointerType==='touch')return;

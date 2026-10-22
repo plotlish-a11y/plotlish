@@ -684,5 +684,29 @@ class BuildTests(unittest.TestCase):
         self.assertIn('暂无已发布课程', (self.out / 'src/shell.js').read_text())
 
 
+class OnlineGlossContractTests(unittest.TestCase):
+    """Regression guards against reintroducing link-only hover cards."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.reader = (ROOT / 'core/src/reader.js').read_text(encoding='utf-8')
+        cls.html = (ROOT / 'core/index.html').read_text(encoding='utf-8')
+
+    def test_hover_card_really_fetches_a_chinese_meaning(self):
+        self.assertIn('async function requestChineseGloss(word)', self.reader)
+        self.assertIn('requestChineseGloss(data.word).then(apply)', self.reader)
+        self.assertIn('value.textContent=result?.meaning', self.reader)
+        self.assertNotIn("label('div','在线查询英汉释义','hoverMeaning')", self.reader)
+
+    def test_only_free_anonymous_provider_urls_are_used(self):
+        self.assertIn('api.mymemory.translated.net/get', self.reader)
+        self.assertIn('freedictionaryapi.com/api/v1/entries/en/', self.reader)
+        self.assertIn('wordResults=new Map()', self.reader)
+        self.assertIn('hoverRenderToken++', self.reader)
+
+    def test_settings_describe_real_inline_gloss(self):
+        self.assertIn('在线获取中文词义', self.html)
+        self.assertIn('免费接口可能限流', self.html)
+
 if __name__ == '__main__':
     unittest.main()
