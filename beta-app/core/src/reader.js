@@ -223,7 +223,7 @@ function setupBookNavigation(){
  for(const c of other){const box=safeText(future,'div','');const btn=safeText(box,'button','第 '+chapterNum(c)+' 章 · '+c.chapter,'chapterNavLink');btn.type='button';btn.onclick=()=>openBookByCode(c.chapter_id,'reader');makeUnitLinks(box,c,'drawerUnits')}
  if(!other.length){const msg=document.createElement('p');msg.textContent='目前本作品只开放这一章。';future.append(msg)}
  $('reviewView').querySelector('h1').textContent='读完 '+course.chapter;
- $('reviewView').querySelector('.eyebrow').textContent='CHAPTER '+chapterNum(course)+' · READING REFLECTION';
+ $('reviewView').querySelector('.eyebrow').textContent='CHAPTER '+chapterNum(course)+' · FINISHED READING';
  document.title='PLOTLISH · '+course.book;
 }
 setupBookNavigation();
@@ -478,7 +478,7 @@ function renderNotebook(){
  const familiar=label('button',familiarFor(id)?'✓ 已熟悉':'标记已熟悉','familiarToggle');familiar.setAttribute('aria-pressed',String(familiarFor(id)));familiar.onclick=()=>{setNoteFamiliar(id,!familiarFor(id));renderNotebook()};bar.append(listen,back,familiar);card.append(bar);root.append(card)}
 }
 
-function renderReview(){const grammar=course.grammar||{};$('grammarTitle').textContent=grammar.term||'本章语法讲解';$('grammarDesc').textContent=grammar.explain||'本章暂无专项语法讲解。';$('grammarExample').textContent=grammar.example||'';$('reviewQuestion').textContent=course.question;$('reviewHint').textContent=course.questionHelp;$('reflection').value=read('reflection','');}
+function renderReview(){ /* Reading-only: completion summary, no questions or writing assignments. */ }
 function completeChapter(){if(prefs.mode==='scroll'){const body=$('pageBody');const actuallyAtEnd=body.scrollTop+body.clientHeight>=body.scrollHeight-30;if(!actuallyAtEnd){toast('请先阅读至文章结尾，再标记本章完成。');return}}state.completed=true;persist();route('review');toast('本章已标记为阅读完成')}
 function showModal(id){state.restoreFocus=document.activeElement;const el=$(id);el.hidden=false;state.openModal=id;el.querySelector('button')?.focus()}
 function closeModal(){if(!state.openModal)return;$(state.openModal).hidden=true;state.openModal=null;state.restoreFocus?.focus?.();state.restoreFocus=null}
@@ -539,10 +539,10 @@ function clearOwned(scope){
  if(selected.includes('sentenceId')||scope==='all'){state.selected=0;state.anchorOffset=0;}
  if(selected.includes('notes')||scope==='all'){state.notes=[];state.familiar=[];}
  if(selected.includes('completed')||scope==='all')state.completed=false;
- if(selected.includes('reflection')||scope==='all')$('reflection').value='';
+ /* Legacy reflection data is retained for backup compatibility, with no exercise UI. */
  stopAudio();syncSettings();renderReview();if(state.view==='reader')requestPageReflow();if(state.view==='notebook')renderNotebook();updateHomePosition();
 }
-function clearSelectedData(){const scope=$('clearScope').value;const descriptions={position:'阅读位置',completed:'章节完成状态',prefs:'全部阅读偏好',notes:'所有收藏词汇',reflection:'复述练习笔记',all:'全部本地学习数据'};const title=descriptions[scope];if(!confirm('确认清除「'+title+'」？此操作无法撤销。建议先导出学习数据。'))return;try{clearOwned(scope);updateDataSummary();toast(storageError?'已从当前会话清除；浏览器存储受限，请确认永久删除状态。':title+'已清除。')}catch(e){toast('清除失败：'+String(e.message||e))}}
+function clearSelectedData(){const scope=$('clearScope').value;const descriptions={position:'阅读位置',completed:'章节完成状态',prefs:'全部阅读偏好',notes:'所有收藏词汇',reflection:'旧版笔记记录',all:'全部本地学习数据'};const title=descriptions[scope];if(!confirm('确认清除「'+title+'」？此操作无法撤销。建议先导出学习数据。'))return;try{clearOwned(scope);updateDataSummary();toast(storageError?'已从当前会话清除；浏览器存储受限，请确认永久删除状态。':title+'已清除。')}catch(e){toast('清除失败：'+String(e.message||e))}}
 function applyGlobalSnapshot(obj,mode){
  const data=obj.data,nextPrefs=normalizePrefs(data.prefs),incomingIds=data.noteIds.filter(id=>ALL_NOTES.some(n=>n.id===id));
  const nextNotes=mode==='merge'?[...new Set([...state.notes,...incomingIds])]:[...new Set(incomingIds)];
@@ -600,8 +600,7 @@ bindClick('toggleExplain',()=>{prefs.explain=!prefs.explain;persist();syncSettin
 bindClick('quickClick',()=>{prefs.clickSpeak=!prefs.clickSpeak;syncSettings();persist();toast(prefs.clickSpeak?'点句自动朗读已开启':'点句自动朗读已关闭')});
 bindClick('quickClickMobile',()=>{prefs.clickSpeak=!prefs.clickSpeak;syncSettings();persist();$('readerQuickNav').hidden=true;$('readerNavToggle').setAttribute('aria-expanded','false');toast(prefs.clickSpeak?'点句自动朗读已开启':'点句自动朗读已关闭')});
 bindClick('exportData',downloadJSON);bindClick('importData',()=>$('importFile').click());$('importFile').addEventListener('change',e=>importBackup(e.target.files?.[0]));bindClick('clearData',clearSelectedData);$('clearScope').addEventListener('change',()=>updateDataSummary());
-bindClick('reviewReturn',()=>goReader());bindClick('reviewWords',()=>route('notebook'));bindClick('reviewHome',()=>route('home'));bindClick('reviewBook',()=>route('book'));bindClick('showReviewHint',()=>{$('reviewHint').hidden=!$('reviewHint').hidden;$('showReviewHint').textContent=$('reviewHint').hidden?'显示提示':'收起提示'});
-$('reflection').addEventListener('input',e=>{save('reflection',e.target.value);$('reflectionState').textContent=storageError?'存储不可用，仅当前会话有效':'已保存在当前浏览器'});
+bindClick('reviewReturn',()=>goReader());bindClick('reviewWords',()=>route('notebook'));bindClick('reviewHome',()=>route('shelf'));bindClick('reviewBook',()=>route('book'));
 for(const b of document.querySelectorAll('.closeModal'))b.addEventListener('click',closeModal);for(const id of ['settingsModal','helpModal','privacyModal','sceneModal'])$(id).addEventListener('click',e=>{if(e.target===$(id))closeModal()});
 for(const b of document.querySelectorAll('[data-settings-tab]'))b.addEventListener('click',()=>{for(const x of document.querySelectorAll('[data-settings-tab]'))x.classList.toggle('active',x===b);for(const x of document.querySelectorAll('[data-settings-panel]'))x.classList.toggle('active',x.dataset.settingsPanel===b.dataset.settingsTab)});
 function prefChange(id,key,callback){$(id).addEventListener('change',e=>{prefs[key]=e.target.type==='checkbox'?e.target.checked:e.target.value;if(key==='rate'||key==='fontSize'||key==='lineHeight')prefs[key]=Number(prefs[key]);persist();callback?.()})}
