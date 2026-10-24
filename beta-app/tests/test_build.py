@@ -403,7 +403,7 @@ class BuildTests(unittest.TestCase):
     def test_plotlish_ui_translation_is_inline_in_current_and_bilingual(self):
         js=(ROOT/'core/src/reader.js').read_text(encoding='utf8')
         self.assertIn("prefs.translation==='current'&&seg.i===state.selected",js)
-        self.assertIn("row.append(label('span',course.translations[seg.i],'translatedInline'))",js)
+        self.assertIn("const tr=label('span',continuation?seg.translationText:course.translations[seg.i],'translatedInline')",js)
         self.assertIn("if(state.view==='reader'&&prefs.translation==='current')requestPageReflow()",js)
         self.assertIn('LEARNING NOTES · 随文讲解',js)
         self.assertNotIn("root.appendChild(label('div',course.translations[state.selected],'translation'))",js)
@@ -763,6 +763,31 @@ class OnlineGlossContractTests(unittest.TestCase):
     def test_settings_describe_real_inline_gloss(self):
         self.assertIn('在线获取中文词义', self.html)
         self.assertIn('免费接口可能限流', self.html)
+
+class PaginationFitContractTests(unittest.TestCase):
+    """Reading pages must measure exactly the CSS used for visible bilingual rows."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.reader = (ROOT / 'core/src/reader.js').read_text(encoding='utf8')
+        cls.css = (ROOT / 'core/src/styles.css').read_text(encoding='utf8')
+
+    def test_measurement_is_within_reader_scope(self):
+        self.assertIn("reader.appendChild(outer)", self.reader)
+        self.assertIn("if(outer.parentElement!==reader)", self.reader)
+        self.assertIn("const text=$('pageText'),css=getComputedStyle(text)", self.reader)
+
+    def test_translations_are_measured_during_pagination(self):
+        self.assertIn("const needsTranslation=prefs.translation==='bilingual'", self.reader)
+        self.assertIn("const translationTooLong=", self.reader)
+        self.assertIn("translationOnly:true,translationText:", self.reader)
+        self.assertIn("suppressTranslation:translationTooLong", self.reader)
+
+    def test_page_mode_retains_no_internal_scrolling(self):
+        self.assertIn('.pageBody{flex:1;min-height:0;overflow:hidden;', self.css)
+        self.assertIn('.pageBody.scrollReading{overflow:auto;', self.css)
+        self.assertIn('.readingSentence.translationContinuation .rowSpacer{display:none}', self.css)
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -377,28 +377,48 @@ function renderMarked(parent,i,text,offset=0){
  parent.appendChild(document.createTextNode(text.slice(last)));
 }
 function makeRow(seg,{measure=false}={}){
- let row=label('div','','readingSentence'+(seg.break?' paragraphStart':''));row.dataset.index=seg.i;row.dataset.start=String(seg.start||0);row.dataset.end=String(seg.end??course.sentences[seg.i].length);
- if(seg.start>0)row.dataset.fragment='true';let number=label('span',seg.start>0?'↳':String(seg.i+1),'number');let words=label('span','','sentenceText');renderMarked(words,seg.i,seg.text,seg.start||0);row.append(number,words);
- if((prefs.translation==='bilingual'||(prefs.translation==='current'&&seg.i===state.selected))&&seg.end===course.sentences[seg.i].length){row.append(label('span','','rowSpacer'));row.append(label('span',course.translations[seg.i],'translatedInline'))}
- if(!measure){row.tabIndex=0;row.setAttribute('aria-label','第 '+(seg.i+1)+' 句：'+seg.text);if(seg.i===state.selected)row.classList.add('isSelected')}
+ const continuation=!!seg.translationOnly;
+ let row=label('div','','readingSentence'+(seg.break?' paragraphStart':'')+(continuation?' translationContinuation':''));
+ row.dataset.index=seg.i;row.dataset.start=String(seg.start||0);row.dataset.end=String(seg.end??course.sentences[seg.i].length);
+ if(seg.start>0||continuation)row.dataset.fragment='true';
+ row.appendChild(label('span',(seg.start>0||continuation)?'↳':String(seg.i+1),'number'));
+ if(!continuation){let words=label('span','','sentenceText');renderMarked(words,seg.i,seg.text,seg.start||0);row.appendChild(words)}
+ const showTranslation=prefs.translation==='bilingual'||(prefs.translation==='current'&&seg.i===state.selected);
+ if(showTranslation&&(continuation||(!seg.suppressTranslation&&seg.end===course.sentences[seg.i].length))){
+  row.append(label('span','','rowSpacer'));
+  const tr=label('span',continuation?seg.translationText:course.translations[seg.i],'translatedInline');
+  if(continuation)tr.setAttribute('aria-label','第 '+(seg.i+1)+' 句中文译文（续）');
+  row.appendChild(tr);
+ }
+ if(!measure){row.tabIndex=0;row.setAttribute('aria-label','第 '+(seg.i+1)+' 句'+(continuation?'中文译文续页':'：'+seg.text));if(seg.i===state.selected)row.classList.add('isSelected')}
  return row;
 }
 function renderScene(seg,{measure=false}={}){const s=course.scenes?.find(x=>x.start_index===seg.sceneIndex);if(!inlineScenes()||!s||!prefs.scenes||!sceneData[s.scene_id])return document.createComment('scene');const fig=label('figure','','sceneFigure');fig.classList.toggle('imageFull',prefs.imageMode==='full');if(measure){const placeholder=label('div','','sceneMeasure');fig.append(placeholder,label('figcaption',s.title));return fig}const button=label('button','','sceneImageButton');button.type='button';button.setAttribute('aria-label','放大场景插图：'+s.title);const img=document.createElement('img');img.src=sceneData[s.scene_id];img.alt=s.alt||s.title;img.loading='lazy';button.append(img);button.onclick=()=>openSceneModal(s);fig.append(button,label('figcaption',s.title));return fig}
 function openSceneModal(scene){const img=$('fullSceneImage');img.src=sceneData[scene.scene_id];img.alt=scene.alt||scene.title;$('fullSceneTitle').textContent=scene.title;showModal('sceneModal')}
 function makeSegment(seg,opts={}){return seg.type==='scene'?renderScene(seg,opts):makeRow(seg,opts)}
-function measureSetup(){const text=$('pageText');const css=getComputedStyle(text);const m=$('measureText');m.style.width=Math.max(80,text.clientWidth-parseFloat(css.paddingLeft)-parseFloat(css.paddingRight))+'px';m.style.fontSize=prefs.fontSize+'px';m.style.lineHeight=String(prefs.lineHeight)}
+function measureSetup(){
+ // The measurement node must live inside #readerView: otherwise selectors such as
+ // #readerView .readingSentence .translatedInline never apply while measuring.
+ // That understated the height of bilingual pages and clipped the final translation.
+ const outer=$('measureOuter'),reader=$('readerView');
+ if(outer.parentElement!==reader)reader.appendChild(outer);
+ const text=$('pageText'),css=getComputedStyle(text),m=$('measureText');
+ m.style.width=Math.max(80,text.clientWidth-parseFloat(css.paddingLeft)-parseFloat(css.paddingRight))+'px';
+ for(const prop of ['fontFamily','fontSize','fontWeight','lineHeight','letterSpacing','overflowWrap','wordBreak'])m.style[prop]=css[prop];
+}
+
 function tryHeight(segs){const m=$('measureText');m.replaceChildren(...segs.map(s=>makeSegment(s,{measure:true})));return m.scrollHeight;}
 function availableHeight(){const el=$('pageText');const cs=getComputedStyle(el);return Math.max(85,el.clientHeight-parseFloat(cs.paddingTop)-parseFloat(cs.paddingBottom)-(prefs.scenes?46:20))}
 function paragraphAt(i){return course.paragraphBreaks.includes(i)}
-function splitFit(i,start,end,part,current,maxH){
+function splitFit(i,start,end,part,current,maxH,suppressTranslation=false){
  const txt=course.sentences[i],poss=[];
  for(let j=start+1;j<end;j++){if(/\s/.test(txt[j-1]))poss.push(j)}
  if(!poss.length||poss[poss.length-1]!==end)poss.push(end);
  let lo=0,hi=poss.length-1,best=-1;
- while(lo<=hi){let m=(lo+hi)>>1,at=poss[m],test={i,start,end:at,text:txt.slice(start,at),part,break:part===0&&paragraphAt(i)};if(tryHeight([...current,test])<=maxH){best=m;lo=m+1}else hi=m-1}
+ while(lo<=hi){let m=(lo+hi)>>1,at=poss[m],test={i,start,end:at,text:txt.slice(start,at),part,break:part===0&&paragraphAt(i),suppressTranslation};if(tryHeight([...current,test])<=maxH){best=m;lo=m+1}else hi=m-1}
  if(best>=0)return poss[best];
  // A single long unbroken token: split at a Unicode code-point boundary rather than hiding its tail.
- let a=start+1,b=end,res=start+1;while(a<=b){let m=(a+b)>>1;let test={i,start,end:m,text:txt.slice(start,m),part,break:part===0&&paragraphAt(i)};if(tryHeight([...current,test])<=maxH){res=m;a=m+1}else b=m-1}return Math.min(end,Math.max(start+1,res));
+ let a=start+1,b=end,res=start+1;while(a<=b){let m=(a+b)>>1;let test={i,start,end:m,text:txt.slice(start,m),part,break:part===0&&paragraphAt(i),suppressTranslation};if(tryHeight([...current,test])<=maxH){res=m;a=m+1}else b=m-1}return Math.min(end,Math.max(start+1,res));
 }
 function paginate(){
  if(state.view!=='reader'||prefs.mode!=='pages')return;const oldScenePage=state.pages[state.page]?.find(s=>s.type==='scene')?.sceneIndex??null;measureSetup();let maxH=availableHeight(),pages=[],current=[];
@@ -417,11 +437,31 @@ function paginate(){
    // On genuinely short viewports a figure may still need an image-only page.
    if(tryHeight([...current,lead])>maxH)flush();
   }
+   // An unusually long translation may exceed a whole screen even without
+  // its English sentence. Instead of clipping it, paginate its text as
+  // translation-only continuation rows. Ordinary sentences stay intact.
+  const needsTranslation=prefs.translation==='bilingual'||(prefs.translation==='current'&&i===state.selected);
+  const translationChars=needsTranslation?Array.from(course.translations[i]||''):[];
+  const translationTooLong=!!translationChars.length&&tryHeight([{i,start:0,end:0,text:'',part:1,translationOnly:true,translationText:translationChars.join('')}])>maxH;
   let start=0,part=0,guard=0,end=course.sentences[i].length;
-  while(start<end&&guard++<1000){let seg={i,start,end,text:course.sentences[i].slice(start,end),part,break:part===0&&paragraphAt(i)};
+  while(start<end&&guard++<1000){let seg={i,start,end,text:course.sentences[i].slice(start,end),part,break:part===0&&paragraphAt(i),suppressTranslation:translationTooLong};
    if(tryHeight([...current,seg])<=maxH){current.push(seg);start=end;break}
    if(current.length){flush();continue}
-   const split=splitFit(i,start,end,part,current,maxH);current.push({...seg,end:split,text:course.sentences[i].slice(start,split)});flush();start=split;part++;
+   const split=splitFit(i,start,end,part,current,maxH,translationTooLong);current.push({...seg,end:split,text:course.sentences[i].slice(start,split)});flush();start=split;part++;
+  }
+  if(translationTooLong){
+   let pos=0;
+   while(pos<translationChars.length){
+    const candidate=n=>({i,start:end,end,text:'',part:part+1,translationOnly:true,translationText:translationChars.slice(pos,n).join('')});
+    if(current.length&&tryHeight([...current,candidate(Math.min(pos+1,translationChars.length))])>maxH)flush();
+    let low=pos+1,high=translationChars.length,best=pos;
+    while(low<=high){const middle=(low+high)>>1;
+     if(tryHeight([...current,candidate(middle)])<=maxH){best=middle;low=middle+1}else high=middle-1;
+    }
+    if(best===pos){if(current.length){flush();continue}best=pos+1}
+    current.push(candidate(best));pos=best;
+    if(pos<translationChars.length)flush();
+   }
   }
  }
  flush();state.pages=pages.length?pages:[[]];
