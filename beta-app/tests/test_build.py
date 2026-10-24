@@ -138,21 +138,16 @@ class BuildTests(unittest.TestCase):
         self.assertIn("fill.style.width=pct+'%'",js)
         self.assertNotIn('pct??8',js)
 
-    def test_r27_c_reader_companion_is_generic(self):
+    def test_r30_inline_scenes_not_duplicated_in_notes_panel(self):
         html=(ROOT/'core/index.html').read_text(encoding='utf8')
         js=(ROOT/'core/src/reader.js').read_text(encoding='utf8')
-        for marker in ('id="sceneCompanion"','id="companionImageButton"',
-                       'id="companionHideScene"','id="companionImage"'):
-            self.assertIn(marker,html)
-        self.assertIn('function paintSceneCompanion()',js)
-        self.assertIn('companionSceneAt(state.selected)',js)
+        self.assertNotIn('id="sceneCompanion"',html)
+        self.assertNotIn('function paintSceneCompanion()',js)
+        self.assertNotIn('id="currentScene"',html)
+        self.assertNotIn('id="floatingTranslation"',js)
         self.assertIn('function openSceneModal(scene)',js)
+        self.assertIn("fig.append(button,label('figcaption',s.title))",js)
         self.assertNotIn('the-runaway-bride',html)
-
-    def test_r27_c_only_reached_scene_is_displayed(self):
-        js=(ROOT/'core/src/reader.js').read_text(encoding='utf8')
-        self.assertIn('s.start_index<=index&&sceneData[s.scene_id]',js)
-        self.assertNotIn('||course.scenes[0];if(found)openSceneModal(found)',js)
 
     def test_r27_c_mobile_images_not_clipped(self):
         css=(ROOT/'core/src/styles.css').read_text(encoding='utf8')
@@ -165,19 +160,20 @@ class BuildTests(unittest.TestCase):
 
     def test_r27_c_illustrations_follow_reader_mode(self):
         js=(ROOT/'core/src/reader.js').read_text(encoding='utf8')
-        self.assertIn('window.innerWidth<=800||!prefs.explain',js)
-        self.assertIn('paintSceneCompanion();paintExplanation()',js)
+        self.assertIn('const inlineScenes=()=>true',js)  # visuals inline; right column is for explanations
+        self.assertIn('else paintScroll();paintExplanation()',js)
         self.assertIn('if(inlineScenes()&&prefs.scenes&&scene',js)
 
     def test_r27_c_pagination_reflow_reveals_page_before_measure(self):
         js=(ROOT/'core/src/reader.js').read_text(encoding='utf8')
         self.assertIn("$('pageText').hidden=prefs.mode==='scroll';$('scrollText').hidden=prefs.mode!=='scroll';if(prefs.mode==='pages')paginate()",js)
-        self.assertIn("const inlineScenes=()=>window.innerWidth<=800||!prefs.explain",js)
+        self.assertIn('const inlineScenes=()=>true',js)
 
     def test_r27_c_core_has_no_course_assets(self):
         # A published build with zero packages remains empty; test pictures are external.
         self.assertEqual(self.compile(),[])
-        self.assertFalse((self.out/'assets').exists())
+        self.assertTrue((self.out/'assets'/'favicon.svg').exists())  # generic branding is allowed without a course
+        self.assertFalse(any(x.suffix=='.webp' for x in (self.out/'assets').rglob('*')))
         self.assertFalse((ROOT/'packages'/'the-runaway-bride').exists())
 
     def test_r26_stage2_cinematic_home_reuses_imported_hero(self):
@@ -366,9 +362,50 @@ class BuildTests(unittest.TestCase):
         self.assertIn('editorialSectionTitle',reader)
         self.assertIn('schema:4,bookId:',reader)
 
+    def test_r30_chapter_cta_and_keyboard_settings(self):
+        html=(ROOT/'core/index.html').read_text(encoding='utf8')
+        js=(ROOT/'core/src/reader.js').read_text(encoding='utf8')
+        self.assertIn("(Number(current.chapter_number)||1)+'章'",js)
+        self.assertNotIn("'重读第一章 →'",js)
+        self.assertNotIn('data-quick-target="resumeTop"',html)
+        self.assertEqual(html.count('role="tab" aria-controls="settingsPanel-'),3)
+        self.assertEqual(html.count('role="tabpanel" aria-labelledby="settingsTab-'),3)
+        self.assertIn("['ArrowLeft','ArrowRight','Home','End']",js)
+        self.assertIn("panel.hidden=!selected",js)
+
+    def test_plotlish_ui_logo_and_favicons_present(self):
+        html=(ROOT/'core/index.html').read_text(encoding='utf8')
+        self.assertIn('class="brandMark"',html)
+        self.assertIn('assets/favicon.svg',html)
+        self.assertIn('assets/apple-touch-icon.png',html)
+        self.assertTrue((ROOT/'core/assets/plotlish-mark.svg').exists())
+        self.assertTrue((ROOT/'core/assets/favicon-32.png').exists())
+
+    def test_plotlish_ui_translation_is_inline_in_current_and_bilingual(self):
+        js=(ROOT/'core/src/reader.js').read_text(encoding='utf8')
+        self.assertIn("prefs.translation==='current'&&seg.i===state.selected",js)
+        self.assertIn("row.append(label('span',course.translations[seg.i],'translatedInline'))",js)
+        self.assertIn("if(state.view==='reader'&&prefs.translation==='current')requestPageReflow()",js)
+        self.assertIn('LEARNING NOTES · 随文讲解',js)
+        self.assertNotIn("root.appendChild(label('div',course.translations[state.selected],'translation'))",js)
+
+    def test_plotlish_ui_reader_one_settings_entry(self):
+        css=(ROOT/'core/src/styles.css').read_text(encoding='utf8')
+        html=(ROOT/'core/index.html').read_text(encoding='utf8')
+        self.assertEqual(html.count('id="settingsTop"'),1)
+        self.assertEqual(html.count('id="toggleSettings"'),1)
+        self.assertIn('body:has(#readerView.active) #app>.topbar',css)
+        self.assertIn('#readerView .readerQuickNav:not([hidden])',css)
+
+    def test_plotlish_ui_hero_artwork_is_not_replaced(self):
+        css=(ROOT/'core/src/styles.css').read_text(encoding='utf8')
+        self.assertIn('.bookHeroArtwork{position:absolute;inset:0;background-size:cover',css)
+        self.assertNotIn('background-image:none!important',css)
+
     def test_r27_no_novel_assets_in_core(self):
         files=[p for p in (ROOT/'core').rglob('*') if p.is_file()]
-        self.assertFalse(any(p.suffix.lower() in ('.webp','.png','.jpg','.jpeg') for p in files))
+        self.assertFalse(any(p.suffix.lower() in ('.webp','.jpg','.jpeg') for p in files))
+        self.assertEqual({p.name for p in files if p.suffix.lower()=='.png'}, {'favicon-32.png','apple-touch-icon.png'})
         for p in files:
             if p.suffix in ('.js','.html','.json'):
                 self.assertNotIn('the-runaway-bride',p.read_text(encoding='utf8'))

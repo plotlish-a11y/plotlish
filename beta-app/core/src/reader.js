@@ -249,10 +249,9 @@ const prefs={...defaults,...read('prefs',{})};
 $('hoverTranslation').checked=prefs.hoverTranslation!==false;
 const state={view:'home',lastStory:'home',fromNotebook:'home',selected:Math.max(0,course.ids.indexOf(read('sentenceId',course.ids[0]))),anchorOffset:Math.max(0,read('offset',0)||0),page:0,pages:[],notes:read('notes',[]),familiar:read('familiar',[]),completed:read('completed',false),drawer:false,notebookReturn:null,activeNote:null,settingsTab:'audio',openModal:null,restoreFocus:null,voiceList:[],scrollRestore:0,scrollAtEnd:false};
 const sceneData=INIT.scenes;
-const inlineScenes=()=>window.innerWidth<=800||!prefs.explain;
-const companionSceneAt=index=>{const visible=Object.keys(sceneData).length?(course.scenes||[]).filter(s=>s.start_index<=index&&sceneData[s.scene_id]):[];return visible[visible.length-1]||null};
-function paintSceneCompanion(){const section=$('sceneCompanion');if(!section)return;const scene=!inlineScenes()&&prefs.scenes&&prefs.explain?companionSceneAt(state.selected):null;section.hidden=!scene;if(!scene)return;const img=$('companionImage');const src=sceneData[scene.scene_id];if(img.getAttribute('src')!==src)img.src=src;img.alt=scene.alt||scene.title||'当前剧情插图';$('companionTitle').textContent=scene.title||'当前剧情';$('companionImageButton').setAttribute('aria-label','放大当前场景：'+(scene.title||'剧情插图'));section.classList.toggle('isLarge',prefs.imageMode==='full');}
-
+// Plotlish R3.0: inline story images are the only scene renderer;
+// the right column is reserved exclusively for language notes.
+const inlineScenes=()=>true;
 // Legacy R2 deliberately stored scenes=false because it had no approved images.
 // Only carry forward an explicit R2.1 image choice, not the forced legacy default.
 const SCENE_USER_CHOICE=PREFIX+'scenes.user-choice.v1';
@@ -313,8 +312,6 @@ function route(view,{push=true,origin=null}={}){if(view!=='reader')window.__plot
 function goReader(i=null,opts={}){save('started',true);try{localStorage.setItem('plotlish.student.r23.last-book',BOOK_SWITCH)}catch(e){};if(Number.isInteger(i)){state.selected=Math.min(course.ids.length-1,Math.max(0,i));state.anchorOffset=0;}route('reader',opts)}
 function backFromNotebook(){route(views.includes(state.fromNotebook)&&state.fromNotebook!=='notebook'?state.fromNotebook:'home')}
 function browserNav(){const raw=location.hash.replace(/^#/,'');let match=raw.match(/^reader\/(.+)$/);let view=match?'reader':(views.includes(raw)?raw:'home');if(match){const found=course.ids.indexOf(decodeURIComponent(match[1]));if(found>=0){state.selected=found;state.anchorOffset=0;}}route(view,{push:false});}
-const floatingTranslation=label('div','','floatingTranslation');floatingTranslation.id='floatingTranslation';floatingTranslation.hidden=true;
-floatingTranslation.append(label('span','','floatingText'));const floatClose=label('button','×','');floatClose.type='button';floatClose.setAttribute('aria-label','暂时隐藏当前句翻译');floatClose.onclick=()=>{floatingTranslation.hidden=true};floatingTranslation.append(floatClose);$('readerView').append(floatingTranslation);
 function updateHomePosition(){
  const featured=uniqueBooks().find(b=>b.id===HOMEPAGE.featured_book_id)||null;
  const started=read('started',false)===true;
@@ -356,7 +353,8 @@ function configureCovers(){
 function refreshBookProgress(){
  const current=chaptersFor(course.book_id).find(c=>c.chapter_id===course.chapter_id)||course;
  const started=hasStartedChapter(current),finished=completedChapter(current);
- const label=finished?'重读第一章 →':started?'继续阅读 →':'开始精读第一章 →';
+ const chapterLabel='第'+(Number(current.chapter_number)||1)+'章';
+ const label=finished?'重读'+chapterLabel+' →':started?'继续阅读 →':'开始精读'+chapterLabel+' →';
  const start=$('bookHeroStart');if(start)start.textContent=label;
  for(const row of document.querySelectorAll('#bookChapterSection .chapterRow')){
   const c=chaptersFor(course.book_id).find(ch=>ch.chapter_id===row.dataset.chapterId);if(!c)continue;
@@ -379,7 +377,7 @@ function renderMarked(parent,i,text,offset=0){
 function makeRow(seg,{measure=false}={}){
  let row=label('div','','readingSentence'+(seg.break?' paragraphStart':''));row.dataset.index=seg.i;row.dataset.start=String(seg.start||0);row.dataset.end=String(seg.end??course.sentences[seg.i].length);
  if(seg.start>0)row.dataset.fragment='true';let number=label('span',seg.start>0?'↳':String(seg.i+1),'number');let words=label('span','','sentenceText');renderMarked(words,seg.i,seg.text,seg.start||0);row.append(number,words);
- if(prefs.translation==='bilingual'&&seg.end===course.sentences[seg.i].length){row.append(label('span','','rowSpacer'));row.append(label('span',course.translations[seg.i],'translatedInline'))}
+ if((prefs.translation==='bilingual'||(prefs.translation==='current'&&seg.i===state.selected))&&seg.end===course.sentences[seg.i].length){row.append(label('span','','rowSpacer'));row.append(label('span',course.translations[seg.i],'translatedInline'))}
  if(!measure){row.tabIndex=0;row.setAttribute('aria-label','第 '+(seg.i+1)+' 句：'+seg.text);if(seg.i===state.selected)row.classList.add('isSelected')}
  return row;
 }
@@ -428,7 +426,7 @@ function paginate(){
 }
 function paintPage(){const root=$('pageText');root.replaceChildren();const segs=state.pages[state.page]||[];for(const seg of segs)root.appendChild(makeSegment(seg));root.classList.toggle('sceneOnlyPage',segs.length===1&&segs[0].type==='scene');$('pageNumber').textContent=(state.page+1)+' / '+state.pages.length+' 页';$('prevPage').disabled=state.page===0;$('nextPage').disabled=state.page>=state.pages.length-1;hide($('finishChapter'),state.page!==state.pages.length-1);$('sentencePosition').textContent='第 '+(state.selected+1)+' / '+course.sentences.length+' 句';}
 function paintScroll(){const root=$('scrollText');root.replaceChildren();for(let i=0;i<course.sentences.length;i++){let scene=course.scenes?.find(x=>x.start_index===i);if(inlineScenes()&&prefs.scenes&&scene&&sceneData[scene.scene_id])root.appendChild(renderScene({sceneIndex:i}));root.appendChild(makeRow({i,text:course.sentences[i],start:0,end:course.sentences[i].length,break:paragraphAt(i)}))}const scrollFinish=label('button','完成本章 ✓','primary scrollFinish');scrollFinish.onclick=completeChapter;root.appendChild(scrollFinish);$('pageNumber').textContent='连续阅读';$('prevPage').disabled=true;$('nextPage').disabled=true;hide($('finishChapter'),true);}
-function paint(){const strip=$('floatingTranslation');if(strip){strip.hidden=prefs.explain||prefs.translation!=='current'||state.view!=='reader';strip.querySelector('.floatingText').textContent=course.translations[state.selected]};document.documentElement.style.setProperty('--reader-size',prefs.fontSize+'px');document.documentElement.style.setProperty('--reader-leading',String(prefs.lineHeight));$('pageBody').classList.toggle('scrollReading',prefs.mode==='scroll');$('pageText').hidden=prefs.mode==='scroll';$('scrollText').hidden=prefs.mode!=='scroll';$('readerLayout').classList.toggle('noExplain',!prefs.explain);$('explainPanel').hidden=!prefs.explain;if(prefs.mode==='pages')paintPage();else paintScroll();paintSceneCompanion();paintExplanation();playbackUI()}
+function paint(){document.documentElement.style.setProperty('--reader-size',prefs.fontSize+'px');document.documentElement.style.setProperty('--reader-leading',String(prefs.lineHeight));$('pageBody').classList.toggle('scrollReading',prefs.mode==='scroll');$('pageText').hidden=prefs.mode==='scroll';$('scrollText').hidden=prefs.mode!=='scroll';$('readerLayout').classList.toggle('noExplain',!prefs.explain);$('explainPanel').hidden=!prefs.explain;if(prefs.mode==='pages')paintPage();else paintScroll();paintExplanation();playbackUI()}
 function selectSentence(index,{origin='click',speak=null,noteId=null,keepContinuous=false,pageHint=null,offset=0}={}){
  index=Math.min(course.sentences.length-1,Math.max(0,index));if(!keepContinuous)stopAudio();const previous=state.selected;state.selected=index;state.activeNote=noteId;
  const speakNow=speak===null?(origin==='click'?prefs.clickSpeak:origin==='next'?prefs.nextSpeak:false):speak;
@@ -440,17 +438,16 @@ function selectSentence(index,{origin='click',speak=null,noteId=null,keepContinu
   }
   state.anchorOffset=Math.max(0,offset);paint();if(prefs.mode==='scroll')scrollToSelected();if(noteId&&innerWidth<=800)openDrawer();
  }
- persist();replaceCurrentReaderEntry();if(speakNow&&!keepContinuous)startSpeech(index,'sentence');
+ persist();replaceCurrentReaderEntry();if(state.view==='reader'&&prefs.translation==='current')requestPageReflow();if(speakNow&&!keepContinuous)startSpeech(index,'sentence');
 }
 function replaceCurrentReaderEntry(){if(state.view!=='reader')return;try{history.replaceState({view:'reader',idx:state.selected},'','#reader/'+stableID(state.selected))}catch(e){}}
 function changeSentence(d){let next=state.selected+d;if(next<0||next>=course.sentences.length){toast(next>=course.sentences.length?'已经到本章最后一句':'已经是第一句');return}selectSentence(next,{origin:'next'})}
-function changePage(d){dismissWordHint();closeWordDetail();if(prefs.mode!=='pages'){$('pageBody').scrollBy({top:(d>0?1:-1)*$('pageBody').clientHeight*.85,behavior:'smooth'});return}let next=state.page+d;if(next<0||next>=state.pages.length){if(next>=state.pages.length)toast('已到最后一页，完成本章请点击明确的完成按钮。');return}stopAudio();state.page=next;const fragment=state.pages[next].find(x=>x.type!=='scene');if(fragment){state.selected=fragment.i;state.anchorOffset=fragment.start}else if(state.pages[next].length===1&&state.pages[next][0].type==='scene'){state.selected=state.pages[next][0].sceneIndex;state.anchorOffset=0}state.activeNote=null;paint();persist();replaceCurrentReaderEntry();if(prefs.pageSpeak)startSpeech(state.selected,'sentence')}
+function changePage(d){dismissWordHint();closeWordDetail();if(prefs.mode!=='pages'){$('pageBody').scrollBy({top:(d>0?1:-1)*$('pageBody').clientHeight*.85,behavior:'smooth'});return}let next=state.page+d;if(next<0||next>=state.pages.length){if(next>=state.pages.length)toast('已到最后一页，完成本章请点击明确的完成按钮。');return}stopAudio();state.page=next;const fragment=state.pages[next].find(x=>x.type!=='scene');if(fragment){state.selected=fragment.i;state.anchorOffset=fragment.start}else if(state.pages[next].length===1&&state.pages[next][0].type==='scene'){state.selected=state.pages[next][0].sceneIndex;state.anchorOffset=0}state.activeNote=null;paint();persist();replaceCurrentReaderEntry();if(prefs.translation==='current')requestPageReflow();if(prefs.pageSpeak)startSpeech(state.selected,'sentence')}
 function scrollToSelected(){if(prefs.mode!=='scroll')return;const el=$('scrollText').querySelector('.readingSentence[data-index="'+state.selected+'"]');el?.scrollIntoView({block:'nearest',behavior:'instant'})}
 function requestPageReflow(){if(pendingMeasure)return;pendingMeasure=true;requestAnimationFrame(()=>{pendingMeasure=false;if(state.view==='reader'){/* Reveal the target layout before measuring or a hidden page has zero height. */$('pageBody').classList.toggle('scrollReading',prefs.mode==='scroll');$('pageText').hidden=prefs.mode==='scroll';$('scrollText').hidden=prefs.mode!=='scroll';if(prefs.mode==='pages')paginate();paint();if(prefs.mode==='scroll')scrollToSelected()}})}
 function openDrawer(){if(innerWidth>800)return;state.drawer=true;state.drawerRestoreFocus=document.activeElement;hide($('overlayShade'),false);hide($('mobileDrawer'),false);paintExplanation();$('closeDrawer').focus()}
 function closeDrawer(){if(!state.drawer)return;state.drawer=false;hide($('overlayShade'),true);hide($('mobileDrawer'),true);if(state.drawerRestoreFocus?.isConnected)state.drawerRestoreFocus.focus();state.drawerRestoreFocus=null}
-function fillExplanation(root){root.replaceChildren();let labelTop=label('div','当前句翻译','asideOverline');root.append(labelTop);if(prefs.translation==='hidden'){root.appendChild(label('p','中文已隐藏，可在阅读设置中开启。','emptyHelp'))}else if(prefs.translation==='bilingual'){root.appendChild(label('p','正文已逐句显示中文，此处不重复展示。','emptyHelp'))}else{root.appendChild(label('div',course.translations[state.selected],'translation'))}
- const tools=label('div','','translationTools');let s=label('button','▶ 听本句');s.onclick=()=>startSpeech(state.selected,'sentence');let copy=label('button','复制英文');copy.onclick=async()=>{try{await navigator.clipboard.writeText(course.sentences[state.selected]);toast('已复制英文句子')}catch(e){toast('当前环境不支持复制，请选中文字复制')}};tools.append(s,copy);root.appendChild(tools);let notes=annAt(state.selected);if(!notes.length)return;root.appendChild(label('div','','asideDivider'));root.appendChild(label('div','本句知识点','asideOverline'));
+function fillExplanation(root){root.replaceChildren();root.appendChild(label('div','LEARNING NOTES · 随文讲解','asideOverline')); const tools=label('div','','translationTools');let s=label('button','▶ 听本句');s.onclick=()=>startSpeech(state.selected,'sentence');let copy=label('button','复制英文');copy.onclick=async()=>{try{await navigator.clipboard.writeText(course.sentences[state.selected]);toast('已复制英文句子')}catch(e){toast('当前环境不支持复制，请选中文字复制')}};tools.append(s,copy);root.appendChild(tools);let notes=annAt(state.selected);if(!notes.length){root.appendChild(label('p','本句没有额外知识点。你仍可选中其他句子，或点击带下划线的表达查看讲解。','emptyHelp'));return}root.appendChild(label('div','','asideDivider'));root.appendChild(label('div','本句知识点','asideOverline'));
  const buttons=label('div','','noteSelector');for(const n of notes){let b=label('button',n.phrase);const active=state.activeNote===n.id||(!state.activeNote&&n===notes[0]);b.classList.toggle('active',active);b.onclick=()=>{state.activeNote=n.id;paintExplanation()};buttons.appendChild(b)}root.appendChild(buttons);const current=notes.find(n=>n.id===state.activeNote)||notes[0];root.append(label('div',current.phrase,'noteTitle'));root.append(label('div',current.meaning,'noteMeaning'));if(current.explain)root.append(label('p',current.explain,'noteExplanation'));if(current.example)root.append(label('p','例句：'+current.example,'noteExample'));const actions=label('div','','noteActions');let b=label('button',state.notes.includes(current.id)?'★ 已收藏 · 取消':'☆ 收藏到生词本');b.className=state.notes.includes(current.id)?'isSaved':'';b.onclick=()=>{if(state.notes.includes(current.id))state.notes=state.notes.filter(id=>id!==current.id);else state.notes.push(current.id);if(!state.notes.includes(current.id))state.familiar=state.familiar.filter(x=>x!==current.id);persist();paintExplanation();toast(state.notes.includes(current.id)?'已收藏':'已取消收藏')};let wordSpeak=label('button','▶ 听表达');wordSpeak.onclick=()=>speakPhrase(current.phrase);actions.append(b,wordSpeak);root.append(actions)}
 function speakPhrase(phrase){if(!hasSpeech()){toast('当前浏览器不支持英语语音');return}stopAudio();const gen=++speech.generation;const u=new SpeechSynthesisUtterance(phrase);u.lang='en-US';u.rate=Number(prefs.rate)||1;let v=state.voiceList.find(v=>v.voiceURI===prefs.voice)||state.voiceList[0];if(v){u.voice=v;u.lang=v.lang}speech.kind='sentence';speech.status='playing';u.onend=()=>{if(gen===speech.generation)stopAudio()};u.onerror=()=>{if(gen===speech.generation)stopAudio()};speechSynthesis.speak(u);playbackUI()}
 function paintExplanation(){if(state.view!=='reader')return;fillExplanation($('explainContent'));if(state.drawer)fillExplanation($('drawerContent'))}
@@ -589,17 +586,36 @@ function closeChapterDrawer(){if(!chapterOpen)return;chapterOpen=false;hide($('c
 bindClick('closeChapterDrawer',closeChapterDrawer);bindClick('chapterShade',closeChapterDrawer);bindClick('drawerCurrent',closeChapterDrawer);bindClick('drawerBookDetail',()=>{closeChapterDrawer();route('book')});
 bindClick('homeResumeDirect',()=>goReader());bindClick('shelfGoExplore',()=>route('stories'));bindClick('bookHeroSave',()=>toggleShelf(course.book_id));for(const b of document.querySelectorAll('[data-shelf-filter]'))b.addEventListener('click',()=>{shelfFilter=b.dataset.shelfFilter;for(const c of document.querySelectorAll('[data-shelf-filter]'))c.classList.toggle('active',c===b);refreshShelfAndEditorial()});bindClick('homeBookDetail',()=>route('book'));bindClick('bookHeroStart',()=>goReader());
 bindClick('bookHeroChapters',()=>{$('bookChapterSection').scrollIntoView({behavior:'smooth',block:'start'})});
-bindClick('currentScene',()=>{hide($('readerOptions'),true);showCurrentScene()});
-bindClick('companionImageButton',()=>{const scene=companionSceneAt(state.selected);if(scene)openSceneModal(scene)});
-bindClick('companionHideScene',()=>setImageFromBool(false));
-const imgNav=document.createElement('button');imgNav.textContent='▧　查看当前场景';imgNav.type='button';imgNav.id='quickCurrentScene';$('readerQuickNav').append(imgNav);imgNav.onclick=()=>{hide($('readerQuickNav'),true);$('readerNavToggle').setAttribute('aria-expanded','false');showCurrentScene()};
-function showCurrentScene(){if(!course.scenes?.length)return;const found=[...course.scenes].reverse().find(sc=>sc.start_index<=state.selected&&sceneData[sc.scene_id])||null;if(found)openSceneModal(found)}
 bindClick('dismissIntro',()=>{save('guideHidden',true);hide($('readerIntro'),true);requestPageReflow()});
 bindClick('finishChapter',completeChapter);bindClick('prevPage',()=>changePage(-1));bindClick('nextPage',()=>changePage(1));bindClick('prevSentence',()=>changeSentence(-1));bindClick('nextSentence',()=>changeSentence(1));bindClick('playContinuous',playContinuous);bindClick('stopSpeech',stopAudio);bindClick('speakSelected',()=>startSpeech(state.selected,'sentence'));bindClick('copySentence',async()=>{try{await navigator.clipboard.writeText(course.sentences[state.selected]);toast('已复制')}catch(e){toast('无法复制')}});
 bindClick('toggleExplain',()=>{prefs.explain=!prefs.explain;persist();syncSettings();paint();requestPageReflow()});bindClick('collapseExplain',()=>{prefs.explain=false;persist();syncSettings();paint();requestPageReflow()});bindClick('openExplainMobile',openDrawer);bindClick('closeDrawer',closeDrawer);bindClick('overlayShade',closeDrawer);bindClick('toggleSettings',()=>showModal('settingsModal'));bindClick('settingsTop',()=>{closeDrawer();showModal('settingsModal')});bindClick('dataTop',()=>{updateDataSummary();showModal('privacyModal')});bindClick('dataFromSettings',()=>{closeModal();updateDataSummary();showModal('privacyModal')});bindClick('toggleHelp',()=>{hide($('readerOptions'),true);showModal('helpModal')});bindClick('exportData',downloadJSON);bindClick('importData',()=>$('importFile').click());$('importFile').addEventListener('change',e=>importBackup(e.target.files?.[0]));bindClick('clearData',clearSelectedData);$('clearScope').addEventListener('change',()=>updateDataSummary());
 bindClick('reviewReturn',()=>goReader());bindClick('reviewWords',()=>route('notebook'));bindClick('reviewHome',()=>route('shelf'));bindClick('reviewBook',()=>route('book'));
 for(const b of document.querySelectorAll('.closeModal'))b.addEventListener('click',closeModal);for(const id of ['settingsModal','helpModal','privacyModal','sceneModal'])$(id).addEventListener('click',e=>{if(e.target===$(id))closeModal()});
-for(const b of document.querySelectorAll('[data-settings-tab]'))b.addEventListener('click',()=>{for(const x of document.querySelectorAll('[data-settings-tab]'))x.classList.toggle('active',x===b);for(const x of document.querySelectorAll('[data-settings-panel]'))x.classList.toggle('active',x.dataset.settingsPanel===b.dataset.settingsTab)});
+// Real tablist: click, Home/End and Left/Right keyboard navigation share one state.
+const settingsTabs=[...document.querySelectorAll('[data-settings-tab]')];
+function activateSettingsTab(active,{focus=false}={}){
+ for(const tab of settingsTabs){
+  const selected=tab===active;
+  tab.classList.toggle('active',selected);
+  tab.setAttribute('aria-selected',String(selected));
+  tab.tabIndex=selected?0:-1;
+  const panel=$(tab.getAttribute('aria-controls'));
+  panel.hidden=!selected;
+  panel.classList.toggle('active',selected);
+ }
+ if(focus)active.focus();
+}
+for(const tab of settingsTabs){
+ tab.addEventListener('click',()=>activateSettingsTab(tab));
+ tab.addEventListener('keydown',e=>{
+  if(!['ArrowLeft','ArrowRight','Home','End'].includes(e.key))return;
+  e.preventDefault();
+  const index=settingsTabs.indexOf(tab);
+  const target=e.key==='Home'?settingsTabs[0]:e.key==='End'?settingsTabs.at(-1):settingsTabs[(index+settingsTabs.length+(e.key==='ArrowRight'?1:-1))%settingsTabs.length];
+  activateSettingsTab(target,{focus:true});
+ });
+}
+
 function prefChange(id,key,callback){$(id).addEventListener('change',e=>{prefs[key]=e.target.type==='checkbox'?e.target.checked:e.target.value;if(key==='rate'||key==='fontSize'||key==='lineHeight')prefs[key]=Number(prefs[key]);persist();callback?.()})}
 $('imageMode').addEventListener('change',e=>{prefs.imageMode=e.target.value;if(prefs.imageMode!=='hidden')prefs.lastImageMode=prefs.imageMode;prefs.scenes=prefs.imageMode!=='hidden';setRaw(SCENE_USER_CHOICE,'1');persist();syncSettings();requestPageReflow()});
 $('wordSearch').addEventListener('input',renderNotebook);$('wordSort').addEventListener('change',renderNotebook);$('wordOnlyNew').addEventListener('change',renderNotebook);
@@ -629,15 +645,15 @@ window.addEventListener('pagehide',()=>{persist();stopAudio()});window.addEventL
 if('ResizeObserver'in window)new ResizeObserver(requestPageReflow).observe($('pageBody'));
 $('quickScenes').onclick=()=>setImageFromBool(!prefs.scenes);
 if(hasSpeech()){voicesChanged();speechSynthesis.addEventListener?.('voiceschanged',voicesChanged);setTimeout(voicesChanged,500)}else{$('voice').add(new Option('当前浏览器不支持朗读',''))}
-$('showScenes').disabled=!Object.keys(sceneData).length; if(!Object.keys(sceneData).length){prefs.scenes=false;$('illustrationNotice').textContent='没有可用的场景插图；课程正文仍可完整阅读。'}else{$('illustrationNotice').textContent='电脑端图片位于右侧学习面板；手机连续阅读时随文显示，分页时以独立图片页完整展示。'}
+$('showScenes').disabled=!Object.keys(sceneData).length; if(!Object.keys(sceneData).length){prefs.scenes=false;$('illustrationNotice').textContent='没有可用的场景插图；课程正文仍可完整阅读。'}else{$('illustrationNotice').textContent='场景图片在正文中完整展示；分页阅读时，长图会使用独立图片页，点击可放大。'}
 // Keep the two frequently used sound switches accessible. Low-frequency actions in one menu.
 const optionsButton=label('button','更多 ···','icon-button');optionsButton.id='readerOptionsToggle';optionsButton.type='button';optionsButton.setAttribute('aria-expanded','false');optionsButton.setAttribute('aria-label','更多阅读操作');optionsButton.setAttribute('aria-controls','readerOptions');
-const optionsPopup=label('div','','readerOptions');optionsPopup.id='readerOptions';optionsPopup.hidden=true;optionsPopup.setAttribute('role','group');optionsPopup.setAttribute('aria-label','更多阅读操作');
+const optionsPopup=label('div','','readerOptions');optionsPopup.id='readerOptions';optionsPopup.hidden=true;optionsPopup.setAttribute('role','group');optionsPopup.setAttribute('aria-label','插图显示与快捷键');
 const tools=document.querySelector('.readerHeaderTools');tools.insertBefore(optionsButton,$('readerNavToggle'));
-for(const id of ['quickScenes','currentScene','toggleHelp'])optionsPopup.append($(id));
+for(const id of ['quickScenes','toggleHelp'])optionsPopup.append($(id));
 document.querySelector('.readerHeader').append(optionsPopup);
 function closeReaderOptions(){hide(optionsPopup,true);optionsButton.setAttribute('aria-expanded','false')}
-optionsButton.onclick=()=>{const willOpen=optionsPopup.hidden;hide(optionsPopup,!willOpen);optionsButton.setAttribute('aria-expanded',String(willOpen));};
+optionsButton.onclick=()=>{closeReaderQuickPanels();const willOpen=optionsPopup.hidden;hide(optionsPopup,!willOpen);optionsButton.setAttribute('aria-expanded',String(willOpen));};
 document.addEventListener('pointerdown',e=>{if(!optionsPopup.hidden&&!optionsPopup.contains(e.target)&&!optionsButton.contains(e.target))closeReaderOptions()});
 // R2.8: single-source-of-truth for quick controls and settings.
 function syncQuickReaderControls(){

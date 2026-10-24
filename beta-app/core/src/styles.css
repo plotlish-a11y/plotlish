@@ -104,13 +104,12 @@
 .bookHero{display:grid;grid-template-columns:minmax(125px,215px) minmax(0,1fr);gap:clamp(18px,5vw,70px);align-items:center;background:var(--paper);border:1px solid var(--line);border-radius:19px;padding:clamp(18px,3vw,36px);margin-top:18px}.bookHeroCover{aspect-ratio:3/4;background-size:cover;background-position:center;border-radius:12px;box-shadow:0 12px 30px #172b202b}.bookHero .eyebrow{margin:0 0 10px}.bookHero .lead{margin:17px 0}.bookHeroTags{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}.bookHeroTags span{background:var(--pale);color:var(--green);padding:5px 10px;border-radius:30px;font-size:12px}
 #readerView .readerHeader{min-height:61px}.readerHeaderTools .tinyPill{padding:8px 9px}.readerHeader .chapterHeader strong{font-size:23px}
 .readerIntro{font-size:12px;padding:9px 18px;background:#eef5ee;border-bottom:1px solid #dce8dd;color:#315e45;display:flex;justify-content:space-between;align-items:center;gap:10px}.readerIntro button{font-size:11px;padding:4px 9px;background:#fff}.readerIntro[hidden]{display:none!important}
-#currentScene{font-size:18px}
 .sceneFigure.imageFull .sceneImageButton img{height:clamp(165px,28vh,280px);object-fit:contain;background:#132a30}.sceneFigure.imageFull .sceneMeasure{height:clamp(165px,28vh,280px)}.sceneFigure.imageFull{background:#eaece7}
 .wordFilters{display:flex;flex-wrap:wrap;gap:14px;align-items:flex-end;background:#fffefa;border:1px solid var(--line);border-radius:14px;padding:13px 16px;margin-top:22px}.wordFilters label{font-size:12px;font-weight:650;display:flex;flex-direction:column;gap:7px}.wordFilters input[type=search],.wordFilters select{border:1px solid #d9e2d9;border-radius:8px;padding:11px;background:white;min-width:165px;color:var(--ink)}.wordFilters .filterKnown{flex-direction:row;align-items:center;padding:10px 0}.wordFilters #wordCount{margin-left:auto;padding-bottom:9px}.wordCard.isFamiliar{border-color:#d9e9d5;background:#fafdf9}.wordCard .familiarToggle[aria-pressed=true]{background:#ddefdb;color:#2f6542}
 .presetButtons{display:flex;gap:7px;flex-wrap:wrap;margin:7px 0}.presetButtons button{flex:1;min-width:90px;padding:10px 6px;font-size:12px}.presetButtons button.active{background:var(--pale);border-color:#afcab7;color:var(--green)}
 .chapterShade{position:fixed;inset:0;z-index:71;background:rgba(14,31,23,.48)}.chapterDrawer{position:fixed;top:0;bottom:0;left:0;z-index:72;width:min(340px,88vw);background:var(--paper);box-shadow:17px 0 55px #172a2238;padding:clamp(20px,3vw,28px);overflow-y:auto}.chapterShade[hidden],.chapterDrawer[hidden]{display:none!important}.chapterDrawerHeader{display:flex;align-items:start;justify-content:space-between;gap:12px}.chapterDrawerHeader h2{font:700 29px Georgia,serif;margin:0 0 17px}.chapterDrawerCurrent{display:flex;align-items:center;gap:9px;padding:14px 9px;background:#eaf3eb;border:1px solid #d7e7d9;border-radius:12px;margin:25px 0}.chapterDrawerCurrent>div:nth-child(2){flex:1}.chapterDrawerIndex{font:700 23px Georgia,serif;color:#40745c}.chapterDrawerCurrent button{font-size:11px;padding:8px}.chapterDrawerFuture{display:grid;gap:12px;margin-bottom:24px}.chapterDrawerFuture div{display:flex;justify-content:space-between;gap:10px;padding:15px 4px;border-bottom:1px solid var(--line)}.chapterDrawerFuture strong{font-size:13px}.chapterDrawerFuture span{font-size:11px;color:#8e998f}
 .explainContent .asideDivider:last-child{display:none}
-@media(max-width:800px){.sceneFigure.imageFull .sceneImageButton img,.sceneFigure.imageFull .sceneMeasure{height:clamp(148px,24vh,220px)}.bookHero{grid-template-columns:130px 1fr}.readerHeaderTools #currentScene{display:none}}
+@media(max-width:800px){.sceneFigure.imageFull .sceneImageButton img,.sceneFigure.imageFull .sceneMeasure{height:clamp(148px,24vh,220px)}.bookHero{grid-template-columns:130px 1fr}}
 @media(max-width:600px){.homeLead{grid-template-columns:1fr}.homeLead.returning{grid-template-columns:1fr}.homeContainer{padding-top:24px}.coverHero{height:174px;aspect-ratio:auto;width:100%;margin:0}.coverTitle{font-size:29px}.homeLead.returning .coverHero{height:116px}.homeResumePanel h2{font-size:34px}.bookHero{grid-template-columns:98px 1fr;gap:14px;padding:15px}.bookHeroCover{width:98px}.bookHero h1{font-size:29px}.bookHero .lead{font-size:12px;line-height:1.5}.bookHeroTags{display:none}.bookHero .primary{padding:8px;font-size:12px}.sceneFigure.imageFull .sceneImageButton img,.sceneFigure.imageFull .sceneMeasure{height:clamp(135px,22vh,185px)}.readerIntro{font-size:10px;padding:6px 10px}.readerIntro button{font-size:10px;padding:4px}}
 
 /* original CSS layer 4 */
@@ -159,7 +158,6 @@
 #hoverWordDetail .hwd-notice{margin-top:14px;border-top:1px solid #e7ebe5;padding-top:10px;font-size:12px;color:#76867b}
 @media(max-width:700px){#hoverWordDetail{left:10px;right:10px;top:auto;bottom:10px;width:auto;max-height:min(68vh,490px);border-radius:16px;padding:16px}#hoverTimingLab{max-width:calc(100vw - 24px);left:12px;bottom:5px;font-size:11px}}
 
-#floatingTranslation[hidden]{display:none!important}#floatingTranslation{position:fixed;right:clamp(14px,5vw,85px);bottom:110px;max-width:min(480px,90vw);z-index:120;background:rgba(248,249,241,.98);border:1px solid #d6e2d6;box-shadow:0 8px 28px #24432b24;border-radius:12px;padding:12px 43px 12px 15px;font:13px/1.7 system-ui,sans-serif;color:#315241}#floatingTranslation button{position:absolute;right:6px;top:5px;padding:0px 8px;border:0;background:transparent;font-size:23px;color:#3c6050;cursor:pointer}@media(max-width:800px){#floatingTranslation{left:10px;right:10px;bottom:85px;max-width:none}}
 
 
 /* R2.3.1 web extension: multiple chapters */
@@ -659,14 +657,6 @@
 #readerView .readerHeaderTools{gap:7px}
 #readerView .explainPanel{min-width:0;border:1px solid #e1e9df;border-radius:17px;background:#fbfcf8;overflow:auto}
 #readerView .explainHead{padding-top:12px}
-#readerView .sceneCompanion[hidden]{display:none!important}
-#readerView .sceneCompanion{margin:12px 13px 0;border-radius:13px;overflow:hidden;background:#f2f4ef;border:1px solid #e4e9df;flex:0 0 auto}
-#readerView .sceneCompanionTop{display:flex;align-items:center;justify-content:space-between;gap:7px;padding:9px 12px 7px}
-#readerView .sceneCompanionTop .asideOverline{margin:0;white-space:nowrap}
-#readerView .sceneCompanionImage{border:0;padding:0;display:block;width:100%;background:#e5eae1;cursor:zoom-in}
-#readerView .sceneCompanionImage img{display:block;width:100%;height:auto;aspect-ratio:4/3;object-fit:contain}
-#readerView .sceneCompanionCaption{padding:9px 12px;color:#5e7766;font-size:12px;line-height:1.4}
-#readerView .sceneCompanion.isLarge{margin:6px 7px 0}
 #readerView .explainContent{padding:13px 17px 24px;overflow-y:auto}
 #readerView .readerFoot{background:#fffefa;border-top:1px solid #edf0e9}
 /* Film stills do not occupy desktop pagination. On mobile, show every original 4:3 image without cropping. */
@@ -755,3 +745,206 @@
 #hoverWordHint .hoverSource{font-size:10px;color:#758b7d;margin-top:5px}
 #hoverWordHint .hoverActions{margin-top:8px}
 #hoverWordHint .hoverSource a{color:#507766;text-decoration:underline;margin-left:4px}
+
+/* ===========================================================================
+ * Plotlish UI Edition (R2.8.1 base): presentation only.
+ * Warm editorial palette; never override reader-selected text size/line height.
+ * Original full-bleed novel artwork and background positioning remain untouched.
+ * =========================================================================== */
+:root{
+ --bg:#FAF8F3;--paper:#FFFDF9;--panel:#FFFEFB;
+ --ink:#27332F;--muted:#716F68;--line:#E4DED4;
+ --green:#245845;--green2:#315D50;--pale:#F1EDE5;
+ --gold:#EAEDE6;--radius:15px;
+ --plotlish-beige:#F1EDE5;--plotlish-terracotta:#995F4B;
+ --plotlish-light:#E9EDE5;--plotlish-subtle:#82796E;
+ --shadow:0 14px 36px rgba(51,41,31,.048);
+}
+html,body{background:var(--bg);color:var(--ink)}
+button,select,input,textarea{accent-color:var(--green)}
+button,select,input,textarea{transition:border-color .14s ease,background-color .14s ease,box-shadow .14s ease,color .14s ease}
+button:focus-visible,a:focus-visible,select:focus-visible,input:focus-visible,
+textarea:focus-visible,[role="button"]:focus-visible{outline:2px solid var(--green);outline-offset:3px}
+button:not(.primary):not(.dangerButton):hover{border-color:#D2C9BB}
+/* Brand: the mark is an actual shipped SVG, and the text remains selectable. */
+.topbar{background:rgba(250,248,243,.98);border-color:#E8E2D9;gap:clamp(10px,1.6vw,24px)}
+.topbar .brand{display:inline-flex;align-items:center;gap:11px;flex:0 0 auto;padding:5px 2px!important;border:0!important;
+  background:transparent!important;min-width:0;font-size:initial!important;letter-spacing:normal!important;text-align:left}
+.topbar .brandMark{height:43px;width:43px;display:block;object-fit:contain;flex:none}
+.topbar .brandName{display:flex!important;flex-direction:column;gap:5px;margin:0!important;
+  color:var(--ink)!important;line-height:1.05!important;letter-spacing:0!important;font-size:inherit!important}
+.topbar .brandName strong{font-size:17px;font-weight:850;letter-spacing:.145em;white-space:nowrap}
+.topbar .brandName small{font-size:12px;color:var(--plotlish-terracotta);font-weight:740;letter-spacing:.09em;white-space:nowrap}
+.topbar .brand:hover .brandName strong{color:var(--green)}
+.topnav{gap:3px}
+.topnav button{color:#554F49;border:1px solid transparent;font-weight:600;padding:10px 13px}
+.topnav button.active{color:var(--ink);background:var(--plotlish-beige);border-color:#EAE1D5}
+.topnav button:hover{background:#F1EDE7}
+.topactions>button:not(.topResume){background:transparent;border-color:#E4DED5;color:var(--ink)}
+.topactions .topResume{background:var(--plotlish-light);border-color:#DBE5DB;color:var(--green)}
+.topactions .topResume:hover{background:#DDE6DD}
+.icon-button{background:transparent;color:var(--ink)}
+.primary{background:var(--green);border-color:var(--green);color:#fff}
+.primary:hover{background:#1E493B;border-color:#1E493B}
+/* Neutral collection surfaces instead of a universal green fill. */
+.discoverShell,.shelfShell,.contentContainer{color:var(--ink)}
+.discoverHeading h1,.shelfHeading h1,.sectionBar h2,.personalShelfHeading h1{color:#2D3532}
+.eyebrow{color:#995F4B;letter-spacing:.125em}
+.shelfFeature{background:#EEEAE2;border-color:#E5DCCE}
+.shelfStats>div,.shelfBookCard,.discoverNovelCard,.discoverToolbar,
+.personalShelfTools,.wordCard,.courseOverview,.courseInfoPanel{border-color:#E5DFD6}
+#homeView .shelfStats,#homeView .shelfStats>div{background:#FFFDF9}
+#homeView .shelfStats>div{color:#716F68}
+#homeView .shelfStats>div+div{border-left-color:#ECE6DD}
+#homeView .shelfStatNumber{color:#25392F}
+#homeView .shelfBookCard,#shelfView .shelfBookCard,.discoverNovelCard,
+.discoverToolbar{background:#FFFDF9;box-shadow:0 8px 26px rgba(51,41,31,.038)}
+.shelfBookCard:hover,.discoverNovelCard:hover{box-shadow:0 15px 34px rgba(51,41,31,.09);border-color:#D5CBC0;transform:translateY(-1px)}
+.shelfBookCard,.discoverNovelCard{transition:transform .16s ease,box-shadow .16s ease,border-color .16s ease}
+.personalShelfTools button.active,.wordFilters button.active{background:#F1EDE5;color:#27332F}
+.discoverSearchLabel input,.discoverToolbar select,.wordFilters input,.wordFilters select{
+ background:#FFFDF9;border-color:#DDD8CF;color:var(--ink)}
+/* Preserve artwork: no .bookHeroArtwork or .bookHero background replacement. */
+.bookHero .bookHeroSecondary{backdrop-filter:blur(4px)}
+.courseTabs button.active{background:#77554B;color:white;border-color:#77554B}
+.courseTabs button:not(.active){background:#FFFDF9;color:#544B46;border-color:#E9E2D9}
+/* One tool/navigation row when reading; the main site bar is suppressed there. */
+body:has(#readerView.active) #app{grid-template-rows:0 minmax(0,1fr)!important}
+body:has(#readerView.active) #app>.topbar{visibility:hidden!important;height:0!important;min-height:0!important;
+ overflow:hidden!important;padding:0!important;border:0!important;pointer-events:none!important}
+#readerView .readerHeader{background:#FAF8F3;border-bottom:1px solid #E4DED4;gap:10px}
+#readerView .readerHeaderTools .icon-button,#readerView .readerHeaderTools .tinyPill,
+#readerView .readerHeaderTools .explainQuick,#readerView .readerHeader .backButton{
+ background:#FFFDF9;border-color:#E5DED4;color:#333B34;border-radius:10px}
+#readerView .readerHeaderTools .r28QuickButton{background:#FFFDF9;border-color:#E5DED4;color:#333B34;border-radius:10px}
+#readerView .readerHeaderTools .r28QuickButton:hover,
+#readerView .readerHeaderTools .r28QuickButton[aria-expanded="true"]{background:#F1EDE5;border-color:#D8CABA}
+#readerView .readerHeaderTools #toggleExplain[aria-pressed="true"]{background:#E9EDE5;border-color:#D1DCCF;color:#245845}
+#readerView .readerHeader .readerOptions,#readerView .readerQuickPanel,
+#readerView .readerQuickNav{background:#FFFDF9;border-color:#E3DDD3;box-shadow:0 15px 38px rgba(42,35,28,.17)}
+#readerView .readerQuickPanel .quickPreview{background:#F1EDE5;border-color:#E3D9CB;color:#303B34}
+#readerView .quickTranslationModes button{background:#FFFDF9;border-color:#E4DED4;color:var(--ink)}
+#readerView .quickTranslationModes button.active{background:#E9EDE5;border-color:#C9D5C6;color:#245845}
+#readerView .readerOptions>button:hover,#readerView .readerQuickNav button:hover{background:#F2EEE7}
+#readerView .mobileReaderNav{display:inline-flex!important;align-items:center;justify-content:center}
+#readerView .readerQuickNav:not([hidden]){display:grid!important;gap:2px}
+#readerView .readerLayout{max-width:1550px;grid-template-columns:minmax(0,1fr) minmax(310px,380px);gap:18px;padding:12px clamp(12px,2vw,27px)}
+#readerView .readerLayout.noExplain{grid-template-columns:minmax(0,1fr)}
+#readerView .readerPaper{background:#FFFDF9;border-color:#E6E0D7;box-shadow:0 10px 30px rgba(50,42,34,.042)}
+#readerView .pageBody{background:#FFFDF9}
+#readerView .readerFoot{background:#FFFDF9;border-color:#E7E0D6}
+#readerView .explainPanel{background:#F7F4EE;border-color:#E4DDD2}
+#readerView .explainHead{background:#F7F4EE;border-color:#E7DED2}
+#readerView .explainContent{color:#3B403B}
+#readerView .explainContent .asideOverline{color:#9B7460}
+#readerView .explainContent .emptyHelp{line-height:1.7;color:#857D72}
+#readerView .explainContent .translationTools button{background:#FFFDF9;border-color:#DED7CC;color:#3D4740}
+#readerView .explainContent .translationTools{margin-top:10px}
+#readerView .noteSelector button.active{background:#EAEDE6;border-color:#CFD9CE;color:#245845}
+#readerView .readingSentence.isSelected .sentenceText{background:#ECEFE8}
+#readerView .readingSentence .sentenceText:hover{background:#F1F0E8}
+#readerView .readingSentence.isSelected .sentenceText:hover{background:#E6EAE0}
+#readerView .readingSentence .number{background:#FFFDF9;border-color:#E9E2D9;color:#8B8479}
+#readerView .readingSentence.isSelected .number{background:#245845;border-color:#245845;color:#fff}
+#readerView .readingSentence .translatedInline{display:block;grid-column:2;min-width:0;
+ margin:6px 0 17px;padding:11px 15px;border-left:3px solid #B49A81;border-radius:0 9px 9px 0;
+ background:#F1EDE5;color:#75685C;font:400 clamp(13px,1.03vw,15px)/1.72 system-ui,'Microsoft YaHei',sans-serif;
+ overflow-wrap:anywhere}
+#readerView .readerPaper .sceneFigure{background:#F1EDE5;border:1px solid #E8E0D5}
+#readerView .readerPaper .sceneFigure figcaption{background:#F1EDE5;color:#72675B}
+#readerView .paperMeta{color:#81796D}
+#readerView .paperMeta em{color:#995F4B}
+/* Keep the original meaning service, but neutralize its green-heavy card chrome. */
+#hoverWordHint{background:#FFFDF9;border-color:#DCD5C9}
+#hoverWordHint .hoverMeaning{color:#2D5042}
+#hoverWordHint .hoverOnlineLink{background:#F1EDE5;border-color:#DED2C4;color:#2B4E40}
+#hoverWordHint .hoverOnlineLink:hover{background:#E9E2D8}
+/* Modal/settings shells share the same restraint. */
+.modalCard{background:#FFFDF9;border-color:#E3DDD3;box-shadow:0 22px 80px rgba(38,33,27,.19)}
+.settingsTabs button.active,.segmented button.active{background:#E9EDE5;color:#245845;border-color:#C9D5C6}
+.settingHeading{color:#574C44}
+.toggleRow,.selectSetting{border-color:#E7E0D7}
+.storageNotice{color:#847B71}
+@media(max-width:1050px){#readerView .readerLayout{grid-template-columns:minmax(0,1fr) 310px;gap:11px;padding:10px}}
+@media(max-width:800px){
+ #readerView .readerLayout,#readerView .readerLayout.noExplain{grid-template-columns:minmax(0,1fr)!important;padding:0 8px 8px;gap:0}
+ #readerView .explainPanel{display:none!important}
+ #readerView .readerPaper{border-radius:12px}
+ #readerView .translatedInline{font-size:13px;padding:8px 12px;margin-bottom:13px}
+}
+@media(max-width:700px){
+ #app{grid-template-rows:93px minmax(0,1fr)!important}
+ .topbar{height:93px!important;min-height:93px!important;display:grid;grid-template-columns:minmax(0,1fr) auto;
+  grid-template-rows:50px 40px;align-items:center;gap:0 7px;padding:0 12px!important}
+ .topbar .brand{grid-column:1;grid-row:1;justify-self:start;gap:7px}
+ .topbar .brandMark{height:33px;width:33px}
+ .topbar .brandName strong{font-size:13px;letter-spacing:.12em}
+ .topbar .brandName small{font-size:10px}
+ .topactions{grid-column:2;grid-row:1;justify-content:flex-end;gap:5px}
+ .topactions #resumeTop{display:none}
+ .topactions #dataTop{font-size:12px;padding:8px 10px}
+ .topactions #settingsTop{min-width:33px;padding:7px}
+ .topnav{grid-column:1/3;grid-row:2;justify-self:stretch;display:flex;justify-content:space-between;
+  padding:0 0 4px;gap:2px;min-width:0}
+ .topnav button{flex:1;min-width:0;font-size:12px;padding:7px 4px;white-space:nowrap}
+ body:has(#readerView.active) #app{grid-template-rows:0 minmax(0,1fr)!important}
+ #readerView #readerOptionsToggle{font-size:0!important;min-width:30px;padding:7px 7px!important}
+ #readerView #readerOptionsToggle::after{content:'•••';font-size:13px;letter-spacing:1px}
+}
+@media(max-width:420px){
+ .topbar{padding-inline:8px!important}
+ .topbar .brandName strong{font-size:12px}
+ .topbar .brandName small{font-size:9px}
+ .topnav button{font-size:11px}
+ #readerView .readerHeaderTools .icon-button{min-width:29px}
+ #readerView .readerHeaderTools .r28QuickButton{min-width:31px;padding:5px 6px}
+ #readerView .readerHeaderTools{gap:3px}
+ #readerView .readingSentence .translatedInline{padding:9px 10px}
+}
+@media(prefers-reduced-motion:reduce){.shelfBookCard,.discoverNovelCard,button,select,input,textarea{transition:none!important}}
+
+/* No course artwork: use neutral editorial paper, not a full screen of green. */
+#homeView .shelfFeature.noFeatured,
+#homeView .shelfFeature:not(.hasStoryHero){
+ background-image:radial-gradient(circle at 85% 12%,rgba(217,161,132,.16),transparent 43%),
+ linear-gradient(112deg,#ECE5DA,#F7F3EB 63%,#EAEDE6)!important;
+ background-color:#F1EDE5;color:#27332F;
+}
+#homeView .shelfFeature.noFeatured .shelfFeatureCopy h2,
+#homeView .shelfFeature:not(.hasStoryHero) .shelfFeatureCopy h2{color:#27332F}
+#homeView .shelfFeature.noFeatured .shelfFeatureCopy p,
+#homeView .shelfFeature:not(.hasStoryHero) .shelfFeatureCopy p{color:#605C53}
+#homeView .shelfFeature.noFeatured .eyebrow,
+#homeView .shelfFeature:not(.hasStoryHero) .eyebrow{color:#995F4B}
+#readerView .readerIntro{background:#F1EDE5;border-color:#E6DDD0;color:#686055}
+
+/* ==========================================================================
+ * R3.0 | Accessibility and responsive finishing.
+ * Keeps book-hero artwork / reader type controls untouched.
+ * ========================================================================== */
+.settingsSection[hidden]{display:none!important}
+.settingsTabs [role="tab"]:focus-visible,
+.courseTabs [role="tab"]:focus-visible{outline:2px solid #245845;outline-offset:2px}
+#readerView .readerOptions>button:focus-visible,
+#readerView .readerQuickNav button:focus-visible,
+#readerView .readerQuickPanel button:focus-visible{outline:2px solid #245845;outline-offset:2px}
+#readerView .noteSelector button:focus-visible{outline:2px solid #995F4B;outline-offset:2px}
+#readerView .explainContent .noteMeaning{overflow-wrap:anywhere}
+#readerView .explainContent .noteExplanation{overflow-wrap:anywhere}
+#bookView .bookHeroCopy{min-width:0}
+#bookView .bookHeroCopy h1{overflow-wrap:anywhere;text-wrap:balance}
+@media(max-width:800px){
+ #readerView .readerHeaderTools{min-width:0;gap:5px}
+ #readerView .readerHeaderTools .r28QuickButton{max-width:125px}
+ #readerView .readerHeaderTools .quickText{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+ .settingsCard{max-height:min(90dvh,850px);overflow-y:auto}
+}
+@media(max-width:420px){
+ #readerView .readerHeaderTools{gap:3px}
+ #readerView .readerHeaderTools .r28QuickButton{max-width:90px}
+ #readerView .readerHeader .chapterHeader{min-width:0}
+ .modalCard{max-width:calc(100vw - 16px)}
+}
+@media(prefers-reduced-motion:reduce){
+ *,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;transition-duration:.01ms!important}
+}
