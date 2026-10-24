@@ -138,9 +138,17 @@ class BuildTests(unittest.TestCase):
         self.assertIn("fill.style.width=pct+'%'",js)
         self.assertNotIn('pct??8',js)
 
-    def test_r30_inline_scenes_not_duplicated_in_notes_panel(self):
+    def test_r302_right_sidebar_separates_notes_and_scenes(self):
         html=(ROOT/'core/index.html').read_text(encoding='utf8')
         js=(ROOT/'core/src/reader.js').read_text(encoding='utf8')
+        self.assertIn('id="readerSceneTab"',html)
+        self.assertIn('id="sceneSideContent"',html)
+        self.assertIn('id="readerNotesTab"',html)
+        self.assertIn('function paintSceneSide()',js)
+        self.assertIn('function sceneAtOrBefore(index)',js)
+        self.assertIn('s.start_index<=index',js)  # never show future plot scenes
+        self.assertIn('if(window.innerWidth<=800||!prefs.explain)return',js)
+        self.assertIn('const inlineScenes=()=>window.innerWidth<=800||!prefs.explain',js)
         self.assertNotIn('id="sceneCompanion"',html)
         self.assertNotIn('function paintSceneCompanion()',js)
         self.assertNotIn('id="currentScene"',html)
@@ -154,20 +162,31 @@ class BuildTests(unittest.TestCase):
         js=(ROOT/'core/src/reader.js').read_text(encoding='utf8')
         self.assertIn('aspect-ratio:4/3;object-fit:contain',css)
         self.assertIn('height:auto!important',css)
-        self.assertIn("current.push({type:'scene',sceneIndex:i})",js)
+        self.assertIn('current.push(image)',js)
+        self.assertIn('if(current.length&&tryHeight([...current,image,lead])>maxH)flush()',js)
         self.assertIn('if(tryHeight([...current,lead])>maxH)flush()',js)
         self.assertNotIn('compactHeight:32',js)
 
+    def test_r301_image_pagination_uses_same_image_size_for_measurement(self):
+        css=(ROOT/'core/src/styles.css').read_text(encoding='utf8')
+        js=(ROOT/'core/src/reader.js').read_text(encoding='utf8')
+        self.assertIn('#measureText .sceneFigure.imageFull',css)
+        self.assertIn('#measureText .sceneFigure .sceneMeasure',css)
+        self.assertIn('#readerView .readerLayout .readerPaper #pageText .sceneFigure',css)
+        self.assertIn('const image={type:\'scene\',sceneIndex:i}',js)
+        self.assertNotIn('flush();current.push({type:\'scene\'',js)
+        self.assertIn("state.pages[state.page]?.find(s=>s.type==='scene')?.sceneIndex??null",js)
+
     def test_r27_c_illustrations_follow_reader_mode(self):
         js=(ROOT/'core/src/reader.js').read_text(encoding='utf8')
-        self.assertIn('const inlineScenes=()=>true',js)  # visuals inline; right column is for explanations
+        self.assertIn('const inlineScenes=()=>window.innerWidth<=800||!prefs.explain',js)
         self.assertIn('else paintScroll();paintExplanation()',js)
         self.assertIn('if(inlineScenes()&&prefs.scenes&&scene',js)
 
     def test_r27_c_pagination_reflow_reveals_page_before_measure(self):
         js=(ROOT/'core/src/reader.js').read_text(encoding='utf8')
         self.assertIn("$('pageText').hidden=prefs.mode==='scroll';$('scrollText').hidden=prefs.mode!=='scroll';if(prefs.mode==='pages')paginate()",js)
-        self.assertIn('const inlineScenes=()=>true',js)
+        self.assertIn('const inlineScenes=()=>window.innerWidth<=800||!prefs.explain',js)
 
     def test_r27_c_core_has_no_course_assets(self):
         # A published build with zero packages remains empty; test pictures are external.
