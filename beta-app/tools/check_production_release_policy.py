@@ -1,28 +1,30 @@
 #!/usr/bin/env python3
-"""Release-only deployment gate: never auto-publish a candidate build.
+"""Validate release version syntax, not its release stage.
 
-This check intentionally does not change Beta builds, content import, or reader code.
+The user controls when main is deployed. Candidate labels are valid and no
+artificial RC-vs-stable promotion gate should prevent publishing.
 """
 from pathlib import Path
 import re
 import sys
 
 ROOT = Path(__file__).resolve().parents[1]
+PATTERN = re.compile(r'v?\d+\.\d+\.\d+(?:-[A-Za-z0-9.-]+)?(?:\+[A-Za-z0-9.-]+)?')
 
 
 def verify_version(text: str) -> str:
     version = text.strip()
-    if not re.fullmatch(r'v?([1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)', version):
-        raise ValueError('Production requires an explicitly approved stable version (e.g. v1.0.0); pre-release RC builds are blocked')
+    if not PATTERN.fullmatch(version):
+        raise ValueError('RELEASE_VERSION must be a valid version such as v1.0.0 or v1.0.0-rc.3')
     return version
 
 
 def main():
     try:
         version = verify_version((ROOT / 'RELEASE_VERSION').read_text(encoding='utf-8'))
-        print('STABLE PRODUCTION VERSION APPROVED FOR PIPELINE:', version)
+        print('RELEASE VERSION LABEL:', version, '(RC builds allowed)')
     except (OSError, ValueError) as exc:
-        print('PRODUCTION DEPLOY BLOCKED:', exc, file=sys.stderr)
+        print('INVALID RELEASE VERSION:', exc, file=sys.stderr)
         return 1
     return 0
 

@@ -31,7 +31,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           persist-credentials: false
-      - name: Block candidate releases even if automatic deployment is enabled
+      - name: Validate release version syntax (RC allowed)
         run: python beta-app/tools/check_production_release_policy.py
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -53,9 +53,9 @@ jobs:
       - name: Build only published independent course packages
         working-directory: beta-app
         run: python tools/build.py --packages-dir ../course-packages
-      - name: Block blank or invalid production release
+      - name: Validate published courses (empty catalog allowed)
         working-directory: beta-app
-        run: python tools/verify_production_site.py
+        run: python tools/verify_production_site.py --allow-empty
       - name: Generate unique, traceable automatic release version
         id: version
         shell: bash
@@ -64,7 +64,7 @@ jobs:
           BASE_VERSION="$(tr -d '\r\n' < beta-app/RELEASE_VERSION)"
           VERSION="${BASE_VERSION}+build.${GITHUB_RUN_NUMBER}.${GITHUB_RUN_ATTEMPT}"
           python beta-app/tools/create_release_manifest.py \
-            --commit "$GITHUB_SHA" --version "$VERSION"
+            --commit "$GITHUB_SHA" --version "$VERSION" --allow-empty
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
       - name: Save validated immutable build
         uses: actions/upload-artifact@v4
@@ -95,8 +95,8 @@ jobs:
         env:
           EXPECT_VERSION: ${{ needs.validate.outputs.release_version }}
         run: |
-          python tools/verify_production_site.py
-          python tools/verify_release_manifest.py --version "$EXPECT_VERSION" --commit "$GITHUB_SHA"
+          python tools/verify_production_site.py --allow-empty
+          python tools/verify_release_manifest.py --version "$EXPECT_VERSION" --commit "$GITHUB_SHA" --allow-empty
       - name: Refuse to deploy an out-of-date main commit
         env:
           GH_READ_TOKEN: ${{ github.token }}

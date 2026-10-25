@@ -72,12 +72,37 @@ class ProductionReleaseTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError,'Files missing or unexpectedly added'):
             verify_manifest(self.dist,'v0.9.0-rc.1+build.2.1','c'*40)
 
-    def test_release_candidates_cannot_auto_deploy(self):
-        for value in ['v0.9.0-rc.1','v1.0.0-rc.3','v1.0.0-beta.2','v1.0.0+build.4','main','', 'v0.9.9']:
-            with self.subTest(value=value), self.assertRaises(ValueError):
+    def test_release_candidates_can_auto_deploy(self):
+        for value in ['v0.9.0-rc.1','v1.0.0-rc.3','v1.0.0-beta.2','v1.0.0+build.4','v0.9.9']:
+            with self.subTest(value=value):
+                self.assertEqual(verify_version(value),value)
+        for value in ['main','', '../x', 'v1.0.0\nhello']:
+            with self.subTest(value=value),self.assertRaises(ValueError):
                 verify_version(value)
-        self.assertEqual(verify_version('v1.0.0'), 'v1.0.0')
         self.assertEqual(verify_version('1.2.4'), '1.2.4')
+
+    def test_empty_catalog_is_deployable_when_explicitly_allowed(self):
+        catalog=verify_production(self.dist,allow_empty=True)
+        self.assertEqual(catalog['chapters'],[])
+        output=create_manifest(self.dist,'d'*40,'v1.0.0-rc.3',allow_empty=True)
+        self.assertEqual(output['chapters'],0)
+        verify_manifest(self.dist,'v1.0.0-rc.3','d'*40,allow_empty=True)
+
+    def test_invalid_published_content_fails_even_with_empty_catalog_allowed(self):
+        self.write_catalog(True)
+        path=self.dist/'courses/sample-ch001.json'
+        data=json.loads(path.read_text());data['translations'][1]=''
+        path.write_text(json.dumps(data))
+        with self.assertRaisesRegex(ValueError,'Blank translation'):
+            verify_production(self.dist,allow_empty=True)
+
+    def test_production_workflow_allows_rc_and_empty_catalog(self):
+        workflow=(TOOLS.parent.parent/'.github/workflows/plotlish-production.yml').read_text(encoding='utf8')
+        self.assertIn('check_production_release_policy.py',workflow)
+        self.assertIn('verify_production_site.py --allow-empty',workflow)
+        self.assertIn('verify_release_manifest.py --version "$EXPECT_VERSION" --commit "$GITHUB_SHA" --allow-empty',workflow)
+        self.assertIn('--commit "$GITHUB_SHA" --version "$VERSION" --allow-empty',workflow)
+        self.assertIn('PLOTLISH_PROD_AUTO_ENABLED',workflow)
 
     def test_reduced_motion_does_not_animate_reader_font_size(self):
         css=(TOOLS.parent/'core/src/styles.css').read_text(encoding='utf-8')

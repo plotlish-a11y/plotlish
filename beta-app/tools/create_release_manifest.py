@@ -13,13 +13,13 @@ from verify_production_site import safe_asset,verify_production
 # The release.json manifest itself is generated after this inventory.
 FILES=('index.html','courses/catalog.json','src/reader.js','src/styles.css','src/boot.js')
 
-def create_manifest(dist,commit,version):
+def create_manifest(dist,commit,version,allow_empty=False):
     dist=Path(dist)
     if not re.fullmatch(r'[0-9a-f]{40}',commit):
         raise ValueError('Commit must be a full 40-character Git SHA')
     if not re.fullmatch(r'v\d+\.\d+\.\d+(?:-[A-Za-z0-9.]+)?(?:\+[A-Za-z0-9.]+)?',version):
         raise ValueError('Invalid release version')
-    catalog=verify_production(dist)
+    catalog=verify_production(dist,allow_empty=allow_empty)
     for rel in FILES:
         safe_asset(dist,rel)
     sha={}
@@ -39,6 +39,7 @@ if __name__=='__main__':
     ap=argparse.ArgumentParser();ap.add_argument('--site',type=Path,default=Path(__file__).resolve().parents[1]/'dist')
     ap.add_argument('--commit',default=os.environ.get('GITHUB_SHA',''))
     ap.add_argument('--version',required=True)
+    ap.add_argument('--allow-empty',action='store_true')
     a=ap.parse_args()
-    try:print(json.dumps(create_manifest(a.site,a.commit,a.version),ensure_ascii=False))
+    try:print(json.dumps(create_manifest(a.site,a.commit,a.version,allow_empty=a.allow_empty),ensure_ascii=False))
     except (ValueError,AssertionError,KeyError) as exc:print('RELEASE BLOCKED:',str(exc),file=sys.stderr);sys.exit(1)

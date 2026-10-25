@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Production release gate; a successful empty-site build is not publishable."""
+"""Production site integrity checker. Optional empty-catalog mode for initial site rollout."""
 import argparse
 import hashlib
 import json
@@ -17,12 +17,12 @@ def safe_asset(dist: Path, rel: str) -> Path:
         raise ValueError(f'Missing / escaping public asset: {rel!r}')
     return path
 
-def verify_production(dist: Path, min_chapters=1, min_books=1):
+def verify_production(dist: Path, min_chapters=1, min_books=1, allow_empty=False):
     dist = Path(dist)
     verify_site(dist)
     catalog = json.loads(safe_asset(dist,'courses/catalog.json').read_text(encoding='utf-8'))
     chapters, books = catalog.get('chapters',[]), catalog.get('books',{})
-    if len(chapters) < min_chapters or len(books) < min_books:
+    if (not allow_empty or chapters or books) and (len(chapters) < min_chapters or len(books) < min_books):
         raise ValueError(f'BLOCKED: production requires at least {min_books} book(s) and {min_chapters} chapter(s); found {len(books)}, {len(chapters)}')
     for chapter in chapters:
         body = json.loads(safe_asset(dist, chapter['path']).read_text(encoding='utf-8'))
@@ -47,7 +47,8 @@ if __name__=='__main__':
     ap.add_argument('--site',type=Path,default=ROOT/'dist')
     ap.add_argument('--min-chapters',type=int,default=1)
     ap.add_argument('--min-books',type=int,default=1)
+    ap.add_argument('--allow-empty',action='store_true',help='allow a clean initial deployment with no courses')
     a=ap.parse_args()
-    try:verify_production(a.site,a.min_chapters,a.min_books)
+    try:verify_production(a.site,a.min_chapters,a.min_books,a.allow_empty)
     except (AssertionError,ValueError,KeyError,FileNotFoundError) as exc:
         print(f'PRODUCTION BLOCKED: {exc}',file=sys.stderr);sys.exit(1)

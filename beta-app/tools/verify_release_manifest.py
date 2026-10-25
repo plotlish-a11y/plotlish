@@ -9,9 +9,9 @@ from pathlib import Path
 from verify_production_site import safe_asset, verify_production
 
 
-def verify_manifest(dist:Path, expected_version:str, expected_commit:str):
+def verify_manifest(dist:Path, expected_version:str, expected_commit:str, allow_empty=False):
     dist=Path(dist)
-    verify_production(dist)
+    verify_production(dist,allow_empty=allow_empty)
     data=json.loads(safe_asset(dist,'release.json').read_text(encoding='utf-8'))
     if data.get('schema')!=1 or data.get('version')!=expected_version or data.get('commit')!=expected_commit:
         raise ValueError('Expected version, commit, or manifest schema mismatch')
@@ -39,8 +39,9 @@ if __name__=='__main__':
     ap.add_argument('--site',type=Path,default=Path(__file__).resolve().parents[1]/'dist')
     ap.add_argument('--version',required=True)
     ap.add_argument('--commit',required=True)
+    ap.add_argument('--allow-empty',action='store_true')
     a=ap.parse_args()
-    try: verify_manifest(a.site,a.version,a.commit)
+    try: verify_manifest(a.site,a.version,a.commit,allow_empty=a.allow_empty)
     except (ValueError,AssertionError,FileNotFoundError,KeyError,TypeError) as exc:
         print('DEPLOY BLOCKED:',exc,file=sys.stderr)
         sys.exit(1)
