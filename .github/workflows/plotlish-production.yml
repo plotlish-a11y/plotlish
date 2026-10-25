@@ -135,29 +135,14 @@ jobs:
           test "$PAGES_BRANCH" = main
           npx --yes wrangler@4 pages deploy beta-app/dist \
             --project-name=plotlish --branch="$PAGES_BRANCH" --commit-hash="$GITHUB_SHA"
-      - name: Verify live production is the new commit
+      - name: Verify Cloudflare production deployment and check public access
+        working-directory: beta-app
         env:
           EXPECT_VERSION: ${{ needs.validate.outputs.release_version }}
+          CLOUDFLARE_API_TOKEN_PROD: ${{ secrets.CLOUDFLARE_API_TOKEN_PROD }}
+          CLOUDFLARE_ACCOUNT_ID_PROD: ${{ secrets.CLOUDFLARE_ACCOUNT_ID_PROD }}
+        run: python tools/verify_live_production.py
+      - name: Report production deployment outcome
         run: |
-          python - <<'PYVERIFY'
-          import json,os,time
-          from urllib.request import Request,urlopen
-          from pathlib import Path
-          expected=json.loads(Path('beta-app/dist/release.json').read_text(encoding='utf-8'))
-          last='not yet readable'
-          for attempt in range(12):
-              try:
-                  url='https://plotlish.pages.dev/release.json?sha='+os.environ['GITHUB_SHA']
-                  with urlopen(Request(url,headers={'Cache-Control':'no-cache'}),timeout=15) as f:got=json.load(f)
-                  if got==expected and got['version']==os.environ['EXPECT_VERSION']:
-                      print('LIVE PRODUCTION VERIFIED:',got['version'],got['commit'])
-                      break
-                  last='live release manifest does not match the approved build'
-              except Exception as e: last=type(e).__name__+': '+str(e)
-              if attempt<11:time.sleep(8)
-          else: raise SystemExit('LIVE PRODUCTION UNVERIFIED: '+last)
-          PYVERIFY
-      - name: Show successful deployment link
-        run: |
-          echo "### Production deployed: ${{ needs.validate.outputs.release_version }}" >> "$GITHUB_STEP_SUMMARY"
+          echo "### Cloudflare deployment completed: ${{ needs.validate.outputs.release_version }}" >> "$GITHUB_STEP_SUMMARY"
           echo 'https://plotlish.pages.dev/' >> "$GITHUB_STEP_SUMMARY"
