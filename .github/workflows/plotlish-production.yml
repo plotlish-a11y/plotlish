@@ -1,0 +1,160 @@
+name: Plotlish Production - main 自动部署
+
+# 一次性开启 repo variable PLOTLISH_PROD_AUTO_ENABLED=true 后：
+# 推送 main 自动执行；无须每次 workflow_dispatch 或人工批准。
+# 仅部署到 plotlish.pages.dev，测试站 beta 工作流保持不变。
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'beta-app/**'
+      - 'course-packages/**'
+      - '.github/workflows/plotlish-production.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: plotlish-production-deployment
+  cancel-in-progress: false
+
+jobs:
+  validate:
+    if: github.ref == 'refs/heads/main' && vars.PLOTLISH_PROD_AUTO_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    outputs:
+      release_version: ${{ steps.version.outputs.version }}
+    steps:
+      - name: Check out the exact main commit
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Block candidate releases even if automatic deployment is enabled
+        run: python beta-app/tools/check_production_release_policy.py
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Run all unit and build tests
+        working-directory: beta-app
+        run: python -m unittest discover -s tests -p 'test_*.py' -v
+      - name: Install Chromium dependencies
+        run: |
+          python -m pip install playwright==1.57.0
+          python -m playwright install --with-deps chromium
+      - name: Run reading UI smoke tests (synthetic courses)
+        working-directory: beta-app
+        run: python tests/browser_smoke.py
+      - name: Stress-test long-chapter pagination after rapid settings changes
+        working-directory: beta-app
+        run: python tests/browser_long_pagination.py
+      - name: Build only published independent course packages
+        working-directory: beta-app
+        run: python tools/build.py --packages-dir ../course-packages
+      - name: Block blank or invalid production release
+        working-directory: beta-app
+        run: python tools/verify_production_site.py
+      - name: Generate unique, traceable automatic release version
+        id: version
+        shell: bash
+        run: |
+          set -euo pipefail
+          BASE_VERSION="$(tr -d '\r\n' < beta-app/RELEASE_VERSION)"
+          VERSION="${BASE_VERSION}+build.${GITHUB_RUN_NUMBER}.${GITHUB_RUN_ATTEMPT}"
+          python beta-app/tools/create_release_manifest.py \
+            --commit "$GITHUB_SHA" --version "$VERSION"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+      - name: Save validated immutable build
+        uses: actions/upload-artifact@v4
+        with:
+          name: plotlish-production-approved-dist
+          path: beta-app/dist/
+          retention-days: 14
+
+  deploy:
+    needs: validate
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment:
+      name: plotlish-production
+      url: https://plotlish.pages.dev/
+    steps:
+      - name: Check out release verifier
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Download exactly the validated build
+        uses: actions/download-artifact@v4
+        with:
+          name: plotlish-production-approved-dist
+          path: beta-app/dist/
+      - name: Verify artifact inventory and commit before upload
+        working-directory: beta-app
+        env:
+          EXPECT_VERSION: ${{ needs.validate.outputs.release_version }}
+        run: |
+          python tools/verify_production_site.py
+          python tools/verify_release_manifest.py --version "$EXPECT_VERSION" --commit "$GITHUB_SHA"
+      - name: Refuse to deploy an out-of-date main commit
+        env:
+          GH_READ_TOKEN: ${{ github.token }}
+        run: |
+          python - <<'PYHEAD'
+          import json,os
+          from urllib.request import Request,urlopen
+          repo=os.environ['GITHUB_REPOSITORY']
+          url='https://api.github.com/repos/'+repo+'/git/ref/heads/main'
+          req=Request(url,headers={'Authorization':'Bearer '+os.environ['GH_READ_TOKEN'],
+                                   'Accept':'application/vnd.github+json','User-Agent':'Plotlish-Deploy-Guard'})
+          with urlopen(req,timeout=20) as f: latest=json.load(f)['object']['sha']
+          if latest!=os.environ['GITHUB_SHA']:
+              raise SystemExit('Newer main commit exists; refuse stale deployment')
+          print('HEAD of main matches approved commit')
+          PYHEAD
+      - name: Validate Cloudflare account, project, and branch
+        id: project
+        working-directory: beta-app
+        env:
+          CLOUDFLARE_ACCOUNT_ID_PROD: ${{ secrets.CLOUDFLARE_ACCOUNT_ID_PROD }}
+          CLOUDFLARE_API_TOKEN_PROD: ${{ secrets.CLOUDFLARE_API_TOKEN_PROD }}
+          ALLOW_GIT_INTEGRATED_PROD: ${{ vars.ALLOW_GIT_INTEGRATED_PROD }}
+        run: python tools/check_production_cloudflare_target.py
+      - name: Deploy verified build to plotlish production project
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN_PROD }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID_PROD }}
+          PAGES_BRANCH: ${{ steps.project.outputs.production_branch }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$PAGES_BRANCH" = main
+          npx --yes wrangler@4 pages deploy beta-app/dist \
+            --project-name=plotlish --branch="$PAGES_BRANCH" --commit-hash="$GITHUB_SHA"
+      - name: Verify live production is the new commit
+        env:
+          EXPECT_VERSION: ${{ needs.validate.outputs.release_version }}
+        run: |
+          python - <<'PYVERIFY'
+          import json,os,time
+          from urllib.request import Request,urlopen
+          from pathlib import Path
+          expected=json.loads(Path('beta-app/dist/release.json').read_text(encoding='utf-8'))
+          last='not yet readable'
+          for attempt in range(12):
+              try:
+                  url='https://plotlish.pages.dev/release.json?sha='+os.environ['GITHUB_SHA']
+                  with urlopen(Request(url,headers={'Cache-Control':'no-cache'}),timeout=15) as f:got=json.load(f)
+                  if got==expected and got['version']==os.environ['EXPECT_VERSION']:
+                      print('LIVE PRODUCTION VERIFIED:',got['version'],got['commit'])
+                      break
+                  last='live release manifest does not match the approved build'
+              except Exception as e: last=type(e).__name__+': '+str(e)
+              if attempt<11:time.sleep(8)
+          else: raise SystemExit('LIVE PRODUCTION UNVERIFIED: '+last)
+          PYVERIFY
+      - name: Show successful deployment link
+        run: |
+          echo "### Production deployed: ${{ needs.validate.outputs.release_version }}" >> "$GITHUB_STEP_SUMMARY"
+          echo 'https://plotlish.pages.dev/' >> "$GITHUB_STEP_SUMMARY"
