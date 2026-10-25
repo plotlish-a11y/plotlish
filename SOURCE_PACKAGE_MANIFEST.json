@@ -1,11 +1,11 @@
 {
   "version": "v1.0.0-rc.3",
-  "status": "production workflow automatic deployment enabled for RC and empty course builds; not cross-browser certified",
+  "status": "production automatic deployment fix: include hidden files in artifact; synthetic end-to-end artifact check passed; browser verification limited",
   "based_on": "Plotlish_v1.0.0_RC3_Production_Source_No_Courses.zip",
   "source_files": {
     ".github/workflows/plotlish-beta.yml": "17bae9ef8483ac4992a160d8e1c3b8b65b4a12321ecd93350950d53b508a572d",
-    ".github/workflows/plotlish-production.yml": "3d26a1219e3d3b3fbd6b935ed4cf3ad3d6140bf487ae5ab4b87fcbb52139cc9a",
-    "README.md": "1fea06f6364ac96de6ac5815fcfe7fc677cb543524ca68c3781a69c134122f19",
+    ".github/workflows/plotlish-production.yml": "e2c7033eb2579432774ce9ab2792648ac3b85328b00035df3abdbd6554a45597",
+    "README.md": "93ba47a3697b219a35ec4978336cd0349398be5086eaac2349c46a23d01c623f",
     "beta-app/.gitignore": "eb23201bf8045bae97d6f115436fbeceb52a080b218644bf1b15f92b9da8dd4e",
     "beta-app/README_BETA_课程操作.md": "de92f725b99db5264ec5c4cc716ecec16c29ba4d815d4ea5e5688278bd90b232",
     "beta-app/RELEASE_VERSION": "e77a7af300f104ed1f810a482ea19f9c32499f7c954fa25f7cff72cc3ed8952d",
@@ -39,7 +39,7 @@
     "beta-app/tests/browser_long_pagination.py": "49d6ce1473ca8326d7f0ae1077f5eb15bebaf5795325a40064cd75beafcc73f9",
     "beta-app/tests/browser_smoke.py": "2bcba887c10b559221448d5f0e33556a347b79ac8281318b1691d60af50543f5",
     "beta-app/tests/test_build.py": "b91a1e80d89915c9b088fe6bd4a880d1087a0b2cfe934527532c438fad336ec1",
-    "beta-app/tests/test_release.py": "4794efb03415ac753ee8f23b390cb4426104224229e8531371b958565b5aecff",
+    "beta-app/tests/test_release.py": "07c045dbf6837b7a320126587cb43a820b0feaf6a1bff3db5ed3b44209cff562",
     "beta-app/tools/build.py": "c837320f9d6db8dad5f9f6c961143c5e2c54888370bd787f1984bd33b689351d",
     "beta-app/tools/check_beta_cloudflare_target.py": "014f36f80a8dd426b29af7b236ec36b5a3932452aca4a33774ae8bf85ceeba50",
     "beta-app/tools/check_production_cloudflare_target.py": "28454736d310af35538067660fd54ccdd95a20ec632835d863fce33b2cc3b8a4",

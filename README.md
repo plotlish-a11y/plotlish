@@ -1,4 +1,4 @@
-# Plotlish｜Production 自动部署修正版（无课程）
+# Plotlish｜Production 自动部署 + 隐藏文件修复版（无课程）
 
 **本版专门修正自动部署额外拦截，与 Beta 的操作方式保持一致。**
 
@@ -27,3 +27,12 @@ python tools/verify_production_site.py --allow-empty
 ```
 
 正式版仍有跨浏览器/真机等尚未完成的验收项目。此版是按你的要求解除额外部署限制，并不表示所有浏览器兼容性问题都已验证。
+
+## 本次 Production Artifact 修复
+
+在具有课程的正式站构建中，`build.py` 会生成 `beta-app/dist/.plotlish-generated`。
+文件完整性清单也包含它；GitHub `actions/upload-artifact@v4` 默认会跳过隐藏文件，导致 `deploy` 阶段出现 `Files missing or unexpectedly added: ['.plotlish-generated']`。
+
+已在 `.github/workflows/plotlish-production.yml` 的 `Save validated immutable build` 步骤添加 `include-hidden-files: true`，并新增对应自动测试。保留原有 SHA-256 产物校验，**没有删除校验**；Beta 工作流和核心阅读功能均未改。
+
+**如果 `main` 已有 10 章课程，不要删除或覆盖 `course-packages/<作品ID>/`。** 最安全的操作是只把 ZIP 内 `.github/workflows/plotlish-production.yml` 上传到仓库同名路径，其余源码保持当前线上版本。此完整源码 ZIP 不包含课程，整包覆盖可能导致课程文件被移除。修复工作流后需要新提交才能触发新流程，单纯重试旧提交不会修复原 Artifact。

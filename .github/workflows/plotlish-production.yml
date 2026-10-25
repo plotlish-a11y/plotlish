@@ -71,6 +71,9 @@ jobs:
         with:
           name: plotlish-production-approved-dist
           path: beta-app/dist/
+          # build.py writes .plotlish-generated. The release manifest hashes this file,
+          # so the artifact must preserve hidden files or verification fails on deploy.
+          include-hidden-files: true
           retention-days: 14
 
   deploy:
