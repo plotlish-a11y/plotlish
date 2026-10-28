@@ -52,7 +52,7 @@
 .readerQuickNav[hidden] { display:none!important; }
 .readerQuickNav button { display:flex; width:100%; justify-content:flex-start; align-items:center; gap:10px; background:transparent; border:0; padding:12px; border-radius:9px; }
 .readerQuickNav button:hover,.readerQuickNav button:focus-visible { background:#e8f0e9; }
-@media(min-width:601px){.readerQuickNav{display:none!important}}
+@media(hover:hover) and (pointer:fine){.readerQuickNav{display:none!important}}
 
 /* original CSS layer 2 */
 
@@ -721,11 +721,13 @@
 #readerView #hoverWordHint .hoverOnlineLink{font-size:13px;padding:7px 12px}
 #readerView #hoverWordHint .hoverMeaning{color:#607c67}
 @media(max-width:1100px){#readerView .readerHeaderTools #toggleExplain{display:none}}
+@media(pointer:coarse){
+ #readerView #mobileLookupButton{display:inline-flex;align-items:center;padding:6px 8px;min-height:35px;font-size:12px}
+}
 @media(max-width:800px){
  #readerView .readerHeaderTools .r28QuickButton{min-width:35px;padding:5px 8px;font-size:13px;min-height:35px;justify-content:center}
  #readerView .readerHeaderTools .r28QuickButton .quickText{display:none}
  #readerView .readerHeaderTools .r28QuickButton .quickChevron{font-size:10px}
- #readerView #mobileLookupButton{display:inline-flex;align-items:center;padding:6px 8px;min-height:35px;font-size:12px}
  #readerView .readerQuickPanel{right:8px;top:calc(100% - 1px)}
 }
 @media(max-width:420px){#readerView .readerHeaderTools{gap:3px}#readerView .readerHeaderTools .r28QuickButton{padding:5px 6px}#readerView .readerHeaderTools #toggleSettings{min-width:30px}}
